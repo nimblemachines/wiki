@@ -367,16 +367,16 @@ sub make_hidden_interwiki_link {
 
     # use "" to hide links
     s/($wikilinkbit)/$1\"\"/go; # if m/$wikilinkre/;
-    s/($extendedlinkbit)/$1\"\"/go; # if m/$extendedlinkre/;
+#    s/($extendedlinkbit)/$1\"\"/go; # if m/$extendedlinkre/;
     $_;
 }
 
 sub convert_wiki_links {
     s/($wikilinkre)/make_wiki_link($1)/geo;
-    s/($extendedlinkre)/make_wiki_link($1)/geo;
+#    s/($extendedlinkre)/make_wiki_link($1)/geo;
 
     # forced link of single word
-    s/``($extendedlinkbit)/make_wiki_link($1)/geo;
+#    s/``($extendedlinkbit)/make_wiki_link($1)/geo;
 }
 
 sub convert_interwiki_links {
@@ -512,6 +512,12 @@ sub inline_markup {
     s#'{2}(.+?)'{2}#<em>$1</em>#gs;
     # XXX: code, cite, kbd, ???
 
+    # generic href links: [[url lots of link text]]
+    s#\[\[(\S+?\.(jpg|jpeg|gif|png))\]\]#<img src="$1" />#g;
+    s#\[\[(\S+?)\]\]#<a href="$1">$1</a>#g;
+    s#\[\[(\S+?)\s+(.+?)\]\]#<a href="$1">$2</a>#g;
+
+    # XXX: that didn't work. moved back down here. fix later.
     # I put these _before_ the [[ ]] links, hoping that I could do CamelCase
     # and interwiki links inside of [[ ]] links, but it doesn't work. I'm
     # currently doing too much work in the initial conversion, in convert_*.
@@ -520,11 +526,6 @@ sub inline_markup {
 
     convert_interwiki_links();
     convert_wiki_links();
-
-    # generic href links: [[url lots of link text]]
-    s#\[\[(\S+?\.(jpg|jpeg|gif|png))\]\]#<img src="$1" />#g;
-    s#\[\[(\S+?)\]\]#<a href="$1">$1</a>#g;
-    s#\[\[(\S+?)\s+(.+?)\]\]#<a href="$1">$2</a>#g;
 }
 
 sub page_text {
