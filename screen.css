@@ -8,6 +8,24 @@ a img {
   border: none;
 }
 
+img#icon {
+  border: solid red 1px;
+  margin: 0;
+  padding: 0;
+  float: left;
+}
+
+div#header h1 {
+  border: solid blue 1px;
+/*  margin: 0; */
+/*  padding: 0; */
+  float: left;
+}
+
+div#content {
+  clear: both;
+}
+
 a.create {
   background: #ddffdd
 }
