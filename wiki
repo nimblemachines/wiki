@@ -215,11 +215,24 @@ sub generate_xhtml {
     my $home = scriptlink("$defaultpage",
 	  "<img id=\"icon\" src=\"$iconimgsrc\" alt=\"$iconimgalt\" />");
 
-    # mostly we want the title and heanding to be the same. In this case we
-    # pass "" for $heading, and it gets set to $title. Sometimes, though, they
-    # need to be different: if, for instance, we want inline markup in the
-    # heading but not in the title (where it violates the html spec).
+    # Mostly we want the title and heading to be the same text. $heading is
+    # usually a link to a search page, but the link text is the same as
+    # $title. To get this behavior, pass "" for $heading. Sometimes,
+    # though, they need to be different: if, for instance, we want inline
+    # markup in the heading but not in the title (where it violates the
+    # html spec). Or if we _don't_ want $heading to be a link (like on edit
+    # pages).
+    #
+    #
+    # There is another wrinkle to this. We don't want web spiders to follow
+    # links to edit or search pages and follow the links because they might
+    # get stuck in circles or do damage to the wiki. Only "normal"
+    # (do_show) pages should be indexed.
+    #
+    # It turns out the whenever we set $heading, we want to prevent robots
+    # from indexing the page.
 
+    my $meta_robots = $heading ? "noindex,nofollow" : "index,follow" ;
     $heading = scriptlink("search=$page", "$title") unless $heading;
 
     print <<EOT;
@@ -234,6 +247,7 @@ Content-type: text/html
 <meta name="keywords" content="$keywords" />
 <meta name="description" content="$description" />
 <meta name="copyright" content="$copyright" />
+<meta name="robots" content="$meta_robots" />
 <link rel="stylesheet" href="$style" type="text/css" />
 <title>$wikiname :: $title</title>
 </head>
@@ -587,7 +601,8 @@ sub make_edit_page {
 </form>
 
     validator();
-    generate_xhtml("Editing " . fancy_title($page), "");
+    my $edit_title = "Editing " . fancy_title($page);
+    generate_xhtml($edit_title, $edit_title);  # prevent making title a link
 }
 
 sub do_edit {
