@@ -1,0 +1,9 @@
+This page allows you to search the wiki, in one of two ways.
+
+To look for pages with '''names''' matching a certain string, type it here and press return.
+
+[namesearch]
+
+To search through the '''text''' of all the pages in the wiki, type a string here and press return.
+
+[textsearch]
