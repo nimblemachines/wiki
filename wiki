@@ -40,7 +40,6 @@ sub escape_uri {
 
 sub escape_html {
     s/&/&amp;/g;
-    s/&amp;([a-zA-Z]+);/&$1;/g;   # unescape character entities
     s/</&lt;/g;
 #    s/>/&gt;/g;
 }
@@ -521,12 +520,13 @@ sub show_uris {
 sub inline_markup {
     hide_uris();
 
-    # 5 in a row nests wrong without this: <strong><em>text</strong></em>
-    s#'{5}(.+?)'{5}#<strong><em>$1</em></strong>#gs;
-
     s#'{3}(.+?)'{3}#<strong>$1</strong>#gs;
     s#'{2}(.+?)'{2}#<em>$1</em>#gs;
     # XXX: code, cite, kbd, ???
+
+    # Quote character entities so that the browser doesn't "helpfully"
+    # convert them. Use !!name!! or ??name??.
+    s#[!\?]{2}(.+?)[!\?]{2}#&$1;#gs;
 
     # named interwiki link: [[prefix:suffix link text]]
     s/\[\[($interprefix):($interquery)\s+(.+?)\]\]/hide(make_interwiki_link($1, $2, $3))/geo;
