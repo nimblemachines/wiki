@@ -1,0 +1,44 @@
+If you want to use this wiki with web-writable pages, then you need to (as
+root!)
+
+  chown -R www pages
+
+assuming www is the user that the server runs as.
+
+If you want a readonly "wiki", you'll want to do two things:
+
+  * have the pages/ tree owned by any user other than www;
+  * change $editscript (in config.pl) to "never"
+
+The only URIs that fire up the CGI script are / (invokes the
+DirectoryIndex, which invokes "wiki") and /wiki. Since "never" matches
+neither, no pages will be editable.
+
+It's also possible to do this (in .htaccess):
+
+---------------------------------------------------------
+DirectoryIndex browse
+Options ExecCGI FollowSymLinks
+
+<Files wiki>
+  SetHandler cgi-script
+  AuthType Basic
+  AuthName "My private wiki"
+  AuthUserFile /some/path/to/passwd/file
+
+# this is optional:
+  Require user foobar
+</Files>
+
+<Files browse>
+  SetHandler cgi-script
+</Files>
+---------------------------------------------------------
+
+Assuming $editscript is set to "wiki", this will allow only authenticated
+users to write the wiki (via wiki?page); for most users it will be
+readonly (thru the "browse" script), and now DirectoryIndex points to
+browse. browse is, of course, symlinked to the wiki script.
+
+
+
