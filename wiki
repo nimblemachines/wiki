@@ -15,7 +15,6 @@ $wikilinkre = "(?:$wikilinkbit){2,}";
 $extendedlinkbit = "[A-Za-z0-9]+";
 $extendedlinkre = "$extendedlinkbit(?:_$extendedlinkbit)+";
 $interprefix = "[A-Z][A-Za-z0-9]+";
-$interbody = "[A-Za-z0-9_+\"-]+";
 $pagedir = "pages";
 $archivedir = "$pagedir/archive";
 $defaultpage = "WelcomePage"; # FrontPage? HomePage? HomeBase? CecilCabin?
@@ -333,7 +332,7 @@ sub convert_wiki_links {
 }
 
 sub convert_interwiki_links {
-    s/($interprefix):($interbody)/make_hidden_interwiki_link($1, $2)/geo;
+    s/($interprefix):(.*?)/make_hidden_interwiki_link($1, $2)/geo;
 }
 
 @nestelems = ();
@@ -439,13 +438,13 @@ sub show_uris {
 
 sub inline_markup {
     # this one should be first: it wreaks havoc with slashes!!
-    s#'{3}(.+)'{3}#<strong>$1</strong>#gs;
-    s#'{2}(.+)'{2}#<em>$1</em>#gs;
+    s#'{3}(.+?)'{3}#<strong>$1</strong>#gs;
+    s#'{2}(.+?)'{2}#<em>$1</em>#gs;
     # XXX: code, cite, kbd, ???
 
     # generic href links: [[url lots of link text]]
-    s#\[\[(\S+)\s+(.+)\]\]#<a href="$1">$2</a>#g;
-    s#\[\[(\S+)\]\]#<a href="$1">$1</a>#g;
+    s#\[\[(\S+?)\]\]#<a href="$1">$1</a>#g;
+    s#\[\[(\S+?)\s+(.+)\]\]#<a href="$1">$2</a>#g;
 
     # special links
     s/\[namesearch\]/$namesearchform/g;
