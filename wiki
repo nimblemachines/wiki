@@ -17,12 +17,12 @@ $interword = "[A-Za-z0-9]+";
 $interquery = "$interword(?:[_+#?:.-]$interword)*";
 $pagedir = "pages";
 $archivedir = "$pagedir/archive";
-$defaultpage = "WelcomePage"; # FrontPage? HomePage? HomeBase? CecilCabin?
-$markurl = "\001";
+#$markurl = "\001";
 
 ### Set up the config variables ###
 $webhamster = 'webhamster@nimblemachines.com';
 $wikiname = "Nimble Machines";
+$defaultpage = "WelcomePage";
 $editscript = "wiki";
 $iconimgsrc = "images/lambda";
 $iconimgalt = "lambda the ultimate!";
