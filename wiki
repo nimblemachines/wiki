@@ -20,11 +20,10 @@ $interquery = "[A-Za-z0-9_+\"-#?]+";
 $pagedir = "pages";
 $archivedir = "$pagedir/archive";
 $defaultpage = "WelcomePage"; # FrontPage? HomePage? HomeBase? CecilCabin?
-$webhamster = 'webhamster@nimblemachines.com';
-$wikiname = "Nimble Machines";
-$editscript = "wiki";
-
 $markurl = "\001";
+
+# Read in local config
+do "config.pl";
 
 sub unescape_uri {
     $_ = shift;
@@ -201,11 +200,8 @@ sub fancy_link {
 
 sub generate_xhtml {
     my ($title, $heading) = @_;
-    my $home = scriptlink("$defaultpage", "<img id=\"icon\" src=\"icons/lambda.gif\" alt=\"lambda the ultimate!\" />");
-    my $style = "screen.css";
-    my $keywords = "nimble machines,wiki";
-    my $description = "A wiki for discussing the present and future of computing.";
-    my $copyright = "All content on nimblemachines.com is copyrighted. All rights are reserved.";
+    my $home = scriptlink("$defaultpage",
+	  "<img id=\"icon\" src=\"$iconimgsrc\" alt=\"$iconimgalt\" />");
 
     # mostly we want the title and heanding to be the same. In this case we
     # pass "" for $heading, and it gets set to $title. Sometimes, though, they
