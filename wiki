@@ -564,7 +564,7 @@ sub render_body {
 
     # we're going to do "paragraph" markup delimited with multiple newlines
     foreach (split /\n{2,}/, $_) {
-        inline_markup() unless m/^\s+/;  # leave pre alone
+        inline_markup() unless m/^\a?\s+/;  # leave pre alone
         block_markup();
         $content .= "$_\n" , unwind();
     }
