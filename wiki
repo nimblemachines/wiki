@@ -200,7 +200,7 @@ sub fancy_link {
 
 sub generate_xhtml {
     my ($title) = @_;
-    my $home = scriptlink("$defaultpage", "<img id=\"icon\" src=\"lambda.gif\" alt=\"lambda the ultimate!\" />");
+    my $home = scriptlink("$defaultpage", "<img id=\"icon\" src=\"icons/lambda.gif\" alt=\"lambda the ultimate!\" />");
     my $header = scriptlink("search=$page", $title);
     my $style = "screen.css";
     my $keywords = "nimble machines,wiki";
