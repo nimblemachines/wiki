@@ -550,12 +550,12 @@ sub make_edit_page {
     <input type="text" name="comment" size="80" />
   </p>
   <p>
-    <input type="checkbox" name="minoredit" checked="checked" value="1" />
+    <input type="checkbox" name="minoredit" />
     This is a minor edit (and will not affect RecentChanges).
   </p>
   <p>
     <input type="submit" name="submit" value="Save" />
-    <input type="reset"  value="Revert" />
+    <input type="reset"                value="Revert" />
     <input type="submit" name="submit" value="Cancel" />
     <input type="hidden" name="modtime" value="$mod" />
   </p>
@@ -611,9 +611,11 @@ to merge your changes.
 #    my $text = "* $page (modified $stamp from $ip)\n\n";
     my $text = "$page ... $stamp ... $ip\n\n";
 
-    # prefix existing contents of RecentChanges with newest entry.
-    my $contents = $text . page_text("RecentChanges");
-    write_file("$pagedir/RecentChanges", $contents);
+    if (!$form{'minoredit'}) {
+	# prefix existing contents of RecentChanges with newest entry.
+	my $contents = $text . page_text("RecentChanges");
+	write_file("$pagedir/RecentChanges", $contents);
+    }
 #    print "Content-type: text/plain\n\n$contents";
     return 0;
 }
