@@ -445,7 +445,15 @@ sub block_markup {
     s#^-{4,}#<hr /># ||
     s/^(={1,4})\s+(.*)/wrap("h".((length $1)+1), $2)/e ||
 #    s/^([*#]{1,5})\s+(.*)/listitem($1, $2)/gme ||
+    # special links - these generate form elements, which are considered to
+    # be block-level markup. In order to validate, these cannot be enclosed
+    # in p elems.
+    s/^\[namesearch\]/$namesearchform/ ||
+    s/^\[textsearch\]/$textsearchform/ ||
+
+    # nothing else matches, make it a p
     s#^(.*)#<p>$1</p>#s;
+
 }
 
 sub hideuri {
@@ -469,11 +477,7 @@ sub inline_markup {
 
     # generic href links: [[url lots of link text]]
     s#\[\[(\S+?)\]\]#<a href="$1">$1</a>#g;
-    s#\[\[(\S+?)\s+(.+)\]\]#<a href="$1">$2</a>#g;
-
-    # special links
-    s/\[namesearch\]/$namesearchform/g;
-    s/\[textsearch\]/$textsearchform/g;
+    s#\[\[(\S+?)\s+(.+?)\]\]#<a href="$1">$2</a>#g;
 
     convert_interwiki_links();
     convert_wiki_links();
