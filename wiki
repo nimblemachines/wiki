@@ -655,12 +655,18 @@ to merge your changes.
 	
     make_backup_page("$page", iso_timestamp("$mod_current"));
 
-    # convert time stamps
-    # XXX: this should honor pre - we need to split on \n\n and check for
-    # leading whitespace
+    # convert time stamps - now honors <pre>
     my $stamp = stamp(time());
-    $edit =~ s/\[now\]/$stamp/ge;
-    write_file("$pagedir/$page", $edit);
+
+    # XXX: change this when splitting method changes in rendering code
+    # we're going to do "paragraph" markup delimited with multiple newlines
+    # leave pre alone
+    my @paras =  split /\n{2,}/, $edit;
+    foreach my $para (@paras) {
+	$para =~ s/\[now\]/$stamp/ge unless $para =~ m/^\s+/;
+    }
+
+    write_file("$pagedir/$page", join "\n\n", @paras);
 
     my $ip = $ENV{'REMOTE_ADDR'};
 # XXX: remove 2nd \n after I fix ul code!!
