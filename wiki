@@ -426,7 +426,7 @@ sub indent {
 # a couple of thoughts. use split //, type to blow up type/nesting into an
 # array/list of chars. Iterate over this to do indenting.
 
-sub listitem {
+sub oldlistitem {
     my ($type, $text) = @_;
     my $out = "";
     my $elem = $type =~ m/\*/ ? "ul" : "ol";
@@ -494,31 +494,59 @@ sub start_voice {
     else { "" }
 }
 
+$curlist = "";
+
+sub listitem {
+    my ($kind, $item) = @_;
+    my $result = "";
+    
+    unless ($curlist) {
+        $kind = $kind eq '#' ? 'ol' : 'ul';
+        $curlist = "</$kind>\n";
+        $result .= "<$kind>\n";
+    }
+    $result . wrap("li", $item);
+}
+
+sub listend {
+    if ($curlist) {
+        my $result = $curlist;
+        $curlist = "";
+        $result;
+    }
+    else { "" }
+}
+
 sub block_markup {
     my $class = "";
     $class = " class=\"changed\"" if s#^\a##;
-    s#^(\s+.*)#<pre$class>\n$1\n</pre>#s ||
-    s#^"(.*)#<blockquote>$1</blockquote>#s ||
-    s#^;(.*)#<blockquote>$1</blockquote>#s ||
-
-    # hrules and headings return to voice 1
-    s#^-{4,}#start_voice(1) . "<hr />"#e ||
-    s/^(={1,4})\s*(.*)/start_voice(1) . wrap("h".((length $1)+1), $2)/e ||
-
-    # multiple "voices"
-    s/^(>{1,8})/start_voice(length($1))/e ||
-#    s/^([*#]{1,5})\s*(.*?)/listitem($1, $2)/gme ||
-#    s/^([*#]{1,5}.*?)/listblock($1)/e ||
-
-    # special links - these generate form elements, which are considered to
-    # be block-level markup. In order to validate, these cannot be enclosed
-    # in p elems.
-    s/^\[namesearch\]/$namesearchform/ ||
-    s/^\[textsearch\]/$textsearchform/ ||
-
-    # nothing else matches, make it a p
-    s#^(.*)#<p$class>$1</p>#s;
-
+    
+    if (m/^([*\#])\s*(.*)/) {
+        $_ = listitem($1, $2);
+    } else {
+        s#^(\s+.*)#<pre$class>\n$1\n</pre>#s ||
+        s#^"(.*)#<blockquote$class>$1</blockquote>#s ||
+        s#^;(.*)#<blockquote$class>$1</blockquote>#s ||
+    
+        # hrules and headings return to voice 1
+        s#^-{4,}#start_voice(1) . "<hr />"#e ||
+        s/^(={1,4})\s*(.*)/start_voice(1) . wrap("h".((length $1)+1), $2)/e ||
+    
+        # multiple "voices"
+        s/^(>{1,8})/start_voice(length($1))/e ||
+#        s/^([*#]{1,5})\s*(.*?)/listitem($1, $2)/gme ||
+#        s/^([*#]{1,5}.*?)/listblock($1)/e ||
+    
+        # special links - these generate form elements, which are considered to
+        # be block-level markup. In order to validate, these cannot be enclosed
+        # in p elems.
+        s/^\[namesearch\]/$namesearchform/ ||
+        s/^\[textsearch\]/$textsearchform/ ||
+    
+        # nothing else matches, make it a p
+        s#^(.*)#<p$class>$1</p>#s;
+        $_ = listend() . $_;
+    }
 }
 
 sub hideuri {
