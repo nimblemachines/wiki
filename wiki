@@ -466,7 +466,7 @@ sub block_markup {
     s#^;(.*)#<blockquote>$1</blockquote>#s ||
 
     s#^-{4,}#<hr /># ||
-    s/^(={1,4})\s*(.*?)/wrap("h".((length $1)+1), $2)/e ||
+    s/^(={1,4})\s*(.*)/wrap("h".((length $1)+1), $2)/e ||
 #    s/^([*#]{1,5})\s*(.*?)/listitem($1, $2)/gme ||
 #    s/^([*#]{1,5}.*?)/listblock($1)/e ||
 
@@ -502,6 +502,12 @@ sub inline_markup {
     s#'{3}(.+?)'{3}#<strong>$1</strong>#gs;
     s#'{2}(.+?)'{2}#<em>$1</em>#gs;
     # XXX: code, cite, kbd, ???
+
+    # I put these _before_ the [[ ]] links, hoping that I could do CamelCase
+    # and interwiki links inside of [[ ]] links, but it doesn't work. I'm
+    # currently doing too much work in the initial conversion, in convert_*.
+    # What I really want is to convert a CamelCase link or interwiki link into
+    # a bare http://foo, and then the [[ ]] code can come along and fix it up.
 
     convert_interwiki_links();
     convert_wiki_links();
