@@ -2,10 +2,12 @@
  * $Id$
  *
  * Style sheet for nimblemachines.com wiki
+ *
+ * 2005/01/30 dgs. Increased the margin sides. 
  */
 
 body {
-  margin: 1pc 1pc 1pc 3pc;
+  margin: 1pc 5pc 1pc 5pc;
 }
 
 a img {
