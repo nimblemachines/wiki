@@ -218,7 +218,7 @@ sub generate_xhtml {
 
     $metas{'robots'} = "${robots}index,${robots}follow";
     my $meta_elements = join "\n",
-        map "<meta name=\"$_\" contents=\"$metas{$_}\" />", keys %metas;
+        map "<meta name=\"$_\" content=\"$metas{$_}\" />", keys %metas;
     
     print <<EOT;
 Content-type: text/html
