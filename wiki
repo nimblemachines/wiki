@@ -117,10 +117,7 @@ sub init_interwiki {
 }
 
 sub do_init {
-# which of these is actually standard CGI?? The first one works on Apache
-# but fails on yaws.
-#    $script = (split '/', $ENV{SCRIPT_NAME})[-1];	# keep only last part
-    $script = (split '/', $ENV{REQUEST_URI})[-1];	# keep only last part
+    $script = (split '/', $ENV{SCRIPT_NAME})[-1];	# keep only last part
 
     $editable = $script eq $editscript;
 
