@@ -686,20 +686,32 @@ to merge your changes.
         $para =~ s/\[now\]/$stamp/ge unless $para =~ m/^\s+/;
     }
 
-    # joins bits together separated by \n\n, and add trailing \n
-    write_file("$pagedir/$page", (join "\n\n", @paras) . "\n");
+    # joins bits together separated by \n\n
+    write_file("$pagedir/$page", (join "\n\n", @paras));
 
-    my $ip = $ENV{'REMOTE_ADDR'};
+    # make sure a link exists to nimblemachines.com
+    my $mirror = "../nimblemachines.com/pages/$page";
+    symlink ("../../dev.nimblemachines.com/$pagedir/$page",
+	     "$mirror") unless (-r $mirror && -l $mirror);
+
 # XXX: remove 2nd \n after I fix ul code!!
 # XXX: and add back in the '* ' at the start of the line!!
 #    my $text = "* $page (modified $stamp from $ip)\n\n";
-    my $text = "$page ... $stamp ... $ip\n\n";
 
     # tweak will save edit but not affect RecentChanges
     if ($form{'submit'} =~ m/save/i) {
-        # prefix existing contents of RecentChanges with newest entry.
-        my $contents = $text . page_text("RecentChanges");
-        write_file("$pagedir/RecentChanges", $contents);
+	my $ip = $ENV{'REMOTE_ADDR'};
+	my $text = "$page ... $stamp ... $ip\n\n";
+	# prefix existing contents of RecentChanges with newest entry.
+	my $contents = $text . page_text("RecentChanges");
+	write_file("$pagedir/RecentChanges", $contents);
+
+	# do the same, but emasculated, for nimblemachines.com
+	my $text = "$page ... $stamp\n\n";
+	# prefix existing contents of RecentChanges with newest entry.
+	my $rc = "../nimblemachines.com/$pagedir/RecentChanges";
+	my $contents = $text . read_file("$rc");
+	write_file("$rc", $contents);
     }
 #    print "Content-type: text/plain\n\n$contents";
     return 0;
@@ -764,7 +776,7 @@ system "touch $archivedir/$oldpage" unless -f "$archivedir/$oldpage";
         $oldpage = $_;
     }
 
-    my $cmd = "diff -U 9999999 $archivedir/$oldpage $pagedir/$page";
+    my $cmd = "diff -U 99999 $archivedir/$oldpage $pagedir/$page";
     my $contents = "";
     open DIFF, "-|", $cmd or choke "cannot compare $page with $oldpage: $!";
 
