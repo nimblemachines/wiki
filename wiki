@@ -358,17 +358,24 @@ sub make_wiki_link {
 }
 
 # a way to escape query strings? Thinking of google queries w/embedded spaces.
-sub make_hidden_interwiki_link {
-    my ($prefix, $link) = @_;
+sub make_interwiki_link {
+    my ($prefix, $suffix, $link_text) = @_;
     my $interlink = $intermap{$prefix};
-    $_ = (defined $interlink)
-	? "<a href=\"$interlink$link\">$prefix:$link</a>"
-	: "$prefix:$link";
+
+    $link_text =~ tr/_/ /;
+#    $link_text =~ s/#/ :: /g;
+
+    defined $interlink
+	? "<a href=\"$interlink$suffix\">$link_text</a>" : "$link_text";
+}
+
+sub hide {
+    my ($link) = @_;
 
     # use "" to hide links
-    s/($wikilinkbit)/$1\"\"/go; # if m/$wikilinkre/;
-#    s/($extendedlinkbit)/$1\"\"/go; # if m/$extendedlinkre/;
-    $_;
+    $link =~ s/($wikilinkbit)/$1\"\"/go;
+#   $link =~ s/($extendedlinkbit)/$1\"\"/go;
+    $link;
 }
 
 sub convert_wiki_links {
@@ -380,7 +387,7 @@ sub convert_wiki_links {
 }
 
 sub convert_interwiki_links {
-    s/($interprefix):($interquery)/make_hidden_interwiki_link($1, $2)/geo;
+    s/($interprefix):($interquery)/hide(make_interwiki_link($1, $2, "$1:$2"))/geo;
 }
 
 @nestelems = ();
@@ -512,17 +519,17 @@ sub inline_markup {
     s#'{2}(.+?)'{2}#<em>$1</em>#gs;
     # XXX: code, cite, kbd, ???
 
-    # generic href links: [[url lots of link text]]
-    s#\[\[(\S+?\.(jpg|jpeg|gif|png))\]\]#<img src="$1" />#g;
-    s#\[\[(\S+?)\]\]#<a href="$1">$1</a>#g;
-    s#\[\[(\S+?)\s+(.+?)\]\]#<a href="$1">$2</a>#g;
+    # named interwiki link: [[prefix:suffix link text]]
+    s/\[\[($interprefix):($interquery)\s+(.+?)\]\]/hide(make_interwiki_link($1, $2, $3))/geo;
 
-    # XXX: that didn't work. moved back down here. fix later.
-    # I put these _before_ the [[ ]] links, hoping that I could do CamelCase
-    # and interwiki links inside of [[ ]] links, but it doesn't work. I'm
-    # currently doing too much work in the initial conversion, in convert_*.
-    # What I really want is to convert a CamelCase link or interwiki link into
-    # a bare http://foo, and then the [[ ]] code can come along and fix it up.
+    # inline img link: [[uri.ext]] where ext is img type
+    s#\[\[(\S+\.(jpg|jpeg|gif|png))\]\]#hide("<img src=\"$1\" />")#ge;
+
+    # unnamed href link: [[uri]]
+    s#\[\[(\S+?)\]\]#hide("<a href=\"$1\">$1</a>")#ge;
+
+    # generic href link: [[url lots of link text]]
+    s#\[\[(\S+?)\s+(.+?)\]\]#hide("<a href=\"$1\">$2</a>")#ge;
 
     convert_interwiki_links();
     convert_wiki_links();
