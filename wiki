@@ -22,7 +22,18 @@ $archivedir = "$pagedir/archive";
 $defaultpage = "WelcomePage"; # FrontPage? HomePage? HomeBase? CecilCabin?
 $markurl = "\001";
 
-# Read in local config
+### Set up the config variables ###
+$webhamster = 'webhamster@nimblemachines.com';
+$wikiname = "Nimble Machines";
+$editscript = "wiki";
+$iconimgsrc = "images/lambda.gif";
+$iconimgalt = "lambda the ultimate!";
+$style = "screen.css";
+$keywords = "nimble machines,wiki";
+$description = "A wiki for discussing the present and future of computing.";
+$copyright = "All content on nimblemachines.com is copyrighted. All rights are reserved.";
+
+### Read in local config overrides ###
 do "config.pl";
 
 sub unescape_uri {
@@ -117,7 +128,7 @@ sub init_interwiki {
 }
 
 sub do_init {
-    $script = (split '/', $ENV{SCRIPT_NAME})[-1];	# keep only last part
+    $script = (split '/', $ENV{'SCRIPT_NAME'})[-1];	# keep only last part
 
     $editable = $script eq $editscript;
 
@@ -128,13 +139,13 @@ sub do_init {
 		  diff   => \&do_diff
 		  );
 
-    $method = $ENV{REQUEST_METHOD};
+    $method = $ENV{'REQUEST_METHOD'};
     if ($method =~ m/post/i){ 
-	read(STDIN, my $form, $ENV{CONTENT_LENGTH});
+	read(STDIN, my $form, $ENV{'CONTENT_LENGTH'});
 	%form = parse_http_data($form);
     }
 
-    ($page, $action, %query) = parse_http_data($ENV{QUERY_STRING});
+    ($page, $action, %query) = parse_http_data($ENV{'QUERY_STRING'});
     ($page, $action) = ($action, $page) if $action;
     $action ||= "show";		# ?page -> ?show=page    
     $page ||= $defaultpage;	# empty -> ?DefaultPage
@@ -435,6 +446,15 @@ sub listitem {
     $out . indent() . "<li>$text</li>";
 }
 
+sub listblock {
+    my ($listpara) = @_;
+    my $elem = $listpara =~ m/\*/ ? "ul" : "ol";
+
+    $listpara =~ s:^([*#]{1,5})\s*(.*):<li>$2</li>\n:gm;
+
+    wrap("$elem", "\n$listpara");
+}
+
 sub wrap {
     my ($elem, $contents) = @_;
     "<$elem>$contents</$elem>";
@@ -446,8 +466,9 @@ sub block_markup {
     s#^;(.*)#<blockquote>$1</blockquote>#s ||
 
     s#^-{4,}#<hr /># ||
-    s/^(={1,4})\s*(.*)/wrap("h".((length $1)+1), $2)/e ||
-#    s/^([*#]{1,5})\s*(.*)/listitem($1, $2)/gme ||
+    s/^(={1,4})\s*(.*?)/wrap("h".((length $1)+1), $2)/e ||
+#    s/^([*#]{1,5})\s*(.*?)/listitem($1, $2)/gme ||
+#    s/^([*#]{1,5}.*?)/listblock($1)/e ||
 
     # special links - these generate form elements, which are considered to
     # be block-level markup. In order to validate, these cannot be enclosed
@@ -471,6 +492,9 @@ sub hide_uris {
 }
 
 sub show_uris {
+    # remove double quotes - can be used to foil wikilinks, and to
+    # add plurals to singularly-linked pages
+    s/""//g;
 }
 
 sub inline_markup {
@@ -479,16 +503,12 @@ sub inline_markup {
     s#'{2}(.+?)'{2}#<em>$1</em>#gs;
     # XXX: code, cite, kbd, ???
 
-    # generic href links: [[url lots of link text]]
-    s#\[\[(\S+?)\]\]#<a href="$1">$1</a>#g;
-    s#\[\[(\S+?)\s+(.+?)\]\]#<a href="$1">$2</a>#g;
-
     convert_interwiki_links();
     convert_wiki_links();
 
-    # remove double quotes - can be used to foil wikilinks, and to
-    # add plurals to singularly-linked pages
-    s/""//g;
+    # generic href links: [[url lots of link text]]
+    s#\[\[(\S+?)\]\]#<a href="$1">$1</a>#g;
+    s#\[\[(\S+?)\s+(.+?)\]\]#<a href="$1">$2</a>#g;
 }
 
 sub page_text {
@@ -508,7 +528,7 @@ sub render_body {
     # we're going to do "paragraph" markup delimited with multiple newlines
     foreach (split /\n{2,}/, $_) {
 	hide_uris();
-	inline_markup();
+	inline_markup() unless m/^\s+/;  # leave pre alone
 	show_uris();
 	block_markup();
 	$content .= "$_\n" , unwind();
@@ -517,10 +537,9 @@ sub render_body {
 }
 
 # do_xxx needs to do something like this:
-# $header = ...
-# $body = ...
-# $footer = ...
-# generate_xhtml();
+# $content = ...
+# $footer  = ...
+# generate_xhtml($title, $page_heading);
 sub do_show {
     $_ = page_text($page)
 	|| "$page doesn't exist. Why not create it by editing the text of this page?\n";
@@ -601,7 +620,7 @@ to merge your changes.
     $edit =~ s/\[now\]/$stamp/ge;
     write_file("$pagedir/$page", $edit);
 
-    my $ip = $ENV{REMOTE_ADDR};
+    my $ip = $ENV{'REMOTE_ADDR'};
 # XXX: remove 2nd \n after I fix ul code!!
 # XXX: and add back in the '* ' at the start of the line!!
 #    my $text = "* $page (modified $stamp from $ip)\n\n";
