@@ -30,7 +30,7 @@ $style = "screen.css";
 $keywords = "nimble machines,wiki";
 $description = "A wiki for discussing the present and future of computing.";
 $copyright = "All content on nimblemachines.com is copyrighted. All rights are reserved.";
-$heading_template = '<h1>. $h</h1>';
+$heading_template = "<home />\n<h1>. <heading /></h1>";
 
 ### Read in local config overrides ###
 do "config.pl";
@@ -212,7 +212,7 @@ sub fancy_link {
 
 sub generate_xhtml {
     my ($title, $heading, $robots) = @_;
-    my $home = scriptlink("$defaultpage",
+    my $home_link = scriptlink("$defaultpage",
 	  "<img id=\"icon\" src=\"$iconimgsrc\" alt=\"$iconimgalt\" />");
 
     # Mostly we want the title and heading to be the same text. $heading is
@@ -230,7 +230,8 @@ sub generate_xhtml {
 
     my $meta_robots = "${robots}index,${robots}follow" ;
     $heading = scriptlink("search=$page", "$title") unless $heading;
-    $heading_template =~ s/\$h/$heading/;
+    $heading_template =~ s/<home \/>/$home_link/;
+    $heading_template =~ s/<heading \/>/$heading/;
 
     print <<EOT;
 Content-type: text/html
@@ -251,7 +252,6 @@ Content-type: text/html
 <body>
 
 <div id="header">
-$home
 $heading_template
 </div>
 
@@ -506,7 +506,6 @@ sub hideuri {
 
 sub hide_uris {
 #    s/\[\[.+\]\]/hideuri($1)/ge;
-
 }
 
 sub show_uris {
@@ -516,6 +515,8 @@ sub show_uris {
 }
 
 sub inline_markup {
+    hide_uris();
+
     # this one should be first: it wreaks havoc with slashes!!
     s#'{3}(.+?)'{3}#<strong>$1</strong>#gs;
     s#'{2}(.+?)'{2}#<em>$1</em>#gs;
@@ -533,10 +534,13 @@ sub inline_markup {
     # generic href link: [[url lots of link text]]
     s#\[\[(\S+?)\s+(.+?)\]\]#hide("<a href=\"$1\">$2</a>")#ge;
 
-    # ISBN 
+    # ISBN ...
+    # RFC ...
 
     convert_interwiki_links();
     convert_wiki_links();
+
+    show_uris();
 }
 
 sub page_text {
@@ -555,9 +559,7 @@ sub render_body {
 
     # we're going to do "paragraph" markup delimited with multiple newlines
     foreach (split /\n{2,}/, $_) {
-	hide_uris();
 	inline_markup() unless m/^\s+/;  # leave pre alone
-	show_uris();
 	block_markup();
 	$content .= "$_\n" , unwind();
     }
