@@ -129,18 +129,21 @@ sub do_init {
         %form = parse_http_data($form);
     }
 
-    ($page, $action, %query) = parse_http_data($ENV{'QUERY_STRING'});
-    ($page, $action) = ($action, $page) if $action;
-    $action ||= "show";         # ?page -> ?show=page    
-    $page ||= $defaultpage;     # empty -> ?DefaultPage
+    # normal form of wiki URI is script?action=page
+    ($action, $page, %query) = parse_http_data($ENV{'QUERY_STRING'});
+    $action ||= "show";         # <nothing> -> ?show
+                                # ?=page    -> ?show=page
+    $page ||= $defaultpage;     # ?show     -> ?show=DefaultPage
+
+    my $action_href = script_href("", "");
 
     $textsearchform = <<"";
-<form action="$script" method="get" enctype="application/x-www-form-urlencoded">
+<form action="$action_href" method="get" enctype="application/x-www-form-urlencoded">
   <p><input type="text" name="search" size="30" /></p>
 </form>
 
     $namesearchform = <<"";
-<form action="$script" method="get" enctype="application/x-www-form-urlencoded">
+<form action="$action_href" method="get" enctype="application/x-www-form-urlencoded">
   <p><input type="text" name="name" size="30" /></p>
 </form>
 
@@ -149,14 +152,22 @@ sub do_init {
     $footer = "";
 }
 
+sub script_href {
+    my ($action, $page) = @_;
+    my $href = "?$action=$page" if $action;  # and nothing otherwise!
+    "${script}${href}";
+}
+
 sub scriptlink {
-    my ($link, $linktext) = @_;
-    "<a href=\"$script?$link\">$linktext</a>";
+    my ($action, $page, $linktext) = @_;
+    my $href = script_href($action, $page);
+    "<a href=\"$href\">$linktext</a>";
 }
 
 sub scriptlinkclass {
-    my ($link, $linktext, $class) = @_;
-    "<a class=\"$class\" href=\"$script?$link\">$linktext</a>";
+    my ($action, $page, $linktext, $class) = @_;
+    my $href = script_href($action, $page);
+    "<a class=\"$class\" href=\"$href\">$linktext</a>";
 }
 
 sub do_request {
@@ -196,7 +207,7 @@ sub fancy_link {
 
 sub generate_xhtml {
     my ($title, $heading, $robots) = @_;
-    my $home_link = scriptlink("$defaultpage",
+    my $home_link = scriptlink("show", $defaultpage,
           "<img id=\"icon\" src=\"$iconimgsrc\" alt=\"$iconimgalt\" />");
 
     # Mostly we want the title and heading to be the same text. $heading is
@@ -212,7 +223,7 @@ sub generate_xhtml {
     # get stuck in circles or do damage to the wiki. Only "normal"
     # (do_show) pages should be indexed.
 
-    $heading = scriptlink("search=$page", "$title") unless $heading;
+    $heading = scriptlink("search", $page, "$title") unless $heading;
     $heading_template =~ s/<home \/>/$home_link/;
     $heading_template =~ s/<heading \/>/$heading/;
 
@@ -297,20 +308,20 @@ sub modtimestring {
 }
 
 sub editfooter {
-    my $edittext = scriptlink("edit=$page", "EditText") . " of this page";
+    my $edittext = scriptlink("edit", $page, "EditText") . " of this page";
     my $modtime = modtime("$pagedir/$page");
     my $modtext  = ($modtime != 0)
-        ? " (last edited " .  scriptlink("diff=$page", stamp($modtime)) . ")"
+        ? " (last edited " .  scriptlink("diff", $page, stamp($modtime)) . ")"
         : "";
 
     $footer .= "$edittext$modtext<br />\n";
 }
 
 sub findfooter {
-    $footer .= scriptlink("SearchWiki", "SearchWiki")
+    $footer .= scriptlink("show", "SearchWiki", "SearchWiki")
         . " for titles or text,\n"
-        . "browse " . scriptlink("RecentChanges", "RecentChanges") . ",\n"
-        . "or return to " . scriptlink($defaultpage, $defaultpage) . "\n";
+        . "browse " . scriptlink("show", "RecentChanges", "RecentChanges") . ",\n"
+        . "or return to " . scriptlink("show", $defaultpage, $defaultpage) . "\n";
 #Search for &nbsp;$searchform
 #Pages like &nbsp;$namesearchform
 
@@ -333,9 +344,8 @@ sub make_wiki_link {
     my ($page) = @_;
     my $link = fancy_link($page);
     (-r "$pagedir/$page" && -f "$pagedir/$page")
-        ? scriptlink($page, $link)
-#        : "$page" . ($editable ? scriptlink("edit=$page", "[?]") : "");
-        : ($editable ? scriptlinkclass("$page", $link, "missing")
+        ? scriptlink("show", $page, $link)
+        : ($editable ? scriptlinkclass("edit", $page, $link, "missing")
            : "$page");
 }
 
@@ -603,9 +613,16 @@ sub do_show {
 sub make_edit_page {
     my ($text) = @_;
     my $mod = modtime("$pagedir/$page");
+    my $action_href = script_href("show", $page);
+
+    my $invitation = <<"" unless $text;
+  <p>
+    $page doesn't exist. Why not create it by entering some text below?
+  </p>
 
     $content .= <<"";
-<form action="$script?$page" method="post" enctype="application/x-www-form-urlencoded">
+<form action="$action_href" method="post" enctype="application/x-www-form-urlencoded">
+$invitation
   <p>
     <textarea name="edittext" rows="25" cols="75">$text</textarea>
   </p>
