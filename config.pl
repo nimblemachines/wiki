@@ -4,7 +4,7 @@ $webhamster = 'webhamster@nimblemachines.com';
 $wikiname = "Nimble Machines";
 $editscript = "wiki";
 
-$iconimgsrc = "icons/lambda.gif";
+$iconimgsrc = "images/lambda.gif";
 $iconimgalt = "lambda the ultimate!";
 $style = "screen.css";
 $keywords = "nimble machines,wiki";
