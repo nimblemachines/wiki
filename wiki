@@ -486,8 +486,9 @@ sub block_markup {
     s#^"(.*)#<blockquote>$1</blockquote>#s ||
     s#^;(.*)#<blockquote>$1</blockquote>#s ||
 
-    s#^-{4,}#<hr /># ||
-    s/^(={1,4})\s*(.*)/wrap("h".((length $1)+1), $2)/e ||
+    # hrules and headings return to voice 1
+    s#^-{4,}#start_voice(1) . "<hr />"#e ||
+    s/^(={1,4})\s*(.*)/start_voice(1) . wrap("h".((length $1)+1), $2)/e ||
 
     # multiple "voices"
     s/^(>{1,8})/start_voice(length($1))/e ||
@@ -572,8 +573,7 @@ sub render_body {
     }
 
     # close our last "voice" div
-    $content .= end_voice();
-    $content .= "<hr />";
+    $content .= start_voice(1) . "<hr />";
 }
 
 # do_xxx needs to do something like this:
