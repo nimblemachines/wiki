@@ -570,6 +570,9 @@ sub render_body {
 	block_markup();
 	$content .= "$_\n" , unwind();
     }
+
+    # close our last "voice" div
+    $content .= end_voice();
     $content .= "<hr />";
 }
 
