@@ -139,7 +139,7 @@ sub do_init {
     $action ||= "show";		# ?page -> ?show=page    
     $page ||= $defaultpage;	# empty -> ?DefaultPage
 
-    $searchform = <<"";
+    $textsearchform = <<"";
 <form action="$script" method="get" enctype="application/x-www-form-urlencoded">
   <p><input type="text" name="search" size="30" /></p>
 </form>
@@ -467,7 +467,7 @@ sub inline_markup {
 
     # special links
     s/\[namesearch\]/$namesearchform/g;
-    s/\[search\]/$searchform/g;
+    s/\[textsearch\]/$textsearchform/g;
 
     convert_interwiki_links();
     convert_wiki_links();
@@ -580,7 +580,7 @@ to merge your changes.
 
     # convert time stamps
     my $stamp = stamp(time());
-    $edit =~ s/\[\[now\]\]/$stamp/ge;
+    $edit =~ s/\[now\]/$stamp/ge;
     write_file("$pagedir/$page", $edit);
 
     my $ip = $ENV{REMOTE_ADDR};
