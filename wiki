@@ -211,7 +211,7 @@ sub fancy_link {
 }
 
 sub generate_xhtml {
-    my ($title, $heading) = @_;
+    my ($title, $heading, $robots) = @_;
     my $home = scriptlink("$defaultpage",
 	  "<img id=\"icon\" src=\"$iconimgsrc\" alt=\"$iconimgalt\" />");
 
@@ -223,16 +223,12 @@ sub generate_xhtml {
     # html spec). Or if we _don't_ want $heading to be a link (like on edit
     # pages).
     #
-    #
     # There is another wrinkle to this. We don't want web spiders to follow
     # links to edit or search pages and follow the links because they might
     # get stuck in circles or do damage to the wiki. Only "normal"
     # (do_show) pages should be indexed.
-    #
-    # It turns out the whenever we set $heading, we want to prevent robots
-    # from indexing the page.
 
-    my $meta_robots = $heading ? "noindex,nofollow" : "index,follow" ;
+    my $meta_robots = "${robots}index,${robots}follow" ;
     $heading = scriptlink("search=$page", "$title") unless $heading;
 
     print <<EOT;
@@ -316,7 +312,6 @@ sub modtimestring {
 }
 
 sub editfooter {
-    my ($page) = @_;
     my $edittext = scriptlink("edit=$page", "EditText") . " of this page";
 
 # waiting for diff links until we have some kind of diffing!
@@ -548,11 +543,10 @@ sub render_body {
 
     # we're going to do "paragraph" markup delimited with multiple newlines
     foreach (split /\n{2,}/, $_) {
-# XXX: make the pre decision once only?
 	hide_uris();
 	inline_markup() unless m/^\s+/;  # leave pre alone
 	show_uris();
-	block_markup() unless m/^\s+/;  # leave pre alone
+	block_markup();
 	$content .= "$_\n" , unwind();
     }
     $content .= "<hr />";
@@ -563,14 +557,19 @@ sub render_body {
 # $footer  = ...
 # generate_xhtml($title, $page_heading);
 sub do_show {
-    $_ = page_text($page)
-	|| "$page doesn't exist. Why not create it by editing the text of this page?\n";
+    my $robots = "";
+    $_ = page_text($page);
+
+    unless ($_) {
+	$_ = "$page doesn't exist. Why not create it by editing the text of this page?\n";
+	$robots = "no";
+    }
 
     render_body();
-    editfooter($page) if $editable;
+    editfooter() if $editable;
     findfooter();
     validator();
-    generate_xhtml(fancy_title($page), "");
+    generate_xhtml(fancy_title($page), "", $robots);
 }
 
 sub make_edit_page {
@@ -602,7 +601,9 @@ sub make_edit_page {
 
     validator();
     my $edit_title = "Editing " . fancy_title($page);
-    generate_xhtml($edit_title, $edit_title);  # prevent making title a link
+
+    # prevent making title a link, no robots
+    generate_xhtml($edit_title, $edit_title, "no");
 }
 
 sub do_edit {
@@ -693,7 +694,7 @@ sub gen_search_page {
     $content .= "<hr />";
     findfooter();
     validator();
-    generate_xhtml($title, $heading);
+    generate_xhtml($title, $heading, "no");
 }
 
 sub do_diff {
