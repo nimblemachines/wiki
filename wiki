@@ -221,7 +221,7 @@ Content-type: text/html
 
 <div id="header">
 $home
-<h1>$header</h1>
+<h1>. $header</h1>
 </div>
 
 <div id="content">
@@ -294,12 +294,14 @@ sub findfooter {
 
 }
 
+#<hr />
 sub validator {
     $footer .= << "";
-<hr />
+<p>
 <a href="http://validator.w3.org/check/referer">
   <img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0 Strict!" />
 </a>
+</p>
 
 }
 
@@ -542,18 +544,15 @@ sub do_save {
     make_backup_page("$page");
     write_file("$pagedir/$page", $edit);
 
-    # add to RecentChanges
-    # we'd like to simply append to the file, but it would be nicer to
-    # have them listed reverse chrono. So we split the file on the first
-    # "----" and put the last one there.
-    my $contents = page_text("RecentChanges") || "----\n\n";
     my $mod = modtimestring("$pagedir/$page");
     my $ip = $ENV{REMOTE_ADDR};
 # XXX: remove 2nd \n after I fix ul code!!
 # XXX: and add back in the '* ' at the start of the line!!
 #    my $text = "* $page (modified $mod from $ip)\n\n";
     my $text = "$page ... $mod ... $ip\n\n";
-    $contents =~ s/(-{4,}\n{2,})/$1$text/;
+
+    # prefix existing contents of RecentChanges with newest entry.
+    my $contents = $text . page_text("RecentChanges");
     write_file("$pagedir/RecentChanges", $contents);
 #    print "Content-type: text/plain\n\n$contents";
 }

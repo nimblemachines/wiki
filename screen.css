@@ -13,28 +13,40 @@ a img {
 }
 
 img#icon {
-  border: solid red 1px;
+/*  border: solid red 1px; */
+  border: none;
   margin: 0;
   padding: 0;
-  float: left;
 }
 
 div#header h1 {
-  border: solid blue 1px;
-/*  margin: 0; */
-/*  padding: 0; */
-  float: left;
+/*  border: solid blue 1px; */
+  border: none;
+  margin-left: 0.08em;
+  padding: 0;
+  display: inline;
+  vertical-align: bottom;
+  color: blue;
+/*  float: left; */
 }
 
 div#content {
   clear: both;
+/*  border: solid green 1px; */
+/*  background: #eeeecc; */
+}
+
+div#footer {
+/*  border: solid teal 1px; */
+/*  background: #cceeee; */
 }
 
 a.missing {
-  background: #ddffdd
+  background: #ddffdd;
 }
 
 hr {
+/*  margin: 0; */
   border: solid gray;
   border-width: 1px 0 0 0;
 }
