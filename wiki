@@ -718,13 +718,12 @@ to merge your changes.
 
     # tweak will save edit but not affect RecentChanges
     if ($form{'submit'} =~ m/save/i) {
-	my $ip = $ENV{'REMOTE_ADDR'};
-	my $text = "$page ... $stamp ... $ip\n\n";
-	# prefix existing contents of RecentChanges with newest entry.
-	my $contents = $text . page_text("RecentChanges");
-	write_file("$pagedir/RecentChanges", $contents);
+        my $ip = $ENV{'REMOTE_ADDR'};
+        my $text = "$page ... $stamp ... $ip\n\n";
+        # prefix existing contents of RecentChanges with newest entry.
+        my $contents = $text . page_text("RecentChanges");
+        write_file("$pagedir/RecentChanges", $contents);
     }
-#    print "Content-type: text/plain\n\n$contents";
     return 0;
 }
 
