@@ -21,6 +21,7 @@ $pagedir = "pages";
 $archivedir = "$pagedir/archive";
 $defaultpage = "WelcomePage"; # FrontPage? HomePage? HomeBase? CecilCabin?
 $webhamster = 'webhamster@nimblemachines.com';
+$wikiname = "Nimble Machines";
 $editscript = "wiki";
 
 $markurl = "\001";
@@ -66,7 +67,7 @@ Content-type: text/html
 
 <html>
   <head>
-    <title>Wiki: an error occurred</title>
+    <title>$wikiname :: An error occurred</title>
   </head>
   <body>
     <h1>Something went terribly wrong</h1>
@@ -199,13 +200,19 @@ sub fancy_link {
 }
 
 sub generate_xhtml {
-    my ($title) = @_;
+    my ($title, $heading) = @_;
     my $home = scriptlink("$defaultpage", "<img id=\"icon\" src=\"icons/lambda.gif\" alt=\"lambda the ultimate!\" />");
-    my $header = scriptlink("search=$page", $title);
     my $style = "screen.css";
     my $keywords = "nimble machines,wiki";
     my $description = "A wiki for discussing the present and future of computing.";
     my $copyright = "All content on nimblemachines.com is copyrighted. All rights are reserved.";
+
+    # mostly we want the title and heanding to be the same. In this case we
+    # pass "" for $heading, and it gets set to $title. Sometimes, though, they
+    # need to be different: if, for instance, we want inline markup in the
+    # heading but not in the title (where it violates the html spec).
+
+    $heading = scriptlink("search=$page", "$title") unless $heading;
 
     print <<EOT;
 Content-type: text/html
@@ -220,13 +227,13 @@ Content-type: text/html
 <meta name="description" content="$description" />
 <meta name="copyright" content="$copyright" />
 <link rel="stylesheet" href="$style" type="text/css" />
-<title>$title</title>
+<title>$wikiname :: $title</title>
 </head>
 <body>
 
 <div id="header">
 $home
-<h1>. $header</h1>
+<h1>. $heading</h1>
 </div>
 
 <div id="content">
@@ -291,11 +298,11 @@ sub editfooter {
     my $edittext = scriptlink("edit=$page", "EditText") . " of this page";
 
 # waiting for diff links until we have some kind of diffing!
-#    my $modtext  = " (last modified " . scriptlink("diff=$page", $mod) . ")" if $page && $mod;
+#    my $modtext  = " (last edited " . scriptlink("diff=$page", $mod) . ")" if $page && $mod;
 
     my $modtime = modtime("$pagedir/$page");
     my $modtext  = ($modtime != 0)
-	? " (last modified " . stamp($modtime) . ")"
+	? " (last edited " . stamp($modtime) . ")"
 	: "";
 
     $footer .= "$edittext$modtext<br />\n";
@@ -443,8 +450,9 @@ sub block_markup {
     s#^;(.*)#<blockquote>$1</blockquote>#s ||
 
     s#^-{4,}#<hr /># ||
-    s/^(={1,4})\s+(.*)/wrap("h".((length $1)+1), $2)/e ||
-#    s/^([*#]{1,5})\s+(.*)/listitem($1, $2)/gme ||
+    s/^(={1,4})\s*(.*)/wrap("h".((length $1)+1), $2)/e ||
+#    s/^([*#]{1,5})\s*(.*)/listitem($1, $2)/gme ||
+
     # special links - these generate form elements, which are considered to
     # be block-level markup. In order to validate, these cannot be enclosed
     # in p elems.
@@ -525,7 +533,7 @@ sub do_show {
     editfooter($page) if $editable;
     findfooter();
     validator();
-    generate_xhtml(fancy_title($page));
+    generate_xhtml(fancy_title($page), "");
 }
 
 sub make_edit_page {
@@ -550,7 +558,7 @@ sub make_edit_page {
 </form>
 
     validator();
-    generate_xhtml("Editing " . fancy_title($page));
+    generate_xhtml("Editing " . fancy_title($page), "");
 }
 
 sub do_edit {
@@ -613,7 +621,8 @@ sub do_text_search {
     my @matches = grep { ! m/^\./ && -r "$pagedir/$_" && -f "$pagedir/$_" 
 			 && (page_text($_) =~ m/$page/i) } readdir PAGES;
     closedir PAGES;
-    gen_search_page("Pages matching <em>$page</em>", @matches);
+    gen_search_page("Pages matching $page",
+		    "Pages matching <em>$page</em>", @matches);
 }
 
 sub do_name_search {
@@ -621,20 +630,21 @@ sub do_name_search {
     my @matches = grep { ! m/^\./ && -r "$pagedir/$_" && -f "$pagedir/$_"
 			 && m/$page/i } readdir PAGES;
     closedir PAGES;
-    gen_search_page("Page names matching <em>$page</em>", @matches);
+    gen_search_page("Page names matching $page",
+		    "Page names matching <em>$page</em>", @matches);
 }
 
 sub gen_search_page {
-    my ($title, @matches) = @_;
+    my ($title, $heading, @matches) = @_;
     my $text = "";
-    foreach (@matches) {
+    foreach (sort @matches) {
 	$text .= "<li>" . make_wiki_link($_, $_) . "</li>\n";
     }
     $content  = "<ul>\n$text</ul>\n" if $text;
     $content .= "<hr />";
     findfooter();
     validator();
-    generate_xhtml($title);
+    generate_xhtml($title, $heading);
 }
 
 sub do_diff {
