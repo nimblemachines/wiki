@@ -212,11 +212,14 @@ sub generate_xhtml {
     # get stuck in circles or do damage to the wiki. Only "normal"
     # (do_show) pages should be indexed.
 
-    my $meta_robots = "${robots}index,${robots}follow" ;
     $heading = scriptlink("search=$page", "$title") unless $heading;
     $heading_template =~ s/<home \/>/$home_link/;
     $heading_template =~ s/<heading \/>/$heading/;
 
+    $metas{'robots'} = "${robots}index,${robots}follow";
+    my $meta_elements = join "\n",
+        map "<meta name=\"$_\" contents=\"$metas{$_}\" />", keys %metas;
+    
     print <<EOT;
 Content-type: text/html
 
@@ -226,10 +229,7 @@ Content-type: text/html
           "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-<meta name="keywords" content="$keywords" />
-<meta name="description" content="$description" />
-<meta name="copyright" content="$copyright" />
-<meta name="robots" content="$meta_robots" />
+$meta_elements
 <link rel="stylesheet" href="$style" type="text/css" />
 <title>$wikiname :: $title</title>
 </head>
