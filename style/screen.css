@@ -43,6 +43,34 @@ div#footer {
 /*  background: #cceeee; */
 }
 
+div.voice2, div.voice2 a {
+  color: #008000
+}
+
+div.voice3, div.voice3 a {
+  color: #000080
+}
+
+div.voice4, div.voice4 a {
+  color: #800000
+}
+
+div.voice5, div.voice5 a {
+  color: #008080
+}
+
+div.voice6, div.voice6 a {
+  color: #800080
+}
+
+div.voice7, div.voice7 a {
+  color: #808000
+}
+
+div.voice8, div.voice8 a {
+  color: #808080
+}
+
 a.missing {
   background: #ddffdd;
 }

@@ -42,7 +42,7 @@ sub escape_html {
     s/&/&amp;/g;
     s/&amp;([a-zA-Z]+);/&$1;/g;   # unescape character entities
     s/</&lt;/g;
-    s/>/&gt;/g;
+#    s/>/&gt;/g;
 }
 
 sub parse_http_data {
@@ -463,6 +463,24 @@ sub wrap {
     "<$elem>$contents</$elem>";
 }
 
+# For every voice except the first (">") there is an open div.
+$current_voice = 1;
+
+sub end_voice {
+    ($current_voice != 1) ? "</div>\n" : "";
+}
+
+sub start_voice {
+    my ($v) = @_;
+    if ($v != $current_voice) {
+	my $old = end_voice();
+	my $new = ($v != 1) ? "<div class=\"voice" . $v . "\">" : "";
+	$current_voice = $v;
+	"$old$new";
+    }
+    else { "" }
+}
+
 sub block_markup {
     s#^(\s+.*)#<pre>\n$1\n</pre>#s ||
     s#^"(.*)#<blockquote>$1</blockquote>#s ||
@@ -470,6 +488,9 @@ sub block_markup {
 
     s#^-{4,}#<hr /># ||
     s/^(={1,4})\s*(.*)/wrap("h".((length $1)+1), $2)/e ||
+
+    # multiple "voices"
+    s/^(>{1,8})/start_voice(length($1))/e ||
 #    s/^([*#]{1,5})\s*(.*?)/listitem($1, $2)/gme ||
 #    s/^([*#]{1,5}.*?)/listblock($1)/e ||
 
