@@ -15,7 +15,8 @@ $wikilinkre = "(?:$wikilinkbit){2,}";
 $extendedlinkbit = "[A-Za-z0-9]+";
 $extendedlinkre = "$extendedlinkbit(?:_$extendedlinkbit)+";
 $interprefix = "[A-Z][A-Za-z0-9]+";
-$interbody = "[A-Za-z0-9_+\"-#?]+";
+#$interquery = "[A-Za-z0-9_+\"-#?]+";
+$interquery = "[^\s\"<]+";
 $pagedir = "pages";
 $archivedir = "$pagedir/archive";
 $defaultpage = "WelcomePage"; # FrontPage? HomePage? HomeBase? CecilCabin?
@@ -333,7 +334,7 @@ sub convert_wiki_links {
 }
 
 sub convert_interwiki_links {
-    s/($interprefix):($interbody)/make_hidden_interwiki_link($1, $2)/geo;
+    s/($interprefix):($interquery)/make_hidden_interwiki_link($1, $2)/geo;
 }
 
 @nestelems = ();
@@ -544,7 +545,8 @@ sub do_save {
     # "----" and put the last one there.
     my $contents = page_text("RecentChanges") || "----\n\n";
     my $mod = modtimestring("$pagedir/$page");
-    my $text = "* $page (modified $mod)\n";
+    my $ip = $ENV{REMOTE_ADDR};
+    my $text = "* $page (modified $mod from $ip)\n";
     $contents =~ s/(-{4,}\n{2,})/$1$text/;
     write_file("$pagedir/RecentChanges", $contents);
 #    print "Content-type: text/plain\n\n$contents";
