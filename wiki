@@ -522,6 +522,7 @@ sub inline_markup {
     convert_wiki_links();
 
     # generic href links: [[url lots of link text]]
+    s#\[\[(\S+?\.(jpg|jpeg|gif|png))\]\]#<img src="$1" />#g;
     s#\[\[(\S+?)\]\]#<a href="$1">$1</a>#g;
     s#\[\[(\S+?)\s+(.+?)\]\]#<a href="$1">$2</a>#g;
 }
