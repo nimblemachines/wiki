@@ -511,7 +511,7 @@ sub inline_markup {
     s/\[\[($interprefix):($interquery)\s+(.+?)\]\]/hide(make_interwiki_link($1, $2, $3))/geo;
 
     # inline img link: [[uri.ext alt text]] where ext is img type
-    s#\[\[(\S+\.(jpg|jpeg|gif|png))\s+(.+?)\]\]#hide(
+    s#\[\[(\S+\.(?:jpg|jpeg|gif|png))\s+(.+?)\]\]#hide(
 	"<img src=\"$1\" alt=\"$2\" />")#ge;
 
     # unnamed href link: [[uri]]
