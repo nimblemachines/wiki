@@ -689,11 +689,6 @@ to merge your changes.
     # joins bits together separated by \n\n
     write_file("$pagedir/$page", (join "\n\n", @paras));
 
-    # make sure a link exists to nimblemachines.com
-    my $mirror = "../nimblemachines.com/pages/$page";
-    symlink ("../../dev.nimblemachines.com/$pagedir/$page",
-	     "$mirror") unless (-r $mirror && -l $mirror);
-
 # XXX: remove 2nd \n after I fix ul code!!
 # XXX: and add back in the '* ' at the start of the line!!
 #    my $text = "* $page (modified $stamp from $ip)\n\n";
@@ -705,13 +700,6 @@ to merge your changes.
 	# prefix existing contents of RecentChanges with newest entry.
 	my $contents = $text . page_text("RecentChanges");
 	write_file("$pagedir/RecentChanges", $contents);
-
-	# do the same, but emasculated, for nimblemachines.com
-	my $text = "$page ... $stamp\n\n";
-	# prefix existing contents of RecentChanges with newest entry.
-	my $rc = "../nimblemachines.com/$pagedir/RecentChanges";
-	my $contents = $text . read_file("$rc");
-	write_file("$rc", $contents);
     }
 #    print "Content-type: text/plain\n\n$contents";
     return 0;
