@@ -15,8 +15,8 @@ $wikilinkre = "(?:$wikilinkbit){2,}";
 $extendedlinkbit = "[A-Za-z0-9]+";
 $extendedlinkre = "$extendedlinkbit(?:_$extendedlinkbit)+";
 $interprefix = "[A-Z][A-Za-z0-9]+";
-#$interquery = "[A-Za-z0-9_+\"-#?]+";
-$interquery = "[^\s\"<]+";
+$interquery = "[A-Za-z0-9_+\"-#?]+";
+#$interquery = "[^\s\"<]+";
 $pagedir = "pages";
 $archivedir = "$pagedir/archive";
 $defaultpage = "WelcomePage"; # FrontPage? HomePage? HomeBase? CecilCabin?
@@ -117,7 +117,10 @@ sub init_interwiki {
 }
 
 sub do_init {
-    $script = (split '/', $ENV{SCRIPT_NAME})[-1];	# keep only last part
+# which of these is actually standard CGI?? The first one works on Apache
+# but fails on yaws.
+#    $script = (split '/', $ENV{SCRIPT_NAME})[-1];	# keep only last part
+    $script = (split '/', $ENV{REQUEST_URI})[-1];	# keep only last part
 
     $editable = $script eq $editscript;
 
@@ -507,11 +510,11 @@ sub do_edit {
     $content = <<"";
 <form action="$script?$page" method="post" enctype="application/x-www-form-urlencoded">
   <p>
-    <textarea name="edittext" rows="25" cols="65" wrap="virtual">$_</textarea>
+    <textarea name="edittext" rows="25" cols="75">$_</textarea>
   </p>
   <p>
     Comment about changes you made:<br />
-    <input type="text" name="comment" size="65" />
+    <input type="text" name="comment" size="75" />
   </p>
   <p>
     <input type="submit" value="Save" />
