@@ -661,12 +661,17 @@ to merge your changes.
     # XXX: change this when splitting method changes in rendering code
     # we're going to do "paragraph" markup delimited with multiple newlines
     # leave pre alone
+    # This bit of code has the added affect of canonicalizing the edited text:
+    # chunks (paras) are separated by exactly two \n's, and the whole thing,
+    # when written out to disk, is followed by a single \n.
+
     my @paras =  split /\n{2,}/, $edit;
     foreach my $para (@paras) {
 	$para =~ s/\[now\]/$stamp/ge unless $para =~ m/^\s+/;
     }
 
-    write_file("$pagedir/$page", join "\n\n", @paras);
+    # joins bits together separated by \n\n, and add trailing \n
+    write_file("$pagedir/$page", (join "\n\n", @paras) . "\n");
 
     my $ip = $ENV{'REMOTE_ADDR'};
 # XXX: remove 2nd \n after I fix ul code!!
