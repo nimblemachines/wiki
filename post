@@ -1,0 +1,58 @@
+#!/usr/bin/perl -w
+
+sub escape_uri {
+    my ($uri) = @_;
+
+    # escape a minimal set - probably more chars are needed here
+#    $uri =~ s/([&=+?])/"%" . unpack("H2", $1)/ge;
+    $uri =~ s/([&=+?\000-\037\177])/"%" . unpack("H2", $1)/ge;
+    $uri =~ tr/ /+/;	# may have to be %20
+    $uri;
+}
+
+sub unescape_uri {
+    my ($uri) = @_;
+    return undef unless defined $uri;
+    $uri =~ tr/+/ /;
+    $uri =~ s/%([0-9a-fA-F]{2})/pack("C",hex($1))/ge;
+    $uri;
+}
+
+sub parse_http_data {
+    my ($data) = @_;
+    my @pairs;
+    foreach (split( /&/, $data)) {
+	my ($key, $value) = split(/=/, $_, 2);
+	push @pairs, unescape_uri($key), unescape_uri($value);
+#	push @pairs, unescape_uri($key), $value;
+    }
+    @pairs;
+}
+
+if ($ENV{'REQUEST_METHOD'} eq 'POST') {
+    read(STDIN, $data, $ENV{'CONTENT_LENGTH'});
+    %form = parse_http_data($data);
+}
+
+%query = parse_http_data($ENV{'QUERY_STRING'});
+
+print "Content-type: text/plain\n\n";
+
+print ":: ENV ::\n";
+foreach (sort keys %ENV) {
+    print "$_ = $ENV{$_}\n";
+}
+print "\n:: Query ::\n";
+foreach (sort keys %query) {
+    print "$_ = $query{$_}\n";
+}
+print "\n:: Form ::\n";
+foreach (sort keys %form) {
+    print "$_ = $form{$_}\n";
+}
+
+print "action = $action\npage = $page\n";
+
+$_ = $form{edittext};
+s/\r//g;
+print escape_uri($_), "\n";
