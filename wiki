@@ -543,11 +543,15 @@ sub make_edit_page {
     $content .= <<"";
 <form action="$script?$page" method="post" enctype="application/x-www-form-urlencoded">
   <p>
-    <textarea name="edittext" rows="25" cols="75">$text</textarea>
+    <textarea name="edittext" rows="25" cols="80">$text</textarea>
   </p>
   <p>
     Comment about changes you made:<br />
-    <input type="text" name="comment" size="75" />
+    <input type="text" name="comment" size="80" />
+  </p>
+  <p>
+    <input type="checkbox" name="minoredit" checked="checked" value="1" />
+    This is a minor edit (and will not affect RecentChanges).
   </p>
   <p>
     <input type="submit" name="submit" value="Save" />
