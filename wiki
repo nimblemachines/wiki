@@ -560,8 +560,10 @@ sub do_save {
     my $edit = $form{'edittext'};
     $edit =~ s/\r//g;	# CRLF -> LF
 
+    my $mod_current = modtime("$pagedir/$page");
+
     # we have to check for edit collisions
-    if (modtime("$pagedir/$page") != $form{'modtime'}) {
+    if ($mod_current != $form{'modtime'}) {
 	$content = <<"";
 <p>
 Unfortunately, someone else has edited and saved $page since you started
@@ -574,15 +576,18 @@ to merge your changes.
 	return -1;	# we failed to save, so don't do a "show"
     }
 	
-    make_backup_page("$page", "$mod_current");
+    make_backup_page("$page", iso_timestamp("$mod_current"));
+
+    # convert time stamps
+    my $stamp = stamp(time());
+    $edit =~ s/\[\[now\]\]/$stamp/ge;
     write_file("$pagedir/$page", $edit);
 
-    my $mod = modtimestring("$pagedir/$page");
     my $ip = $ENV{REMOTE_ADDR};
 # XXX: remove 2nd \n after I fix ul code!!
 # XXX: and add back in the '* ' at the start of the line!!
-#    my $text = "* $page (modified $mod from $ip)\n\n";
-    my $text = "$page ... $mod ... $ip\n\n";
+#    my $text = "* $page (modified $stamp from $ip)\n\n";
+    my $text = "$page ... $stamp ... $ip\n\n";
 
     # prefix existing contents of RecentChanges with newest entry.
     my $contents = $text . page_text("RecentChanges");
