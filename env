@@ -1,0 +1,8 @@
+#!/usr/bin/perl
+print "Content-type: text/plain\n\n";
+foreach $key (sort keys %ENV) {
+  print "$key = $ENV{$key}\n";
+}
+print "PWD = " . `pwd`;
+print "ID = " . `id`;
+
