@@ -10,12 +10,11 @@ package nimblewiki;
 
 $| = 1;		# flush after each print
 
-$wikilinkbit = "[A-Z][a-z0-9]+";
-$wikilinkre = "(?:$wikilinkbit){2,}";
-$extendedlinkbit = "[A-Za-z0-9]+";
-$extendedlinkre = "$extendedlinkbit(?:_$extendedlinkbit)+";
+$wikiword = "[A-Z][a-z0-9]+";
+$wikilink = "(?:$wikiword){2,}";
 $interprefix = "[A-Z][A-Za-z0-9]+";
-$interquery = "$extendedlinkbit(?:[_+#?:.-]$extendedlinkbit)*";
+$interword = "[A-Za-z0-9]+";
+$interquery = "$interword(?:[_+#?:.-]$interword)*";
 $pagedir = "pages";
 $archivedir = "$pagedir/archive";
 $defaultpage = "WelcomePage"; # FrontPage? HomePage? HomeBase? CecilCabin?
@@ -31,6 +30,7 @@ $style = "screen.css";
 $keywords = "nimble machines,wiki";
 $description = "A wiki for discussing the present and future of computing.";
 $copyright = "All content on nimblemachines.com is copyrighted. All rights are reserved.";
+$heading_template = '<h1>. $h</h1>';
 
 ### Read in local config overrides ###
 do "config.pl";
@@ -55,6 +55,7 @@ sub escape_uri {
 
 sub escape_html {
     s/&/&amp;/g;
+    s/&amp;([a-zA-Z]+);/&$1;/g;   # unescape character entities
     s/</&lt;/g;
     s/>/&gt;/g;
 }
@@ -192,7 +193,7 @@ sub do_request {
 sub fancy_title {
     my ($title) = @_;
 
-    if ($title =~ m/$wikilinkre/) {
+    if ($title =~ m/$wikilink/) {
 	$title =~ s/([a-z])([A-Z0-9])/$1 $2/g;
     }
     else {
@@ -229,6 +230,7 @@ sub generate_xhtml {
 
     my $meta_robots = "${robots}index,${robots}follow" ;
     $heading = scriptlink("search=$page", "$title") unless $heading;
+    $heading_template =~ s/\$h/$heading/;
 
     print <<EOT;
 Content-type: text/html
@@ -250,7 +252,7 @@ Content-type: text/html
 
 <div id="header">
 $home
-<h1>. $heading</h1>
+$heading_template
 </div>
 
 <div id="content">
@@ -373,13 +375,13 @@ sub hide {
     my ($link) = @_;
 
     # use "" to hide links
-    $link =~ s/($wikilinkbit)/$1\"\"/go;
+    $link =~ s/($wikiword)/$1\"\"/go;
 #   $link =~ s/($extendedlinkbit)/$1\"\"/go;
     $link;
 }
 
 sub convert_wiki_links {
-    s/($wikilinkre)/make_wiki_link($1)/geo;
+    s/($wikilink)/make_wiki_link($1)/geo;
 #    s/($extendedlinkre)/make_wiki_link($1)/geo;
 
     # forced link of single word
@@ -531,6 +533,8 @@ sub inline_markup {
     # generic href link: [[url lots of link text]]
     s#\[\[(\S+?)\s+(.+?)\]\]#hide("<a href=\"$1\">$2</a>")#ge;
 
+    # ISBN 
+
     convert_interwiki_links();
     convert_wiki_links();
 }
@@ -587,11 +591,11 @@ sub make_edit_page {
     $content .= <<"";
 <form action="$script?$page" method="post" enctype="application/x-www-form-urlencoded">
   <p>
-    <textarea name="edittext" rows="25" cols="80">$text</textarea>
+    <textarea name="edittext" rows="25" cols="75">$text</textarea>
   </p>
   <p>
     Comment about changes you made:<br />
-    <input type="text" name="comment" value="Ignore this for now" size="80" />
+    <input type="text" name="comment" value="Ignore this for now" size="75" />
   </p>
   <p>
     If you've made only small changes - like to punctuation or spelling -
