@@ -111,17 +111,26 @@ sub init_interwiki {
     %intermap = (-r "$file" && -f "$file") ? split /\s+/, read_file($file) : ();
 }
 
+sub dispatch_on_action {
+    %dispatch = (
+        show   => \&do_show,
+        edit   => $editable ? \&do_edit : \&do_show,
+        search => \&do_text_search,
+        name   => \&do_name_search,
+        diff   => \&do_diff
+    );
+
+    if (exists $dispatch{$action}) {
+        &{$dispatch{$action}}();
+    } else {
+        do_show();
+    }
+}
+
 sub do_init {
     $script = (split '/', $ENV{'SCRIPT_NAME'})[-1];     # keep only last part
 
     $editable = $script eq $editscript;
-
-    %dispatch = ( show   => \&do_show,
-                  edit   => $editable ? \&do_edit : \&do_show,
-                  search => \&do_text_search,
-                  name   => \&do_name_search,
-                  diff   => \&do_diff
-                  );
 
     $method = $ENV{'REQUEST_METHOD'};
     if ($method =~ m/post/i){ 
@@ -182,7 +191,7 @@ sub do_request {
         && return;
 
     # dispatch unless we saved and save failed
-    &{$dispatch{$action}}();            # ... does this as well on save
+    dispatch_on_action();            # ... does this as well on save
 }
 
 sub fancy_title {
@@ -615,14 +624,13 @@ sub make_edit_page {
     my $mod = modtime("$pagedir/$page");
     my $action_href = script_href("show", $page);
 
-    my $invitation = <<"" unless $text;
+    $content .= <<"" unless $text;
   <p>
     $page doesn't exist. Why not create it by entering some text below?
   </p>
 
     $content .= <<"";
 <form action="$action_href" method="post" enctype="application/x-www-form-urlencoded">
-$invitation
   <p>
     <textarea name="edittext" rows="25" cols="75">$text</textarea>
   </p>
@@ -636,10 +644,10 @@ $invitation
     Otherwise, to save changes and log RecentChanges, press Save.
   </p>
   <p>
-    <input type="submit" name="submit" value="Save" />
-    <input type="submit" name="submit" value="Tweak" />
-    <input type="reset"                value="Revert" />
-    <input type="submit" name="submit" value="Cancel" />
+    <input type="submit" name="submit"  value="Save" />
+    <input type="submit" name="submit"  value="Tweak" />
+    <input type="reset"                 value="Revert" />
+    <input type="submit" name="submit"  value="Cancel" />
     <input type="hidden" name="modtime" value="$mod" />
   </p>
 </form>
