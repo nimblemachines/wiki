@@ -521,7 +521,9 @@ sub show_uris {
 sub inline_markup {
     hide_uris();
 
-    # this one should be first: it wreaks havoc with slashes!!
+    # 5 in a row nests wrong without this: <strong><em>text</strong></em>
+    s#'{5}(.+?)'{5}#<strong><em>$1</em></strong>#gs;
+
     s#'{3}(.+?)'{3}#<strong>$1</strong>#gs;
     s#'{2}(.+?)'{2}#<em>$1</em>#gs;
     # XXX: code, cite, kbd, ???
