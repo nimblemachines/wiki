@@ -550,7 +550,8 @@ sub do_save {
     my $mod = modtimestring("$pagedir/$page");
     my $ip = $ENV{REMOTE_ADDR};
 # XXX: remove 2nd \n after I fix ul code!!
-    my $text = "* $page (modified $mod from $ip)\n\n";
+#    my $text = "* $page (modified $mod from $ip)\n\n";
+    my $text = "* $page ... $mod ... $ip\n\n";
     $contents =~ s/(-{4,}\n{2,})/$1$text/;
     write_file("$pagedir/RecentChanges", $contents);
 #    print "Content-type: text/plain\n\n$contents";
