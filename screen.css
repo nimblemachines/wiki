@@ -1,0 +1,13 @@
+/*
+ * $Id$
+ *
+ * Style sheet for nimblemachines.com wiki
+ */
+
+a img {
+  border: none;
+}
+
+a.create {
+  background: #ddffdd
+}
