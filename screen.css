@@ -4,6 +4,10 @@
  * Style sheet for nimblemachines.com wiki
  */
 
+body {
+  margin: 1pc 1pc 1pc 3pc;
+}
+
 a img {
   border: none;
 }
@@ -26,6 +30,12 @@ div#content {
   clear: both;
 }
 
-a.create {
+a.missing {
   background: #ddffdd
 }
+
+hr {
+  border: solid gray;
+  border-width: 1px 0 0 0;
+}
+
