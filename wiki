@@ -287,10 +287,16 @@ sub modtimestring {
 }
 
 sub editfooter {
-    my ($page) = @_;	# page name for "diff" link
-    my $mod = modtimestring("$pagedir/$page") if $page;
+    my ($page) = @_;
     my $edittext = scriptlink("edit=$page", "EditText") . " of this page";
-    my $modtext  = " (last modified " . scriptlink("diff=$page", $mod) . ")" if $page && $mod;
+
+# waiting for diff links until we have some kind of diffing!
+#    my $modtext  = " (last modified " . scriptlink("diff=$page", $mod) . ")" if $page && $mod;
+
+    my $modtime = modtime("$pagedir/$page");
+    my $modtext  = ($modtime != 0)
+	? " (last modified " . stamp($modtime) . ")"
+	: "";
 
     $footer .= "$edittext$modtext<br />\n";
 }
