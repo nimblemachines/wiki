@@ -8,7 +8,7 @@ package nimblewiki;
 
 # %q = ();
 
-$| = 1;		# flush after each print
+$| = 1;         # flush after each print
 
 $wikiword = "[A-Z][a-z0-9]+";
 $wikilink = "(?:$wikiword){2,}";
@@ -34,7 +34,7 @@ sub escape_uri {
     # escape a minimal set - probably more chars are needed here
 #    $uri =~ s/([&=+?])/"%" . unpack("H2", $1)/ge;
     $uri =~ s/([&=+?\000-\037\177])/"%" . unpack("H2", $1)/ge;
-    $uri =~ tr/ /+/;	# may have to be %20
+    $uri =~ tr/ /+/;    # may have to be %20
     $uri;
 }
 
@@ -48,8 +48,8 @@ sub escape_html {
 sub parse_http_data {
     my @pairs;
     foreach (split( /&/, shift)) {
-	my ($key, $value) = split(/=/, $_, 2);
-	push @pairs, unescape_uri($key), unescape_uri($value);
+        my ($key, $value) = split(/=/, $_, 2);
+        push @pairs, unescape_uri($key), unescape_uri($value);
     }
     @pairs;
 }
@@ -113,27 +113,27 @@ sub init_interwiki {
 }
 
 sub do_init {
-    $script = (split '/', $ENV{'SCRIPT_NAME'})[-1];	# keep only last part
+    $script = (split '/', $ENV{'SCRIPT_NAME'})[-1];     # keep only last part
 
     $editable = $script eq $editscript;
 
     %dispatch = ( show   => \&do_show,
-		  edit   => $editable ? \&do_edit : \&do_show,
-		  search => \&do_text_search,
-		  name   => \&do_name_search,
-		  diff   => \&do_diff
-		  );
+                  edit   => $editable ? \&do_edit : \&do_show,
+                  search => \&do_text_search,
+                  name   => \&do_name_search,
+                  diff   => \&do_diff
+                  );
 
     $method = $ENV{'REQUEST_METHOD'};
     if ($method =~ m/post/i){ 
-	read(STDIN, my $form, $ENV{'CONTENT_LENGTH'});
-	%form = parse_http_data($form);
+        read(STDIN, my $form, $ENV{'CONTENT_LENGTH'});
+        %form = parse_http_data($form);
     }
 
     ($page, $action, %query) = parse_http_data($ENV{'QUERY_STRING'});
     ($page, $action) = ($action, $page) if $action;
-    $action ||= "show";		# ?page -> ?show=page    
-    $page ||= $defaultpage;	# empty -> ?DefaultPage
+    $action ||= "show";         # ?page -> ?show=page    
+    $page ||= $defaultpage;     # empty -> ?DefaultPage
 
     $textsearchform = <<"";
 <form action="$script" method="get" enctype="application/x-www-form-urlencoded">
@@ -166,24 +166,24 @@ sub do_request {
 
     # $action will match show" ...
     $method =~ m/post/i
-	# both Save & Tweak buttons save the edit
-	&& $form{'submit'} =~ m/(save|tweak)/i
-	&& do_save() != 0
-	&& return;
+        # both Save & Tweak buttons save the edit
+        && $form{'submit'} =~ m/(save|tweak)/i
+        && do_save() != 0
+        && return;
 
     # dispatch unless we saved and save failed
-    &{$dispatch{$action}}();		# ... does this as well on save
+    &{$dispatch{$action}}();            # ... does this as well on save
 }
 
 sub fancy_title {
     my ($title) = @_;
 
     if ($title =~ m/$wikilink/) {
-	$title =~ s/([a-z])([A-Z0-9])/$1 $2/g;
+        $title =~ s/([a-z])([A-Z0-9])/$1 $2/g;
     }
     else {
-	$title =~ tr/_/ /;
-	$title =~ s/^([a-z])/uc($1)/e;	# capitalize first letter
+        $title =~ tr/_/ /;
+        $title =~ s/^([a-z])/uc($1)/e;  # capitalize first letter
     }
     $title
 }
@@ -191,14 +191,14 @@ sub fancy_title {
 sub fancy_link {
     my ($link) = @_;
 
-    $link =~ tr/_/ /;	# works for both wiki and extended links
+    $link =~ tr/_/ /;   # works for both wiki and extended links
     $link;
 }
 
 sub generate_xhtml {
     my ($title, $heading, $robots) = @_;
     my $home_link = scriptlink("$defaultpage",
-	  "<img id=\"icon\" src=\"$iconimgsrc\" alt=\"$iconimgalt\" />");
+          "<img id=\"icon\" src=\"$iconimgsrc\" alt=\"$iconimgalt\" />");
 
     # Mostly we want the title and heading to be the same text. $heading is
     # usually a link to a search page, but the link text is the same as
@@ -258,7 +258,7 @@ EOT
 sub leading_zero {
     my @nums = @_;
     foreach my $n (@nums) {
-	$$n = "0$$n" if ($$n < 10);
+        $$n = "0$$n" if ($$n < 10);
     }
 }
 
@@ -267,8 +267,8 @@ sub pretty_time {
     my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday) = localtime($time);
     $year += 1900;
     my $month = (qw(January February March April May June July
-		    August September October November December))[$mon];
-    $mon = $mon + 1;	# was indexed from 0
+                    August September October November December))[$mon];
+    $mon = $mon + 1;    # was indexed from 0
     leading_zero \($mon, $mday, $hour, $min, $sec);
     ($year, $mon, $month, $mday, $hour, $min, $sec);
 }
@@ -305,17 +305,17 @@ sub editfooter {
 
     my $modtime = modtime("$pagedir/$page");
     my $modtext  = ($modtime != 0)
-	? " (last edited " . stamp($modtime) . ")"
-	: "";
+        ? " (last edited " . stamp($modtime) . ")"
+        : "";
 
     $footer .= "$edittext$modtext<br />\n";
 }
 
 sub findfooter {
     $footer .= scriptlink("SearchWiki", "SearchWiki")
-	. " for titles or text,\n"
-	. "browse " . scriptlink("RecentChanges", "RecentChanges") . ",\n"
-	. "or return to " . scriptlink($defaultpage, $defaultpage) . "\n";
+        . " for titles or text,\n"
+        . "browse " . scriptlink("RecentChanges", "RecentChanges") . ",\n"
+        . "or return to " . scriptlink($defaultpage, $defaultpage) . "\n";
 #Search for &nbsp;$searchform
 #Pages like &nbsp;$namesearchform
 
@@ -338,10 +338,10 @@ sub make_wiki_link {
     my ($page) = @_;
     my $link = fancy_link($page);
     (-r "$pagedir/$page" && -f "$pagedir/$page")
-	? scriptlink($page, $link)
+        ? scriptlink($page, $link)
 #        : "$page" . ($editable ? scriptlink("edit=$page", "[?]") : "");
         : ($editable ? scriptlinkclass("$page", $link, "missing")
-	   : "$page");
+           : "$page");
 }
 
 # a way to escape query strings? Thinking of google queries w/embedded spaces.
@@ -353,7 +353,7 @@ sub make_interwiki_link {
 #    $link_text =~ s/#/ :: /g;
 
     defined $interlink
-	? "<a href=\"$interlink$suffix\">$link_text</a>" : "$link_text";
+        ? "<a href=\"$interlink$suffix\">$link_text</a>" : "$link_text";
 }
 
 sub hide {
@@ -417,33 +417,32 @@ sub listitem {
     my $out = "";
     my $elem = $type =~ m/\*/ ? "ul" : "ol";
     my $depth = 2 * (length $type) - 1;
-    
+
     if ($nestdepth == 0)
     { $out .= pushelem($elem) . "\n"; }
     else
-	# close last open li
+        # close last open li
     { $out .= popelem(); }
 
     $out .= pushelem("li") . "\n" . pushelem($elem) . "\n"
-	while ($depth > $nestdepth);
+        while ($depth > $nestdepth);
 
     $out .= popelem()
-	while ($depth < $nestdepth);
+        while ($depth < $nestdepth);
 
     # now we're at the right level but might be inside a different list elem
     $out .= popelem() . pushelem("li") . "\n" . pushelem($elem) . "\n"
-	if ($nestelems[-1] ne $elem);
+        if ($nestelems[-1] ne $elem);
 
     # now indent and add open li and text
     $out . pushelem("li") . $text . "\n";
-
 
     $out .= pushelem($elem) . "\n" . pushelem("li") while ($depth > $nestdepth);
     $out .= popelem()                               while ($depth < $nestdepth);
 
     # now we're at the right level but might be inside a different nest elem
     $out .= popelem() . pushelem("li") . pushelem($elem)
-	if (@nestelems && $nestelems[-1] ne $elem);
+        if (@nestelems && $nestelems[-1] ne $elem);
 
     # now indent for item
     $out . indent() . "<li>$text</li>";
@@ -473,16 +472,18 @@ sub end_voice {
 sub start_voice {
     my ($v) = @_;
     if ($v != $current_voice) {
-	my $old = end_voice();
-	my $new = ($v != 1) ? "<div class=\"voice" . $v . "\">" : "";
-	$current_voice = $v;
-	"$old$new";
+        my $old = end_voice();
+        my $new = ($v != 1) ? "<div class=\"voice" . $v . "\">" : "";
+        $current_voice = $v;
+        "$old$new";
     }
     else { "" }
 }
 
 sub block_markup {
-    s#^(\s+.*)#<pre>\n$1\n</pre>#s ||
+    my $class = "";
+    $class = " class=\"changed\"" if s#^\a##;
+    s#^(\s+.*)#<pre$class>\n$1\n</pre>#s ||
     s#^"(.*)#<blockquote>$1</blockquote>#s ||
     s#^;(.*)#<blockquote>$1</blockquote>#s ||
 
@@ -502,7 +503,7 @@ sub block_markup {
     s/^\[textsearch\]/$textsearchform/ ||
 
     # nothing else matches, make it a p
-    s#^(.*)#<p>$1</p>#s;
+    s#^(.*)#<p$class>$1</p>#s;
 
 }
 
@@ -534,7 +535,7 @@ sub inline_markup {
 
     # inline img link: [[uri.ext alt text]] where ext is img type
     s#\[\[(\S+\.(?:jpg|jpeg|gif|png))\s+(.+?)\]\]#hide(
-	"<img src=\"$1\" alt=\"$2\" />")#ge;
+        "<img src=\"$1\" alt=\"$2\" />")#ge;
 
     # unnamed href link: [[uri]]
     s#\[\[(\S+?)\]\]#hide("<a href=\"$1\">$1</a>")#ge;
@@ -567,13 +568,22 @@ sub render_body {
 
     # we're going to do "paragraph" markup delimited with multiple newlines
     foreach (split /\n{2,}/, $_) {
-	inline_markup() unless m/^\s+/;  # leave pre alone
-	block_markup();
-	$content .= "$_\n" , unwind();
+        inline_markup() unless m/^\s+/;  # leave pre alone
+        block_markup();
+        $content .= "$_\n" , unwind();
     }
 
     # close our last "voice" div
     $content .= start_voice(1) . "<hr />";
+}
+
+sub render_page {
+    my ($robots) = @_;
+    render_body();
+    editfooter() if $editable;
+    findfooter();
+    validator();
+    generate_xhtml(fancy_title($page), "", $robots);
 }
 
 # do_xxx needs to do something like this:
@@ -585,15 +595,11 @@ sub do_show {
     $_ = page_text($page);
 
     unless ($_) {
-	$_ = "$page doesn't exist. Why not create it by editing the text of this page?\n";
-	$robots = "no";
+        $_ = "$page doesn't exist. Why not create it by editing the text of this page?\n";
+        $robots = "no";
     }
 
-    render_body();
-    editfooter() if $editable;
-    findfooter();
-    validator();
-    generate_xhtml(fancy_title($page), "", $robots);
+    render_page($robots);
 }
 
 sub make_edit_page {
@@ -638,20 +644,20 @@ sub make_backup_page {
     my ($page, $modstring) = @_;
     my $file = "$pagedir/$page";
     if (-r "$file" && -f "$file") {
-	my $backup_file = "$archivedir/$page." . $modstring;
-	write_file($backup_file, page_text($page));
+        my $backup_file = "$archivedir/$page." . $modstring;
+        write_file($backup_file, page_text($page));
     }
 }
 
 sub do_save {
     my $edit = $form{'edittext'};
-    $edit =~ s/\r//g;	# CRLF -> LF
+    $edit =~ s/\r//g;   # CRLF -> LF
 
     my $mod_current = modtime("$pagedir/$page");
 
     # we have to check for edit collisions
     if ($mod_current != $form{'modtime'}) {
-	$content = <<"";
+        $content = <<"";
 <p>
 Unfortunately, someone else has edited and saved $page since you started
 editing it. The edit area still contains <strong>your</strong> version; if
@@ -660,9 +666,9 @@ to merge your changes.
 </p>
 
         make_edit_page($edit);
-	return -1;	# we failed to save, so don't do a "show"
+        return -1;      # we failed to save, so don't do a "show"
     }
-	
+
     make_backup_page("$page", iso_timestamp("$mod_current"));
 
     # convert time stamps - now honors <pre>
@@ -677,7 +683,7 @@ to merge your changes.
 
     my @paras =  split /\n{2,}/, $edit;
     foreach my $para (@paras) {
-	$para =~ s/\[now\]/$stamp/ge unless $para =~ m/^\s+/;
+        $para =~ s/\[now\]/$stamp/ge unless $para =~ m/^\s+/;
     }
 
     # joins bits together separated by \n\n, and add trailing \n
@@ -691,39 +697,40 @@ to merge your changes.
 
     # tweak will save edit but not affect RecentChanges
     if ($form{'submit'} =~ m/save/i) {
-	# prefix existing contents of RecentChanges with newest entry.
-	my $contents = $text . page_text("RecentChanges");
-	write_file("$pagedir/RecentChanges", $contents);
+        # prefix existing contents of RecentChanges with newest entry.
+        my $contents = $text . page_text("RecentChanges");
+        write_file("$pagedir/RecentChanges", $contents);
     }
 #    print "Content-type: text/plain\n\n$contents";
     return 0;
 }
 
-# XXX: if I knew Perl, and/or if Perl was a nicer language, I would pass
-# a predicate function to a common routine.
-sub do_text_search {
-    opendir PAGES, "$pagedir" or choke "can't opendir $pagedir: $!";
-    my @matches = grep { ! m/^\./ && -r "$pagedir/$_" && -f "$pagedir/$_" 
-			 && (page_text($_) =~ m/$page/i) } readdir PAGES;
+sub filter_pages {
+    my ($dir, $pred) = @_;
+    opendir PAGES, "$dir" or die "can't opendir $dir: $!";
+    my @matches = grep { ! m/^\./ && -r "$dir/$_" && -f "$dir/$_"
+                         && &$pred() } readdir PAGES;
     closedir PAGES;
+    return @matches;
+}
+
+sub do_text_search {
+    my @matches = filter_pages($pagedir, sub { page_text($_) =~ m/$page/i });
     gen_search_page("Pages matching $page",
-		    "Pages matching <em>$page</em>", @matches);
+                    "Pages matching <em>$page</em>", @matches);
 }
 
 sub do_name_search {
-    opendir PAGES, "$pagedir" or die "can't opendir $pagedir: $!";
-    my @matches = grep { ! m/^\./ && -r "$pagedir/$_" && -f "$pagedir/$_"
-			 && m/$page/i } readdir PAGES;
-    closedir PAGES;
+    my @matches = filter_pages($pagedir, sub { m/$page/i });
     gen_search_page("Page names matching $page",
-		    "Page names matching <em>$page</em>", @matches);
+                    "Page names matching <em>$page</em>", @matches);
 }
 
 sub gen_search_page {
     my ($title, $heading, @matches) = @_;
     my $text = "";
     foreach (sort @matches) {
-	$text .= "<li>" . make_wiki_link($_, $_) . "</li>\n";
+        $text .= "<li>" . make_wiki_link($_, $_) . "</li>\n";
     }
     $content  = "<ul>\n$text</ul>\n" if $text;
     $content .= "<hr />";
@@ -733,6 +740,67 @@ sub gen_search_page {
 }
 
 sub do_diff {
+    # get a time stamp for the earlier version of the page
+    my $when = "$page.";
+    $_ = $query{when};
+    if (m/\d\d\d\d-\d\d-\d\d(T\d\d:\d\d(:\d\d)?)?/) {
+        # some form of ISO time
+        $when .= $_;
+        $when .= "T00:00" if $1 eq "";
+        $when .= ":00" if $2 eq "";
+    }
+    else {  # should be a delta in hours
+        my $delta = 24;     # default, in hours
+        $delta = $1 if m/(\d+)h?/i;
+        $when .= iso_timestamp(time() - $delta * 60 * 60);
+    }
+
+    # find earlier version of page
+    my @matches = filter_pages($archivedir, sub { m/^$page/ });
+    my $oldpage = "empty-page-for-diff";
+system "touch $archivedir/$oldpage" unless -f "$archivedir/$oldpage";
+    foreach (sort @matches) {
+        last if $_ gt $when;
+        $oldpage = $_;
+    }
+
+    my $cmd = "diff -U 9999999 $archivedir/$oldpage $pagedir/$page";
+    my $contents = "";
+    open DIFF, "-|", $cmd or choke "cannot compare $page with $oldpage: $!";
+
+    # ignore first few lines until line starts with @@
+    while (<DIFF>) {
+        last if /^@@/;
+    }
+
+    my @contents = "";
+    my @saved = ();
+    my $isnew = 0;
+
+    while (<DIFF>) {
+        next if /^-/;   # don't care about deleted lines
+        $isnew = 1 if /^[+]\s*\S/;
+        s/^.//;
+
+        if (/^$/) {     # blank line
+            #@saved = map { s/^./+/; $_ } @saved if $isnew;
+            $contents .= ($isnew ? "\a" : "");
+            $contents .= join '', @saved;
+            $contents .= "\n";
+            $isnew = 0;
+            @saved = ();
+        } else {
+            push @saved, $_;
+        }
+    }   
+    if (@saved) {
+        $contents .= ($isnew ? "\a" : "");
+        $contents .= join '', @saved;
+    }
+    close DIFF;
+
+    $_ = $contents;
+    render_page("no");
 }
 
 sub do_choke {
@@ -743,19 +811,19 @@ sub print_debug_values {
     print STDERR "\n\n======================== new CGI call =========================\n";
     print STDERR ":: ENV ::\n";
     foreach (sort keys %ENV) {
-	print STDERR "$_ = $ENV{$_}\n";
+        print STDERR "$_ = $ENV{$_}\n";
     }
     print STDERR "\n:: Query ::\n";
     foreach (sort keys %query) {
-	print STDERR "$_ = $query{$_}\n";
+        print STDERR "$_ = $query{$_}\n";
     }
     print STDERR "\n:: Form ::\n";
     foreach (sort keys %form) {
-	print STDERR "$_ = $form{$_}\n";
+        print STDERR "$_ = $form{$_}\n";
     }
     print STDERR "\n:: Intermap ::\n";
     foreach (sort keys %intermap) {
-	print STDERR "$_ = $intermap{$_}\n";
+        print STDERR "$_ = $intermap{$_}\n";
     }
     print STDERR "\n:: VARIABLES ::\n";
     print STDERR "script = $script\n";

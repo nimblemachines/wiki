@@ -71,6 +71,10 @@ div.voice8, div.voice8 a {
   color: #808080
 }
 
+.changed {
+  background: #ffdddd;
+}
+
 a.missing {
   background: #ddffdd;
 }
