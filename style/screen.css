@@ -43,31 +43,31 @@ div#footer {
 /*  background: #cceeee; */
 }
 
-div.voice2, div.voice2 a {
+div.voice2 /*, div.voice2 a */ {
   color: #008000
 }
 
-div.voice3, div.voice3 a {
+div.voice3 /*, div.voice3 a */ {
   color: #000080
 }
 
-div.voice4, div.voice4 a {
+div.voice4 /*, div.voice4 a */ {
   color: #800000
 }
 
-div.voice5, div.voice5 a {
+div.voice5 /*, div.voice5 a */ {
   color: #008080
 }
 
-div.voice6, div.voice6 a {
+div.voice6 /*, div.voice6 a */ {
   color: #800080
 }
 
-div.voice7, div.voice7 a {
+div.voice7 /*, div.voice7 a */ {
   color: #808000
 }
 
-div.voice8, div.voice8 a {
+div.voice8 /*, div.voice8 a */ {
   color: #808080
 }
 
@@ -77,6 +77,7 @@ div.voice8, div.voice8 a {
 
 a.missing {
   background: #ddffdd;
+#  color: #cc00cc;
 }
 
 hr {
@@ -84,4 +85,3 @@ hr {
   border: solid gray;
   border-width: 1px 0 0 0;
 }
-
