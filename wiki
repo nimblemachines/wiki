@@ -755,7 +755,7 @@ sub do_diff {
 
     # find earlier version of page
     my @matches = filter_pages($archivedir, sub { m/^$page/ });
-    my $oldpage = "empty-page-for-diff";
+    my $oldpage = "/dev/null";
 system "touch $archivedir/$oldpage" unless -f "$archivedir/$oldpage";
     foreach (sort @matches) {
         last if $_ gt $when;
