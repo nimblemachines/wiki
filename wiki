@@ -512,6 +512,7 @@ sub do_edit {
   <input type="reset" value="Revert" />
 </form>
 
+    validator();
     generate_xhtml("Editing " . fancy_title($page));
 }
 
