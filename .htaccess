@@ -13,4 +13,13 @@ Options ExecCGI FollowSymLinks
   SetHandler cgi-script
 </Files>
 
+# These two are for testing and learning how CGI works.
+<Files env>
+  SetHandler cgi-script
+</Files>
+
+<Files post>
+  SetHandler cgi-script
+</Files>
+
 

@@ -1,4 +1,9 @@
 #!/usr/bin/perl
+
+# $Id$
+
+# print out the CGI environment
+
 print "Content-type: text/plain\n\n";
 foreach $key (sort keys %ENV) {
   print "$key = $ENV{$key}\n";

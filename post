@@ -1,5 +1,9 @@
 #!/usr/bin/perl -w
 
+# $Id$
+
+# print out the contents of a post'ed HTML form
+
 sub escape_uri {
     my ($uri) = @_;
 
