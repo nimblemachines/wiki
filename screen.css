@@ -22,7 +22,7 @@ img#icon {
 div#header h1 {
 /*  border: solid blue 1px; */
   border: none;
-  margin-left: 0.08em;
+/*  margin-left: 0em; */
   padding: 0;
   display: inline;
   vertical-align: bottom;
