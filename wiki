@@ -1,0 +1,594 @@
+#!/usr/bin/perl -w
+
+# $Id$
+# $Revision$
+
+#use strict;
+
+package Mywiki;
+
+# %q = ();
+
+$| = 1;		# flush after each print
+
+$wikilinkbit = "[A-Z][a-z0-9]*";
+$wikilinkre = "(?:$wikilinkbit){2,}";
+$extendedlinkbit = "[A-Za-z0-9]+";
+$extendedlinkre = "$extendedlinkbit(?:_$extendedlinkbit)+";
+$interprefix = "[A-Z][A-Za-z0-9]+";
+$interbody = "[A-Za-z0-9_+\"-]+";
+$pagedir = "pages";
+$archivedir = "$pagedir/archive";
+$defaultpage = "WelcomePage"; # FrontPage? HomePage? HomeBase? CecilCabin?
+$webhamster = "webhamster@nimblemachines.com";
+$editscript = "wiki";
+
+$markurl = "\001";
+
+sub unescape_uri {
+    $_ = shift;
+    return undef unless defined;
+    tr/+/ /;
+    s/%([0-9a-fA-F]{2})/pack("C",hex($1))/ge;
+    return $_;
+}
+
+sub escape_uri {
+    my ($uri) = @_;
+
+    # escape a minimal set - probably more chars are needed here
+#    $uri =~ s/([&=+?])/"%" . unpack("H2", $1)/ge;
+    $uri =~ s/([&=+?\000-\037\177])/"%" . unpack("H2", $1)/ge;
+    $uri =~ tr/ /+/;	# may have to be %20
+    $uri;
+}
+
+sub escape_html {
+    s/&/&amp;/g;
+    s/</&lt;/g;
+    s/>/&gt;/g;
+}
+
+sub parse_http_data {
+    my @pairs;
+    foreach (split( /&/, shift)) {
+	my ($key, $value) = split(/=/, $_, 2);
+	push @pairs, unescape_uri($key), unescape_uri($value);
+    }
+    @pairs;
+}
+
+sub choke {
+    my ($errortext) = @_;
+    my $subject = escape_uri($errortext);
+    print <<EOT;
+Content-type: text/html
+
+<html>
+  <head>
+    <title>Wiki: an error occurred</title>
+  </head>
+  <body>
+    <h1>Something went terribly wrong</h1>
+    <p>An error occurred processing your last request.</p>
+    <p>The error message was <em>$errortext</em>.</p>
+    <p>Please <a href="mailto:$webhamster?subject=$subject">contact</a> the
+       ding-dong responsible for this site with details about what you
+       were doing when this happened.</p>
+    <p>Thank you.</p>
+  </body>
+</html>
+EOT
+    exit;
+}
+
+sub read_file {
+    my ($filename) = @_;
+    my $contents = "";
+
+    open F, "< $filename" or choke "open $filename (for reading) failed: $!";
+    local $/;  # slurp mode
+    $contents = <F>;
+    close F;
+#    print STDERR "reading file $filename = $contents\n";
+    $contents;
+}
+
+sub write_file {
+    my ($filename, $contents) = @_;
+
+#    print STDERR "writing file $filename = $contents\n";
+    open F, "> $filename" or choke "open $filename (for writing) failed: $!";
+    print F $contents;
+    close F;
+}
+
+sub append_file {
+    my ($filename, $contents) = @_;
+
+    open F, ">> $filename" or choke "open $filename (for appending) failed: $!";
+    print F $contents;
+    close F;
+}
+
+sub init_interwiki {
+    my $file = "intermap";
+    %intermap = (-r "$file" && -f "$file") ? split /\s+/, read_file($file) : ();
+}
+
+sub do_init {
+    $script = (split '/', $ENV{SCRIPT_NAME})[-1];	# keep only last part
+
+    $editable = $script eq $editscript;
+
+    %dispatch = ( show   => \&do_show,
+		  edit   => $editable ? \&do_edit : \&do_show,
+		  search => \&do_text_search,
+		  name   => \&do_name_search,
+		  diff   => \&do_diff
+		  );
+
+    $method = $ENV{REQUEST_METHOD};
+    if ($method =~ m/post/i){ 
+	read(STDIN, my $form, $ENV{CONTENT_LENGTH});
+	%form = parse_http_data($form);
+    }
+
+    ($page, $action, %query) = parse_http_data($ENV{QUERY_STRING});
+    ($page, $action) = ($action, $page) if $action;
+    $action ||= "show";		# ?page -> ?show=page    
+    $page ||= $defaultpage;	# empty -> ?DefaultPage
+
+    $searchform = <<"";
+<form action="$script" method="get" enctype="application/x-www-form-urlencoded">
+  <input type="text" name="search" size="30" />
+</form>
+
+    $namesearchform = <<"";
+<form action="$script" method="get" enctype="application/x-www-form-urlencoded">
+  <input type="text" name="name" size="30" />
+</form>
+
+    init_interwiki();
+}
+
+sub scriptlink {
+    my ($link, $linktext) = @_;
+    "<a href=\"$script?$link\">$linktext</a>";
+}
+
+sub do_request {
+    do_init();
+#    print_debug_values();
+    $method =~ m/post/i && do_save();	# $action will match show" ...
+    &{$dispatch{$action}}();		# ... does this as well on save
+}
+
+sub fancy_title {
+    my ($title) = @_;
+
+    if ($title =~ m/$wikilinkre/) {
+	$title =~ s/([a-z])([A-Z0-9])/$1 $2/g;
+    }
+    else {
+	$title =~ tr/_/ /;
+	$title =~ s/^([a-z])/uc($1)/e;	# capitalize first letter
+    }
+    $title
+}
+
+sub fancy_link {
+    my ($link) = @_;
+
+    $link =~ tr/_/ /;	# works for both wiki and extended links
+    $link;
+}
+
+# should page be a hash of: title/header, body, footer?
+# then I can assign things, and then wrap them in divs at output time
+sub header {
+    my ($title) = @_;
+    my $header = scriptlink("search=$page", $title);
+    my $home = scriptlink("$defaultpage", "<img src=\"lambda.gif\" alt=\"lambda the ultimate!\" />");
+    my $style = "screen.css";
+
+    my $keywords = "nimble machines,wiki";
+    my $description = "A wiki for discussing the present and future of computing.";
+    my $copyright = "All content on nimblemachines.com is copyrighted. All rights are reserved.";
+
+    print <<EOT;
+Content-type: text/html
+
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html 
+           PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+           "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="keywords" content="$keywords" />
+<meta name="description" content="$description" />
+<meta name="copyright" content="$copyright" />
+<link rel="stylesheet" href="$style" type="text/css" />
+<title>$title</title>
+</head>
+<body>
+<div class="title">
+$home
+<h1>$header</h1>
+</div>
+EOT
+}
+
+# can I send this a list of nums and have it iterate thru and return a list
+# of strings with leading zeros? I only need $mon for ISO; I need the num
+# to index into the array for stamp.
+sub pretty_time {
+    my ($time) = @_;
+    my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday) = localtime($time);
+    $year += 1900;
+    $mday = "0$mday" if ($mday < 10);
+    $hour = "0$hour" if ($hour < 10);
+    $min = "0$min" if ($min < 10);
+    $sec = "0$sec" if ($sec < 10);
+    ($year, $mon, $mday, $hour, $min, $sec);
+}
+
+sub stamp {
+    my ($time) = @_;
+    my ($year, $mon, $mday, $hour, $min, $sec) = pretty_time($time);
+    my $month = (qw(January February March April May June July
+		    August September October November December))[$mon];
+    "$year $month $mday $hour:$min";
+}
+
+sub iso_timestamp {
+    my ($time) = @_;
+    my ($year, $mon, $mday, $hour, $min, $sec) = pretty_time($time);
+    $mon = $mon + 1;	# indexed from 0
+    $mon = "0$mon" if ($mon < 10);
+    "$year-$mon-$mday" . "T" . "$hour:$min:$sec";
+}
+
+
+sub modtimestring {
+    my ($file) = @_;
+    stamp((stat "$file")[9]) if (-r "$file" && -f "$file");
+}
+
+sub editfooter {
+    my ($page) = @_;	# page name for "diff" link
+    my $mod = modtimestring("$pagedir/$page") if $page;
+    my $edittext = scriptlink("edit=$page", "EditText") . " of this page";
+    my $modtext  = " (last modified " . scriptlink("diff=$page", $mod) . ")" if $page && $mod;
+
+    print "<div class=\"footer\">$edittext$modtext<br /></div>\n";
+}
+
+sub findfooter {
+    print "<div class=\"footer\">";
+    print scriptlink("SearchWiki", "SearchWiki"), " for titles or text,\n";
+    print "browse ", scriptlink("RecentChanges", "RecentChanges"), ",\n";
+    print "or return to ", scriptlink($defaultpage, $defaultpage), "\n";
+    print "</div>";
+#Search for &nbsp;$searchform
+#Pages like &nbsp;$namesearchform
+
+}
+
+sub validator {
+    print <<"";
+<hr />
+<div class="footer">
+<a href="http://validator.w3.org/check/referer">
+  <img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0 Strict!" />
+</a>
+</div>
+</body>
+</html>
+
+}
+
+sub make_wiki_link {
+    my ($page) = @_;
+    (-r "$pagedir/$page" && -f "$pagedir/$page")
+	? scriptlink($page, fancy_link($page))
+        : "$page" . ($editable ? scriptlink("edit=$page", "[?]") : "");
+}
+
+# a way to escape query strings? Thinking of google queries w/embedded spaces.
+sub make_hidden_interwiki_link {
+    my ($prefix, $link) = @_;
+    my $interlink = $intermap{$prefix};
+    $_ = (defined $interlink)
+	? "<a href=\"$interlink$link\">$prefix:$link</a>"
+	: "$prefix:$link";
+
+    # use "" to hide links
+    s/($wikilinkbit)/$1\"\"/go; # if m/$wikilinkre/;
+    s/($extendedlinkbit)/$1\"\"/go; # if m/$extendedlinkre/;
+    $_;
+}
+
+sub convert_wiki_links {
+    s/($wikilinkre)/make_wiki_link($1)/geo;
+    s/($extendedlinkre)/make_wiki_link($1)/geo;
+
+    # forced link of single word
+    s/``($extendedlinkbit)/make_wiki_link($1)/geo;
+}
+
+sub convert_interwiki_links {
+    s/($interprefix):($interbody)/make_hidden_interwiki_link($1, $2)/geo;
+}
+
+@nestelems = ();
+$nestdepth = 0;
+
+sub pushelem {
+    my ($type) = @_;
+    my $out = indent() . "<$type>";
+    push @nestelems, $type;
+    $nestdepth++;
+    $out;
+}
+
+sub popelem {
+    $nestdepth--;
+    indent() . "</" . (pop @nestelems) . ">\n";
+}
+
+sub unwind {
+    my $out = "";
+    $out .= popelem() while ($nestdepth);
+    $out;
+}
+
+sub indent {
+    ' ' x ($nestdepth * 2);
+}
+
+# I just learned that nested ol and ul elements have to be _inside_ an li.
+# ol and ul can only contain li - nothing else. So we need to rewrite this
+# code to keep li's "open" until the last possible moment. Make them part of
+# of the pushelem/popelem code. Misuse of nesting (by wiki content authors)
+# may result in li's with no text content.
+
+# a couple of thoughts. use split //, type to blow up type/nesting into an
+# array/list of chars. Iterate over this to do indenting.
+
+sub listitem {
+    my ($type, $text) = @_;
+    my $out = "";
+    my $elem = $type =~ m/\*/ ? "ul" : "ol";
+    my $depth = 2 * (length $type) - 1;
+    
+    if ($nestdepth == 0)
+    { $out .= pushelem($elem) . "\n"; }
+    else
+	# close last open li
+    { $out .= popelem(); }
+
+    $out .= pushelem("li") . "\n" . pushelem($elem) . "\n"
+	while ($depth > $nestdepth);
+
+    $out .= popelem()
+	while ($depth < $nestdepth);
+
+    # now we're at the right level but might be inside a different list elem
+    $out .= popelem() . pushelem("li") . "\n" . pushelem($elem) . "\n"
+	if ($nestelems[-1] ne $elem);
+
+    # now indent and add open li and text
+    $out . pushelem("li") . $text . "\n";
+
+
+    $out .= pushelem($elem) . "\n" . pushelem("li") while ($depth > $nestdepth);
+    $out .= popelem()                               while ($depth < $nestdepth);
+
+    # now we're at the right level but might be inside a different nest elem
+    $out .= popelem() . pushelem("li") . pushelem($elem)
+	if (@nestelems && $nestelems[-1] ne $elem);
+
+    # now indent for item
+    $out . indent() . "<li>$text</li>";
+}
+
+sub wrap {
+    my ($elem, $contents) = @_;
+    "<$elem>$contents</$elem>";
+}
+
+sub block_markup {
+    s#^(\s+.*)#<pre>\n$1\n</pre>#s ||
+    s#^"(.*)#<blockquote>$1</blockquote>#s ||
+    s#^;(.*)#<blockquote>$1</blockquote>#s ||
+
+    s#^-{4,}#<hr /># ||
+    s/^(={1,4})\s+(.*)/wrap("h".((length $1)+1), $2)/e ||
+    s/^([*#]{1,5})\s+(.*)/listitem($1, $2)/gme ||
+    s#^(.*)#<p>$1</p>#s;
+}
+
+sub hideuri {
+    $uri[$uri++] = shift;
+    "$urimark$uri$urimark";
+}
+
+sub hide_uris {
+#    s/\[\[.+\]\]/hideuri($1)/ge;
+
+}
+
+sub show_uris {
+}
+
+sub inline_markup {
+    # this one should be first: it wreaks havoc with slashes!!
+    s#'{3}(.+)'{3}#<strong>$1</strong>#gs;
+    s#'{2}(.+)'{2}#<em>$1</em>#gs;
+    # XXX: code, cite, kbd, ???
+
+    # generic href links: [[url lots of link text]]
+    s#\[\[(\S+)\s+(.+)\]\]#<a href="$1">$2</a>#g;
+    s#\[\[(\S+)\]\]#<a href="$1">$1</a>#g;
+
+    # special links
+    s/\[namesearch\]/$namesearchform/g;
+    s/\[search\]/$searchform/g;
+
+    convert_interwiki_links();
+    convert_wiki_links();
+
+    # remove double quotes - can be used to foil wikilinks, and to
+    # add plurals to singularly-linked pages
+    s/""//g;
+}
+
+sub page_text {
+    my ($page) = @_;
+    my $file  = "$pagedir/$page";
+    (-r "$file" && -f "$file") ? read_file($file) : "";
+}
+
+sub render_body {
+    escape_html();
+
+    # XXX if we do inline on a per-para basis, we can "catch" dangling
+    # markup that spans para boundaries. I wonder if everything shouldn't
+    # be wrapped in the foreach by para.
+#    inline_markup();
+
+    # we're going to do "paragraph" markup delimited with multiple newlines
+    foreach (split /\n{2,}/, $_) {
+	hide_uris();
+	inline_markup();
+	show_uris();
+	block_markup();
+	print "$_\n" , unwind();
+    }
+    print "<hr />\n";
+}
+
+sub do_show {
+    $_ = page_text($page)
+	|| "$page doesn't exist. Why not create it by editing the text of this page?\n";
+
+    header(fancy_title($page));
+    render_body();
+    editfooter($page) if $editable;
+    findfooter();
+    validator();
+}
+
+sub do_edit {
+    $_ = page_text($page);
+    header("Editing " . fancy_title($page));
+
+    print <<"";
+<form action="$script?$page" method="post" enctype="application/x-www-form-urlencoded">
+  <textarea name="edittext" rows="25" cols="65" wrap="virtual">$_</textarea>
+  <p>Comment about changes you made:<br />
+  <input type="text" name="comment" size="65" /></p>
+  <input type="submit" value="Save" />
+  <input type="reset" value="Revert" />
+</form>
+
+    validator();	# XXX: silly? right now it closes body & html!!
+}
+
+sub make_backup_page {
+    my ($page) = @_;
+    my $file = "$pagedir/$page";
+    if (-r "$file" && -f "$file") {
+	my $backup_file = "$archivedir/$page."
+	    . iso_timestamp((stat "$file")[9]);
+	write_file($backup_file, page_text($page));
+    }
+}
+
+sub do_save {
+    my $edit = $form{'edittext'};
+    $edit =~ s/\r//g;	# CRLF -> LF
+    make_backup_page("$page");
+    write_file("$pagedir/$page", $edit);
+
+    # add to RecentChanges
+    # we'd like to simply append to the file, but it would be nicer to
+    # have them listed reverse chrono. So we split the file on the first
+    # "----" and put the last one there.
+    my $contents = page_text("RecentChanges") || "----\n\n";
+    my $mod = modtimestring("$pagedir/$page");
+    my $text = "* $page (modified $mod)\n";
+    $contents =~ s/(-{4,}\n{2,})/$1$text/;
+    write_file("$pagedir/RecentChanges", $contents);
+#    print "Content-type: text/plain\n\n$contents";
+}
+
+sub do_text_search {
+    opendir PAGES, "$pagedir" or choke "can't opendir $pagedir: $!";
+    my @matches = grep { ! m/^\./ && -r "$pagedir/$_" && -f "$pagedir/$_" 
+			 && (page_text($_) =~ m/$page/i) } readdir PAGES;
+    closedir PAGES;
+
+    header("Pages matching <em>$page</em>");
+    my $text = "";
+    foreach (@matches) {
+	$text .= "<li>" . make_wiki_link($_, $_) . "</li>\n";
+    }
+    print "<ul>$text</ul>\n" if $text;
+    print "<hr />\n";
+    findfooter();
+    validator();
+}
+
+sub do_name_search {
+    opendir PAGES, "$pagedir" or die "can't opendir $pagedir: $!";
+    my @matches = grep { ! m/^\./ && -r "$pagedir/$_" && -f "$pagedir/$_"
+			 && m/$page/i } readdir PAGES;
+    closedir PAGES;
+
+    header("Page names matching <em>$page</em>");
+    my $text = "";
+    foreach (@matches) {
+	$text .= "<li>" . make_wiki_link($_, $_) . "</li>\n";
+    }
+    print "<ul>\n$text</ul>\n" if $text;
+    print "<hr />\n";
+    findfooter();
+    validator();
+}
+
+sub do_diff {
+}
+
+sub do_choke {
+    $_ = read_file("xyzzy");
+}
+
+sub print_debug_values {
+    print STDERR "\n\n======================== new CGI call =========================\n";
+    print STDERR ":: ENV ::\n";
+    foreach (sort keys %ENV) {
+	print STDERR "$_ = $ENV{$_}\n";
+    }
+    print STDERR "\n:: Query ::\n";
+    foreach (sort keys %query) {
+	print STDERR "$_ = $query{$_}\n";
+    }
+    print STDERR "\n:: Form ::\n";
+    foreach (sort keys %form) {
+	print STDERR "$_ = $form{$_}\n";
+    }
+    print STDERR "\n:: Intermap ::\n";
+    foreach (sort keys %intermap) {
+	print STDERR "$_ = $intermap{$_}\n";
+    }
+    print STDERR "\n:: VARIABLES ::\n";
+    print STDERR "script = $script\n";
+#    print STDERR "base = $base\n";
+    print STDERR "page = $page\n";
+    print STDERR "action = $action\n";
+}
+
+do_request();
+#do_choke();

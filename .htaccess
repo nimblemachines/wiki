@@ -1,0 +1,16 @@
+DirectoryIndex wiki
+Options ExecCGI FollowSymLinks
+
+<Files wiki>
+  SetHandler cgi-script
+#  AuthType Basic
+#  AuthName "Cecil cabin wiki"
+#  AuthUserFile /home/david/cecilcabin/data/users
+#  Require user haskell
+</Files>
+
+<Files browse>
+  SetHandler cgi-script
+</Files>
+
+
