@@ -10,7 +10,7 @@ package Mywiki;
 
 $| = 1;		# flush after each print
 
-$wikilinkbit = "[A-Z][a-z0-9]*";
+$wikilinkbit = "[A-Z][a-z0-9]+";
 $wikilinkre = "(?:$wikilinkbit){2,}";
 $extendedlinkbit = "[A-Za-z0-9]+";
 $extendedlinkre = "$extendedlinkbit(?:_$extendedlinkbit)+";
