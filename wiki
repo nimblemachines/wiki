@@ -15,6 +15,7 @@ $wikilinkre = "(?:$wikilinkbit){2,}";
 $extendedlinkbit = "[A-Za-z0-9]+";
 $extendedlinkre = "$extendedlinkbit(?:_$extendedlinkbit)+";
 $interprefix = "[A-Z][A-Za-z0-9]+";
+$interbody = "[A-Za-z0-9_+\"-#?]+";
 $pagedir = "pages";
 $archivedir = "$pagedir/archive";
 $defaultpage = "WelcomePage"; # FrontPage? HomePage? HomeBase? CecilCabin?
@@ -139,12 +140,12 @@ sub do_init {
 
     $searchform = <<"";
 <form action="$script" method="get" enctype="application/x-www-form-urlencoded">
-  <input type="text" name="search" size="30" />
+  <p><input type="text" name="search" size="30" /></p>
 </form>
 
     $namesearchform = <<"";
 <form action="$script" method="get" enctype="application/x-www-form-urlencoded">
-  <input type="text" name="name" size="30" />
+  <p><input type="text" name="name" size="30" /></p>
 </form>
 
     init_interwiki();
@@ -191,7 +192,7 @@ sub fancy_link {
 
 sub generate_xhtml {
     my ($title) = @_;
-    my $home = scriptlink("$defaultpage", "<img src=\"lambda.gif\" alt=\"lambda the ultimate!\" />");
+    my $home = scriptlink("$defaultpage", "<img id=\"icon\" src=\"lambda.gif\" alt=\"lambda the ultimate!\" />");
     my $header = scriptlink("search=$page", $title);
     my $style = "screen.css";
     my $keywords = "nimble machines,wiki";
@@ -215,16 +216,16 @@ Content-type: text/html
 </head>
 <body>
 
-<div class="header">
+<div id="header">
 $home
 <h1>$header</h1>
 </div>
 
-<div class="content">
+<div id="content">
 $content
 </div>
 
-<div class="footer">
+<div id="footer">
 $footer
 </div>
 
@@ -332,7 +333,7 @@ sub convert_wiki_links {
 }
 
 sub convert_interwiki_links {
-    s/($interprefix):(.*?)/make_hidden_interwiki_link($1, $2)/geo;
+    s/($interprefix):($interbody)/make_hidden_interwiki_link($1, $2)/geo;
 }
 
 @nestelems = ();
@@ -504,11 +505,17 @@ sub do_edit {
 
     $content = <<"";
 <form action="$script?$page" method="post" enctype="application/x-www-form-urlencoded">
-  <textarea name="edittext" rows="25" cols="65" wrap="virtual">$_</textarea>
-  <p>Comment about changes you made:<br />
-  <input type="text" name="comment" size="65" /></p>
-  <input type="submit" value="Save" />
-  <input type="reset" value="Revert" />
+  <p>
+    <textarea name="edittext" rows="25" cols="65" wrap="virtual">$_</textarea>
+  </p>
+  <p>
+    Comment about changes you made:<br />
+    <input type="text" name="comment" size="65" />
+  </p>
+  <p>
+    <input type="submit" value="Save" />
+    <input type="reset" value="Revert" />
+  </p>
 </form>
 
     validator();
