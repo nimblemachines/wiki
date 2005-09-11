@@ -525,8 +525,8 @@ sub block_markup {
         $_ = listitem($1, $2);
     } else {
         s#^(\s+.*)#<pre$class>\n$1\n</pre>#s ||
-        s#^"(.*)#<blockquote$class>$1</blockquote>#s ||
-        s#^;(.*)#<blockquote$class>$1</blockquote>#s ||
+        s#^"(.*)#<blockquote$class><p>$1</p></blockquote>#s ||
+        s#^;(.*)#<blockquote$class><p>$1</p></blockquote>#s ||
     
         # hrules and headings return to voice 1
         s#^-{4,}#start_voice(1) . "<hr />"#e ||
