@@ -2,8 +2,6 @@
  * $Id$
  *
  * Style sheet for nimblemachines.com wiki
- *
- * 2005/01/30 dgs. Increased the margin sides. 
  */
 
 body {
@@ -77,7 +75,7 @@ div.voice8 /*, div.voice8 a */ {
 
 a.missing {
   background: #ddffdd;
-#  color: #cc00cc;
+/*  color: #cc00cc; */
 }
 
 hr {
