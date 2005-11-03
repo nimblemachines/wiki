@@ -41,6 +41,15 @@ div#footer {
 /*  background: #cceeee; */
 }
 
+/* hrules in the document can be styled separately from the footer hrule */
+div#content hr {
+  border-top: 1px solid black;
+}
+
+hr#prefooter {
+  border-top: 1px solid black;
+}
+
 div.voice2 /*, div.voice2 a */ {
   color: #008000
 }
