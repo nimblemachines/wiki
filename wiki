@@ -500,7 +500,7 @@ sub start_voice {
 $curlist = "";
 
 sub listitem {
-    my ($kind, $item) = @_;
+    my ($kind, $item, $class) = @_;
     my $result = "";
     
     unless ($curlist) {
@@ -508,7 +508,7 @@ sub listitem {
         $curlist = "</$kind>\n";
         $result .= "<$kind>\n";
     }
-    $result . wrap("li", $item);
+    $result . "<li$class>$item</li>";
 }
 
 sub listend {
@@ -525,7 +525,7 @@ sub block_markup {
     $class = " class=\"changed\"" if s#^\a##;
     
     if (m/^([*\#])\s*(.*)/) {
-        $_ = listitem($1, $2);
+        $_ = listitem($1, $2, $class);
     } else {
         s#^(\s+.*)#<pre$class>\n$1\n</pre>#s ||
         s#^"(.*)#<blockquote$class><p>$1</p></blockquote>#s ||
@@ -621,6 +621,9 @@ sub render_body {
         $content .= "$_\n" , unwind();
     }
 
+    # close any open list
+    $content .= listend();
+    
     # close our last "voice" div
     $content .= start_voice(1);
 }
@@ -810,13 +813,12 @@ sub do_diff {
     # find earlier version of page
     my @matches = filter_pages($archivedir, sub { m/^$page/ });
     my $oldpage = "/dev/null";
-system "touch $archivedir/$oldpage" unless -f "$archivedir/$oldpage";
     foreach (sort @matches) {
         last if $_ gt $when;
-        $oldpage = $_;
+        $oldpage = "$archivedir/$_";
     }
 
-    my $cmd = "diff -U 99999 $archivedir/$oldpage $pagedir/$page";
+    my $cmd = "diff -U 99999 $oldpage $pagedir/$page";
     my $contents = "";
     open DIFF, "-|", $cmd or choke "cannot compare $page with $oldpage: $!";
 
