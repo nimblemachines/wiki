@@ -12,6 +12,10 @@ a img {
   border: none;
 }
 
+div#footer a img {
+  margin: 0px 10px 0px 0px;
+}
+
 img#icon {
 /*  border: solid red 1px; */
   border: none;
@@ -39,15 +43,23 @@ div#content {
 div#footer {
 /*  border: solid teal 1px; */
 /*  background: #cceeee; */
+/*  font-size: 80%; */
 }
 
 /* hrules in the document can be styled separately from the footer hrule */
 div#content hr {
-  border-top: 1px solid black;
+  border-top: 1px solid gray;
 }
 
-hr#prefooter {
-  border-top: 1px solid black;
+div#footer hr {
+  border-top: 1px solid gray;
+}
+
+/* common features of hr's */
+
+hr {
+/*  margin: 0; */
+  border-width: 1px 0 0 0;
 }
 
 div.voice2 /*, div.voice2 a */ {
@@ -85,10 +97,4 @@ div.voice8 /*, div.voice8 a */ {
 a.missing {
   background: #ddffdd;
 /*  color: #cc00cc; */
-}
-
-hr {
-/*  margin: 0; */
-  border: solid gray;
-  border-width: 1px 0 0 0;
 }
