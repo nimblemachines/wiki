@@ -48,17 +48,12 @@ div#footer {
 
 /* hrules in the document can be styled separately from the footer hrule */
 div#content hr {
-  border-top: 1px solid gray;
+  border: solid gray;
+  border-width: 1px 0 0 0;
 }
 
 div#footer hr {
-  border-top: 1px solid gray;
-}
-
-/* common features of hr's */
-
-hr {
-/*  margin: 0; */
+  border: solid gray;
   border-width: 1px 0 0 0;
 }
 
@@ -97,4 +92,10 @@ div.voice8 /*, div.voice8 a */ {
 a.missing {
   background: #ddffdd;
 /*  color: #cc00cc; */
+}
+
+blockquote {
+  margin: 15px 30px 0 10px;
+  padding-left: 20px;
+  border-left: 5px solid #ddd;
 }
