@@ -5,7 +5,8 @@
  */
 
 body {
-  margin: 1pc 3pc 1pc 3pc;
+  margin: 1pc 3pc 1pc 5pc;
+  width: 35pc;
 }
 
 a img {
@@ -98,4 +99,35 @@ blockquote {
   margin: 15px 30px 0 10px;
   padding-left: 20px;
   border-left: 5px solid #ddd;
+}
+
+/* stuff for flickr badge */
+div.flickr_badge_image {
+  display: inline;
+  margin: 0px;
+  padding: 0px;
+}
+
+.flickr_badge_image img {
+  border: 1px solid black;
+/*  margin: 5px 5px 5px 5px; */
+  margin: 5px;
+  padding: 0px;
+
+/* This is very interesting. There was a "bug", it seemed, that there was
+  extra space at the bottom of the div enclosing the pix. Why? Well, it
+  seems that the images defaulted to
+    vertical-align: baseline;
+  which wants to put in "leading" below the baseline. Setting
+    vertical-align: bottom;
+  solves the extra space problem, but looks bad; setting
+    vertical-align: middle;
+  looks nice. ;-)
+*/
+  vertical-align: middle;
+}
+
+div#flickr_badge {
+/*  background-color: #CCCCCC; */
+  padding: 0px;
 }
