@@ -595,7 +595,7 @@ sub flickr_badge {
     my $query = join "&amp;", @pairs;
 
     return <<"";
-<div id="flickr_badge">
+<div class="flickr_badge">
   <script type="text/javascript" src="http://www.flickr.com/badge_code_v2.gne?$query">
   </script>
 </div>

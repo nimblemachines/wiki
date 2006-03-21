@@ -127,7 +127,7 @@ div.flickr_badge_image {
   vertical-align: middle;
 }
 
-div#flickr_badge {
+div.flickr_badge {
 /*  background-color: #CCCCCC; */
   padding: 0px;
 }
