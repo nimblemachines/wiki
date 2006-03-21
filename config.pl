@@ -13,6 +13,11 @@ $editscript = "wiki";
 $iconimgsrc = "images/lambda";
 $iconimgalt = "lambda the ultimate!";
 $style = "style/screen";
+
+# change this to be *you*!! and make sure to escape the '@' into '%40'
+# as below.
+$flickr_user = "52541558%40N00";
+
 %metas = (
     keywords => "wiki",
     description => "A wiki for discussing the things that I care about.",

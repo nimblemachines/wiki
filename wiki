@@ -163,7 +163,8 @@ sub do_init {
 
 sub script_href {
     my ($action, $page) = @_;
-    my $href = "?$action=$page" if $action;  # and nothing otherwise!
+    my $href = "";
+    $href = "?$action=$page" if $action;  # and nothing otherwise!
     "${script}${href}";
 }
 
@@ -529,6 +530,78 @@ sub listend {
     else { "" }
 }
 
+# Support for flickr badges.
+
+# The flickr script generate images each inside a div with class
+# "flickr_badge_image".
+#
+# Notes on usage of Flickr badge query API:
+#   size=s gives small square pix;
+#   size=t gives small thumbnails;
+#   size=m gives rather large pix (4 across)
+#   display=random
+#   display=latest
+#   layout=h  (tables - ugh!)
+#   layout=v  (ditto!)
+#   layout=x  (wraps each pic in a div)
+#   source=all
+#   source=user
+#     user=<id>
+#   source=user_tag
+#     user=<id>
+#     tag=<tag>
+#   source=all_tag
+#     tag=<tag>
+
+sub flickr_badge {
+    my ($count, $source, $tags) = @_;
+
+    $count = 5 if not $count;
+
+    # init hash for query string
+    my %q = (
+             count => $count,
+             size  => 't',          # 's' for small squares; 'm' for biggies
+             display => 'random',
+             layout => 'x'          # this gives us div's rather than td's
+             );
+
+    if ($source eq '') {
+        $source = 'user';
+        $q{'user'} = "$flickr_user";
+    }
+
+    # Separate tags into an array...
+    my @tags = split / +/, $tags;
+
+    # ...then escape the rest for query string
+    foreach my $t (@tags) {
+        $t = escape_uri($t);
+    }
+
+    if (@tags) {
+        $q{'tag'} = join '+', @tags;
+        $source .= '_tag';
+    }
+
+    $q{'source'} = $source;
+
+    my @pairs = ();
+    while (my ($k, $v) = each %q) {
+        push @pairs, "$k=$v";
+    }
+
+    # Finally!
+    my $query = join "&amp;", @pairs;
+
+    return <<"";
+<div id="flickr_badge">
+  <script type="text/javascript" src="http://www.flickr.com/badge_code_v2.gne?$query">
+  </script>
+</div>
+
+}
+
 sub block_markup {
     my $class = "";
     $class = " class=\"changed\"" if s#^\a##;
@@ -554,6 +627,9 @@ sub block_markup {
         # in p elems.
         s/^\[namesearch\]/$namesearchform/ ||
         s/^\[textsearch\]/$textsearchform/ ||
+
+        # generate a flickr badge, with user or public content
+        s/^\[flickr(([0-9]+))?(:(all))?( +(.*))?\]/flickr_badge($2, $4, $6)/e ||
     
         # nothing else matches, make it a p
         s#^(.*)#<p$class>$1</p>#s;
