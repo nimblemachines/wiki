@@ -629,7 +629,7 @@ sub block_markup {
         s/^\[textsearch\]/$textsearchform/ ||
 
         # generate a flickr badge, with user or public content
-        s/^\[flickr(([0-9]+))?(:(all))?( +(.*))?\]/flickr_badge($2, $4, $6)/e ||
+        s/^\[flickr(([0-9]+))?(:(all))?(\s+(.*))?\]/flickr_badge($2, $4, $6)/e ||
     
         # nothing else matches, make it a p
         s#^(.*)#<p$class>$1</p>#s;
@@ -652,6 +652,12 @@ sub show_uris {
     s/""//g;
 }
 
+sub obfuscate_mailto {
+    my ($email, $link) = @_;
+    $email =~ s/(.)/"%" . unpack("H2", $1)/ge;
+    "<a href=\"mailto:$email\">$link</a>";
+}
+
 sub inline_markup {
     hide_uris();
 
@@ -662,6 +668,11 @@ sub inline_markup {
     # Quote character entities so that the browser doesn't "helpfully"
     # convert them. Use !!name!! or ??name??.
     s#[!\?]{2}(.+?)[!\?]{2}#&$1;#gs;
+
+    # obfuscated mailto links: [[mailto:email link text]]
+    # link text is required, since what would we put there other than the
+    # unescaped mailto address, thereby making the whole thing moot?
+    s#\[\[mailto:(\S+)\s+(.+)\]\]#hide(obfuscate_mailto($1, $2))#ge;
 
     # named interwiki link: [[prefix:suffix link text]]
     s/\[\[($interprefix):($interquery)\s+(.+?)\]\]/hide(make_interwiki_link($1, $2, $3))/geo;
