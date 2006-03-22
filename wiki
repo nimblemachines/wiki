@@ -655,7 +655,7 @@ sub show_uris {
 sub obfuscate_mailto {
     my ($email, $link) = @_;
     $email =~ s/(.)/"%" . unpack("H2", $1)/ge;
-    "<a href=\"mailto:$email\">$link</a>";
+    "<a href=\"mailto:$email?subject=$page\">$link</a>";
 }
 
 sub inline_markup {
