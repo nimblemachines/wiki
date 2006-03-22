@@ -759,14 +759,15 @@ sub make_edit_page {
     $page doesn't exist. Why not create it by entering some text below?
   </p>
 
+#  <p>
+#    Comment about changes you made:<br />
+#    <input type="text" name="comment" value="Ignore this for now" size="75" />
+#  </p>
+
     $content .= <<"";
 <form action="$action_href" method="post" enctype="application/x-www-form-urlencoded">
   <p>
     <textarea name="edittext" rows="25" cols="75">$text</textarea>
-  </p>
-  <p>
-    Comment about changes you made:<br />
-    <input type="text" name="comment" value="Ignore this for now" size="75" />
   </p>
   <p>
     If you've made only small changes - like to punctuation or spelling -
@@ -774,8 +775,8 @@ sub make_edit_page {
     Otherwise, to save changes and log RecentChanges, press Save.
   </p>
   <p>
-    <input type="submit" name="submit"  value="Save" />
     <input type="submit" name="submit"  value="Tweak" />
+    <input type="submit" name="submit"  value="Save" />
     <input type="reset"                 value="Revert" />
     <input type="submit" name="submit"  value="Cancel" />
     <input type="hidden" name="modtime" value="$mod" />
