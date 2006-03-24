@@ -665,6 +665,9 @@ sub inline_markup {
     s#'{2}(.+?)'{2}#<em>$1</em>#gs;
     # XXX: code, cite, kbd, ???
 
+    # forth word
+    s#fw\(\((.+?)\)\)#<code class="forth">$1</code>#gs;
+
     # Quote character entities so that the browser doesn't "helpfully"
     # convert them. Use !!name!! or ??name??.
     s#[!\?]{2}(.+?)[!\?]{2}#&$1;#gs;
