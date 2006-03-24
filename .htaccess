@@ -1,12 +1,10 @@
+# $Id$
+
 DirectoryIndex wiki
 Options ExecCGI FollowSymLinks
 
 <Files wiki>
   SetHandler cgi-script
-#  AuthType Basic
-#  AuthName "Cecil cabin wiki"
-#  AuthUserFile /home/david/cecilcabin/data/users
-#  Require user haskell
 </Files>
 
 <Files browse>
@@ -20,6 +18,20 @@ Options ExecCGI FollowSymLinks
 
 <Files post>
   SetHandler cgi-script
+</Files>
+
+# The necessity of putting these here makes me wonder about the prudence of
+# putting this kind of "meta" information in the web URI space. It seems
+# like it should be "off to the side" somehow.
+
+<Files config.pl>
+  Order allow,deny
+  Deny from all
+</Files>
+
+<Files intermap>
+  Order allow,deny
+  Deny from all
 </Files>
 
 
