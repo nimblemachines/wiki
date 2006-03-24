@@ -606,22 +606,21 @@ sub block_markup {
     my $class = "";
     $class = " class=\"changed\"" if s#^\a##;
     
-    if (m/^([*\#])\s*(.*)/) {
+    if (m/^([*#])\s*(.*)/) {
         $_ = listitem($1, $2, $class);
     } else {
         s#^(\s+.*)#<pre$class>\n$1\n</pre>#s ||
-        s#^"(.*)#<blockquote$class><p>$1</p></blockquote>#s ||
-        s#^;(.*)#<blockquote$class><p>$1</p></blockquote>#s ||
-    
+        s#^"{2}(.*)#<blockquote$class><p>$1</p></blockquote>#s ||
+
         # hrules and headings return to voice 1
         s#^-{4,}#start_voice(1) . "<hr />"#e ||
         s/^(={1,4})\s*(.*)/start_voice(1) . wrap("h".((length $1)+1), $2)/e ||
-    
+
         # multiple "voices"
         s/^(>{1,8})/start_voice(length($1))/e ||
 #        s/^([*#]{1,5})\s*(.*?)/listitem($1, $2)/gme ||
 #        s/^([*#]{1,5}.*?)/listblock($1)/e ||
-    
+
         # special links - these generate form elements, which are considered to
         # be block-level markup. In order to validate, these cannot be enclosed
         # in p elems.
@@ -630,7 +629,7 @@ sub block_markup {
 
         # generate a flickr badge, with user or public content
         s/^\[flickr(([0-9]+))?(:(all))?(\s+(.*))?\]/flickr_badge($2, $4, $6)/e ||
-    
+
         # nothing else matches, make it a p
         s#^(.*)#<p$class>$1</p>#s;
         $_ = listend() . $_;
@@ -647,9 +646,10 @@ sub hide_uris {
 }
 
 sub show_uris {
-    # remove double quotes - can be used to foil wikilinks, and to
-    # add plurals to singularly-linked pages
-    s/""//g;
+    # remove double quotes everywhere except at the start of a line (where
+    # it denotes a blockquote) - can be used to foil wikilinks, and to add
+    # plurals to singularly-linked pages
+    s/(.)""/$1/g;
 }
 
 sub obfuscate_mailto {
