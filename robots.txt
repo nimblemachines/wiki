@@ -1,0 +1,16 @@
+# $Id$
+
+User-agent: *
+Disallow: /files/
+Disallow: /images/
+Disallow: /pages/
+Disallow: /photos/
+Disallow: /style/
+Disallow: /wiki?edit=
+Disallow: /wiki?diff=
+Disallow: /wiki?search=
+Disallow: /wiki?name=
+
+User-agent: BecomeBot
+Disallow: /
+
