@@ -14,3 +14,5 @@ Disallow: /wiki?name=
 User-agent: BecomeBot
 Disallow: /
 
+User-agent: Girafabot
+Disallow: /
