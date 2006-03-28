@@ -130,6 +130,7 @@ div.flickr_badge_image {
 div.flickr_badge {
 /*  background-color: #CCCCCC; */
   padding: 0px;
+  text-align: center;
 }
 
 /* Forth markup!! (Sorry, Michael!) */
