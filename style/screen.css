@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Style sheet for 2spiral.com wiki
+ * Style sheet for nimblemachines.com wiki
  */
 
 body {
@@ -21,10 +21,8 @@ div#footer a img {
 img#icon {
 /*  border: solid red 1px; */
   border: none;
-  margin: 0 0 0 -90px;
+  margin: 0 0 0 -40px;
   padding: 0;
-/*   vertical-align: top; */
-/*  float: left; */
 }
 
 div#header h1 {
@@ -34,13 +32,8 @@ div#header h1 {
   padding: 0;
   display: inline;
   vertical-align: bottom;
-  color: #008000;
+  color: blue;
 /*  float: left; */
-  clear: right;
-}
-
-div#header h1 a {
-  color: #008000;
 }
 
 div#content {
