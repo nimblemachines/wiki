@@ -554,20 +554,21 @@ sub listend {
 #     tag=<tag>
 
 sub flickr_badge {
-    my ($count, $source, $tags) = @_;
+    my ($count, $whose, $which, $tags) = @_;
 
     $count = 5 if not $count;
+    $which = "random" if not $which;
 
     # init hash for query string
     my %q = (
              count => $count,
              size  => 't',          # 's' for small squares; 'm' for biggies
-             display => 'random',
+             display => $which,
              layout => 'x'          # this gives us div's rather than td's
              );
 
-    if ($source eq '') {
-        $source = 'user';
+    if ($whose eq '') {
+        $whose = 'user';
         $q{'user'} = "$flickr_user";
     }
 
@@ -581,10 +582,10 @@ sub flickr_badge {
 
     if (@tags) {
         $q{'tag'} = join '+', @tags;
-        $source .= '_tag';
+        $whose .= '_tag';
     }
 
-    $q{'source'} = $source;
+    $q{'source'} = $whose;
 
     my @pairs = ();
     while (my ($k, $v) = each %q) {
@@ -628,7 +629,7 @@ sub block_markup {
         s/^\[textsearch\]/$textsearchform/ ||
 
         # generate a flickr badge, with user or public content
-        s/^\[flickr(([0-9]+))?(:(all))?(\s+(.*))?\]/flickr_badge($2, $4, $6)/e ||
+        s/^\[flickr(([0-9]+))?(:(all))?(:(latest))?(\s+(.*))?\]/flickr_badge($2, $4, $6, $8)/e ||
 
         # nothing else matches, make it a p
         s#^(.*)#<p$class>$1</p>#s;
