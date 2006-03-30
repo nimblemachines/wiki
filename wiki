@@ -629,6 +629,11 @@ sub block_markup {
         s/^\[namesearch\]/$namesearchform/ ||
         s/^\[textsearch\]/$textsearchform/ ||
 
+        # comments, using Haskell notation: --
+        s/^--.*//s ||
+        # ...could also render this, and put display: none in the css...
+#        s#^--\s*(.*)#<p class="comment">$1</p>#s ||
+
         # generate a flickr badge, with user or public content
         s/^\[flickr(([0-9]+))?(:(all))?(:(latest))?(\s+(.*))?\]/flickr_badge($2, $4, $6, $8)/e ||
 
