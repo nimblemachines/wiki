@@ -32,7 +32,6 @@ sub escape_uri {
     my ($uri) = @_;
 
     # escape a minimal set - probably more chars are needed here
-#    $uri =~ s/([&=+?])/"%" . unpack("H2", $1)/ge;
     $uri =~ s/([&=+?'"\000-\037\177])/"%" . unpack("H2", $1)/ge;
     $uri =~ tr/ /+/;    # may have to be %20
     $uri;
@@ -158,6 +157,7 @@ sub do_init {
 
     init_interwiki();
     $content = "";
+    $http_status = "200 Groovy";        # default is everything Ok
     @footerlines = ();
 }
 
@@ -246,6 +246,7 @@ sub generate_xhtml {
     
     print <<EOT;
 Content-type: text/html
+Status: $http_status
 
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE html 
@@ -745,8 +746,15 @@ sub do_show {
     my $robots = "";
     $_ = page_text($page);
 
+    # if not editable and non-existent, return a 404 Not found error page.
+    # This is mostly so spiders know that the page really doesn't exist.
     unless ($_) {
-        $_ = "$page doesn't exist. Why not create it by editing the text of this page?\n";
+        if ($editable) {
+            $_ = "$page doesn't exist. Why not create it by editing the text of this page?\n";
+        } else {
+            $_ = "Sorry, that page doesn't exist.\n";
+            $http_status = "404 Not found";
+        }
         $robots = "no";
     }
 
