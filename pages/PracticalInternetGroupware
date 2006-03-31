@@ -1,0 +1,11 @@
+JonUdell is ''really'' smart. In 1999 O'Reilly published his book ''[[http://www.oreilly.com/catalog/pracintgr/ Practical Internet Groupware]]'', in which he outlined neat strategies for using tools and protocols that exist today - like SMTP, NNTP, HTTP, HTML, and URIs - to build groupware applications, rather than waiting for some kind of future (vaporware) solution.
+
+The most compelling and interesting applications involved the "misuse" of URIs. Udell's thesis is that a dynamic Web site implicitly exports an API: its set of valid URIs. By experimenting you can usually discover this API (documenting it makes this even easier); what do you have, if not a Web service? He shows some nifty ways to "pipeline" these Web APIs, by munging the output of one and using it as input into another. Many of his examples do this using HTML! This gets ''much'' easier with XML.
+
+He also told some compelling stories about something he called ''distributed HTTP'' or dhttp. The idea, basically, is to write, in a database-friendly run-mostly-everywhere language (such as Perl or Python), a tiny & simple web server and to run it on everyone's desktop PC. Make it trivial to install (unpack into a directory; run) & uninstall (delete the directory). Now all kinds of amazing things become possible, from shared calendar apps, to real-time code propagation. Simply putting a data-connected, medium-performance web server on every desktop seems like a small idea, but makes much bigger things possible.
+
+It's too bad the book is out of print. (Tim O'Reilly, are you listening?) If you find a used copy and are interested in this kind of thing, ''buy it''.
+
+----
+
+CategoryBooks

@@ -1,0 +1,23 @@
+== 2005 February 04 13:24
+
+When adding colors for the "voices" I also made it so that an a element (like in a signature) inside the voice div would take the color of the voice div. But I ''don't'' want this to happen with links to non-existent pages.
+
+Can we do exclusion in this way? So that an a.missing is ''always'' a certain color, regardless of its nesting? I'm not enough of a CSS god to figure this out.
+
+----
+
+== 2005 February 04 12:25
+
+NonExistentPages now render in an ugly dark magenta color. Maybe this will be more visible. Color changeable by request. (Or, do it yourself, by editing style/screen.css.)
+
+----
+
+== 2005 January 30 15:41
+
+The margins were bothering me.  I changed l and r to be 5 picas instead of 3 and 1.  I left t and b alone, although I personally would like to see a little more space at the top.  Revert at your whim.
+
+--DouglasShacteau
+
+''How did you change it? I hope you checked it in to CVS... ;-)''
+
+''Never mind. I just did. But you'll want to cvs update for NimbleWiki.''

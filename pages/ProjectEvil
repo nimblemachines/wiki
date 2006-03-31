@@ -1,0 +1,18 @@
+= An (unfortunately) necessary evil
+
+Bill Paul, the author of many FreeBSD network drivers, [[http://lists.freebsd.org/pipermail/freebsd-hardware/2003-December/000903.html introduced the project]] like this:
+
+""I'm sure most of you already know what Project Evil is. For those that
+don't, Project Evil is an NDIS shim layer for FreeBSD which allows
+people to use Windows(r) network adapter drivers with FreeBSD/x86.
+Its main purpose is to provide support for adapters for which it is
+not possible to write a native FreeBSD driver (due to complete lack of
+chipset programming specs).
+
+""My original target was unsupported ethernet chips, however it turns
+out the most desireable unsupported devices these days are 802.11
+wireless cards.
+
+In a perfect world it would be possible to have native drivers for everything. Unfortunately a lot of (unenlightened) companies restrict access to programming information for their chips, which is downright stupid since they want hardware designers to actually use them. They make their clients sign non-disclosure agreements (NDAs). This is an impossibility for FreeBSD device driver writers, since the source code for FreeBSD is, um, free (in every sense). But then these (clueless) companies probably haven't heard of Open Source.
+
+Until that changes, we'll have to live with the evil.

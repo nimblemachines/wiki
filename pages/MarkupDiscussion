@@ -1,0 +1,212 @@
+Since no one else has, and since "someone should do it", and since, as my friend jonathan jay says "hey! I'm someone!", I decided to start this page.
+
+I'll write more after dinner. ;-)
+
+>>
+
+I'm really strapped for time this week so I won't be here as often as I'd
+like.  But I've been meaning to park my soapbox here as well. ;-)
+--NeddySeagoon
+
+>
+
+Bummer. I've been enjoying the company. ;-)
+
+----
+
+So, I'm done with dinner (now on to applesauce and tea).
+
+I see this page as a discussion about everything markup-related except linking; for that, read LinkMarkupNotes.
+
+The inline markup right now is very limited and simple and based on "accepted practice" (ie, Ward's wiki; many have adopted his choices). I want to make ''everything'' about the markup in this wiki as simple and regular (as in "without lots of exceptions to the rules") as possible, even if it makes the markup slightly more prolix.
+
+Having tried to write a wiki engine myself (;-) I think that Ward chose two apostrophes for italic/em and three for bold for two reasons:
+
+(1) because they are unlikely to occur in "normal" text (since most oddball things  - like programming language text - are going to be preformatted, our choice of markup should be influenced more by what is commom and/or rare in normal writing, rather than common and/or rare in programming languages) they won't interfere much; and
+
+(2) they are unlikely to interfere with, because they don't appear in, URIs, which on Ward's wiki can appear unadorned.
+
+I initially wanted to use /italic/ and *bold*, but the slashes (in particular) caused me loads of grief. It seemed like I needed - and may still need, for other but similar reasons - to hide URIs once I had formatted them as a elements, so that further processing wouldn't recognize and munge them. This is a huge weakness of the regulare expression (RE) approach to wiki processing versus the more controllable parsing approach.
+
+In any case, my thought is to standardize on a few types of inline markup - perhaps adding "samp" (or "code") to the mix - and use doubled delimiters on both ends, thus:
+
+  __italic__  **bold**  --strikethru--  ||typewriter/code/samp||
+
+I'm not saying this is the exact notation (ie, the exact choice of delimiter characters) I propose; rather, that it is the style of notation that we should adopt.
+
+Thoughts?
+
+--DavidFrech
+
+>>
+
+RandyThelen writes:
+
+WikiWords.  How very cute.  Now I get the syntax.  Words with two capital letters (apparently separated by non-caps) AutoMagically become wiki words.  Else, one can specify a word become a wiki word via the ''wiki?'' phrase 
+within a double bracketed region.
+
+>
+
+Actually, WikiWordsCanHaveManyParts, but they need at least two. ;-)
+
+The behavior of
+
+  [[wiki?nonwikiwordlink nonwikiwordlinktext]]
+
+is fragile, deprecated, and will go away. Don't use it. I've been using it to write examples - so that they render usefully given the existing framework - but I do not intend that this feature stick around. --DavidFrech
+
+>>>
+
+PeanutGalleryMode -- the YawsWiki allows the creation of one word links
+with ~Linkname.
+
+>>
+
+Also, I'm getting used to having a Wiki that allows me to create sub sections on a given page.  Wiki that we're running at NetApp (that just became a wiki word, didn't it?) has that feature with:
+
+= Heading
+
+== Sub heading
+
+and
+
+=== sub sub heading
+
+>>
+
+But I think the particular CSS mappings they have at work are funky for the sub sub.  Headings are bold with a horizontal rule.  Subs are not bold with a horizontal rule.  That's all fine.  But, sub subs are bold, and thus are easily confused as Headings.  So, I'd encourage the heading capability, but I'd peek rather closely at the exact format of those headings  ;-)
+
+>
+
+The heading capability already existed, with the same markup format, but because of a ''quirk'' (whose demise is planned), headings (and all other "block" markup) have to be separated from surrounding text by two newlines. I made this change to your example above and now you have nice headings. --DavidFrech
+
+----
+
+= Simple Lists (not nested)
+
+I think lists are quite difficult. I have seen several different markup examples on this wiki for lists. Short items on successive lines. '''Format 1''':
+
+ * a list
+ * of things
+
+Long items, formatted on separate lines; items separated by a blank line. '''Format 2''':
+
+ * fixing the processing of the input text so it no longer requires two
+   newlines to separate text belonging in separate block elements, and
+
+ * fixing lists (currently broken, but I think they will "fall out" of
+   the way I'd like to process the input).
+
+A third format would have long items on a single line; items separated blank lines. '''Format 3''':
+
+ * fixing the processing of the input text so it no longer requires two  newlines to separate text belonging in separate block elements, and
+
+ * fixing lists (currently broken, but I think they will "fall out" of  the way I'd like to process the input).
+
+And combinations of these formats.
+
+All of these should result in a ''single'' list with two items.
+
+>>
+
+Wow. You're right. I never thought even non-nested lists would be hard. I was only worried about nesting - which is hard.
+
+I think the only way to make it work is to hope that the browser is good about word-wrapping long lines without adding real newlines. This way the markup engine can look at the first characters of the line, decide that it is a list item, and if we're already in an open ul or ol element, simply add the li.
+
+Adding smarts like "this line starts with whitespace; did the previous line start with * or #? if so, this is a continuation of the same li" would be hard without breaking the "preformatted" markup. --DavidFrech
+
+>
+
+Note that this kind of "smarts" is also necessary to generate decent preformatted (code) blocks. Go and have a look a the HTML source for this page. Look at the 2-element lists of format 2 and 3 above: each item is in its own <pre> element. I think we should build combine successive preformatted blocks, and also list elements in the same <pre>/list. --MichaelPruemm
+
+>>
+
+Yes. This is an artifact of the double-newline chunking of the input, and will go away when I solve that problem. I suppose I'm going to have think deeply about what state I need to keep between lines, what the invariants are, etc. --DavidFrech
+
+I think this isn't that hard.
+
+The only block element that should be "closed" when an empty line is read is <p>. If you're doing a list (<ol>, <ul>, <dl>) keep it open. Likewise with <pre>. Maybe <blockquote> should be like <p>, but we don't have it in the markup yet.
+
+----
+
+= Nested Lists
+
+If I write this markup (with or without extra blank lines):
+
+ # finalizing markup, both 
+ #* inline (emphasis etc and links) and
+ #* block (para, lists blockquote, dl, etc)
+ # start ImplementingTheSingleNewline
+
+I expect this kind of output:
+
+  <ol>
+    <li>finalizing markup, both
+      <ul>
+        <li>inline (emphasis etc and links) and</li>
+        <li>block (para, lists blockquote, dl, etc)</li>
+      </ul>
+    </li>
+    <li>start ImplementingTheSingleNewline</li>
+  </ol>
+
+That is, the nested (inner) list is part of item 1 of the outer list.
+
+As you can see, item 1 of the outer list has some text, requiring formatting of inline markup '''and''' a nested block element.
+
+What should weird markup like this produce:
+
+ ** item 1
+ ** item 2
+
+I don't really see the need for nested lists. Dealing with unnested lists is already hard enough, so it might be a good idea not to allow nesting of lists.
+
+--MichaelPruemm
+
+>>
+
+You have touched on ''all'' the facets of nested lists that were bothering me. My first exposure to some list quirks was realizing that my initial XHTML wouldn't validate because I was nesting ol and ul inside of ol/ul; you can't do this. ol and ul elements can contain '' only ''li elements.
+
+Then you have violations of nesting. What do you generate? You end up with li's with no text, that are there only to contain the sublist, and they will likely render badly, and generating the code will be difficult - although on a recent walk I think I came up with a way to do it...
+
+Finally, I wondered (before Michael brought this up ;-): are nested lists really necessary? Almost always, 97% of the time (or more) all I want is a single-level ul. I barely have need of ol, but once the mechanism is there for ul, putting in ol is trivial. One of the only places I might want nested lists is in an auto-generated TOC like Wikipedia creates (by compiling all the headings in the page) - but because the script will generate this directly (if at all!), we don't have to worry about parsing and interpreting oddball markup.
+
+All in all, I vote for banning nested lists. --DavidFrech
+
+>
+
+(BTW, I expected "ImplementingTheSingleNewline" in the example above to become a link, even in a <pre> block.)
+
+--MichaelPruemm
+
+>>
+
+Since there is no other way to escape markup, I went to some lengths to make sure that preformatted text is untouched (with the minor exception that '<' and '&' are escaped to their respective character entities (which I cannot type here, even in a 'pre' block ;-). --DavidFrech
+
+>
+
+I just realized that changing WikiWords to links even in <pre> blocks might create a lot of links in certain code, depending on the coding standards used. --MichaelPruemm
+
+>>
+
+Right now the ''only'' modification of <pre> blocks is the escaping of '&' and '<'. But, really, I could be more careful and leave even that alone in <pre>, which might be nice.
+
+----
+
+= Block quotes
+
+There is some markup support in the current wiki code for blockquotes. I (MichaelPruemm) used that on the ObjectiveCaml page and DavidFrech commented:
+
+>>
+
+Hmm. I see you're using "experimental" markup to get blockquotes. I never decided what I wanted to use for this. If anything, I think single double quote is a bad choice. Double double quote is perhaps better. --DavidFrech
+
+>
+
+Personnally, I think double double quotes are better than single double quotes, too. I just used what was already in the wiki code. Maybe we can switch over to double double quotes?
+
+>>
+
+In general I'm leaning toward doubled characters for ''all'' markup, especially inline (like links, character styles, etc). (Lists are of course an exception, but then they are block markup anyway.) Doubled characters - especially in ''pairs'' surrounding text - are less likely to collide with the author's text.
+
+Block quotes are block markup, but even so would benefit from a doubled character. Otherwise it is likely to look too much like a bunch of text that is quoted ... ;-) --DavidFrech

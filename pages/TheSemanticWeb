@@ -1,0 +1,13 @@
+= Toward a Semantic Web
+
+I was talking to my dad tonight. He wants to be able to do a Google search to discover the effects on public education of Abraham Maslow's ideas. Nothing he tried yielded useful results.
+
+Are we edging into the realm of AI here (ie, the impossible ;-), or is this a problem that the [[http://www.w3.org/2001/sw/ Semantic Web]] effort will help solve? I frankly don't know enough about it to say.
+
+The conversation then veered off into [[http://w3.org/MarkUp/ HTML]]'s bias toward presentation - how something should be rendered (eg, onto page or screen) - rather than structure (is this piece a paragraph, a quote, a citation, what?) This bias is now, with the help of [[http://www.w3.org/Style/CSS/ CSS]], shifting to more structural, or semantic, markup. We started talking about [[http://w3.org/XML/ XML]] and how it, like SGML before it, is intended to address this bias. If people started writing richly (semantically) marked-up XML in 1994 (um, before XML was invented), would we be any better off now when trying to do searches that intend to uncover causality or influence? Possibly, maybe probably, not. But it's an interesting challenge.
+
+Our XML diversion reminded me that when I wrote that MereMortalsShouldntWriteHtml I forgot a key point. By starting with a richly marked-up document - perhaps using the [[http://docbook.org/ DocBook]] [[http://www.oasis-open.org/docbook/xml/ XML DTD]] - it is possible to extract all kinds of useful versions. We can generate HTML, PDF, plain text, an [[http://blogs.law.harvard.edu/tech/rss RSS]] feed. We can sift and index.
+
+Semantic markup allows authors to annotate exactly what a piece of text ''means'' to ''them''; their tools (for searching, transforming, and indexing documents) no longer have to play guessing games.
+
+Today it would be madness to undertake a medium- to large-scale publishing effort in anything other than XML (or its uncle, SGML). But that's just my opinion.

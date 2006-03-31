@@ -1,0 +1,34 @@
+I wrote a Forth called muFORTH, to explore some implementation techniques (a simple native code compiler for the x86, tail recursion), and the idea of building a small kernel, with just enough bits in it to bootstrap itself, by loading more Forth code from source.
+
+I sort of succeeded.
+
+But right now muFORTH is in limbo. I was translating it, with RandyThelen's help - to run on PowerPC Macs - by converting to threaded code. This project stalled, and I got depressed, and it's been sitting since then.
+
+If you're interested in the ideas, read the MuForthReadme, and the MuForthStartup (the Forth text that is loaded to extend the interpreter to be a usable system), and if you would like to talk about the project, please [[mailto:wiki@nimblemachines.com email]] me!
+
+I'm now keeping a MuForthDiary about my progress.
+
+----
+
+The code is in a [[http://subversion.tigris.org Subversion]] [[http://svn.nimblemachines.com/muforth/ repository]] with anonymous read-only access. You can [[http://svn.nimblemachines.com/muforth/ browse it]], or, using a Subversion client, you can check out a local copy. There are three versions of interest.
+
+Browse the source of
+
+* [[http://svn.nimblemachines.com/muforth/trunk/ trunk]]: my threaded version - currently under active development;
+
+* [[http://svn.nimblemachines.com/muforth/branches/x86_native/ branches/x86_native]]: the original x86 compiler version;
+
+* [[http://svn.nimblemachines.com/muforth/branches/rthelen/ branches/rthelen]]: RandyThelen's threaded-code version.
+
+Or, using a Subversion client, check out the source locally (try one of the following):
+
+  svn co http://svn.nimblemachines.com/muforth/trunk <local-name>
+  svn co http://svn.nimblemachines.com/muforth/branches/x86_native <local-name>
+  svn co http://svn.nimblemachines.com/muforth/branches/rthelen <local-name>
+
+Another of my reasons for writing muFORTH was to replace the home-grown Forth (dforth) that I had been using to do target compilation (for embedded control applications). I'm ''very'' interested in writing a target compiler, hosted on muFORTH, for the ArmArchitecture. I've done much of the work already; you can [[http://svn.nimblemachines.com/target-arm/
+browse it here]], or check out a copy:
+
+  svn co http://svn.nimblemachines.com/target-arm <local-name>
+
+-- DavidFrech

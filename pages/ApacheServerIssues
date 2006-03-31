@@ -1,0 +1,68 @@
+This wiki site runs on the Apache web server, a very capable but also very complicated piece of software. Configuring it seems to be an art form of sorts.
+
+The sever running this site is running several other sites, using the Named Virtual Hosts feature of Apache (and of HTTP/1.1). Mostly it works smoothly and flawlessly but there are occasional, and surprising, glitches.
+
+One is the result of the following Alias directive, in the global server config, here to make pretty (ie, full of icons) directory indexes possible:
+
+  Alias /icons/ "/usr/local/www/icons/"
+
+What this means is that ''any'' request URI, ''to any virtual host'' (as it turns out), that is prefixed with "/icons/" will be mapped to "/usr/local/www/icons/" in the filesystem.
+
+I didn't initially notice this because this site, the NimbleMachines wiki, is running in a subdirectory ("wiki") of nimblemachines.com. This means that any request URIs are going to look like
+
+  /wiki/<something>
+
+There are several icons that every page displays: the lambda at the top, and the two W3C validator icons at the bottom. They had (until I was forced to move them) the following (relative) URIs, respectively:
+
+  icons/lambda.gif
+  icons/valid-xhtml10.png
+  icons/valid-css.png
+
+and accessing them caused no problems because the request URIs looked like this:
+
+  /wiki/icons/lambda.gif
+  /wiki/icons/valid-xhtml10.png
+  /wiki/icons/valid-css.png.
+
+But when I tried running the same wiki code in another domain, but in that domain's ''root directory'', I ran into a problem. Now the request URIs looked like this:
+
+  /icons/lambda.gif
+  /icons/valid-xhtml10.png
+  /icons/valid-css.png
+
+and Apache "helpfully" rewrote the initial "/icons/" with "/usr/local/www/icons/" and therefore could not find the icons for the wiki.
+
+So, I had to rename my icons subdirectory to "images" so as not to conflict with Apache. Sigh.
+
+''Happily, this has since changed. Now that part of the Apache config file looks like this:''
+
+ #Alias /icons/ "/usr/local/www/icons/"
+
+ #<Directory "/usr/local/www/icons">
+ #    Options Indexes MultiViews Includes
+ #    AllowOverride None
+ #    Order allow,deny
+ #    Allow from all
+ #</Directory>
+
+----
+
+In the vein of [[http://www.w3.org/Provider/Style/URI Cool URIs don't change]] I made another tweak to the Apache config. The images/.htaccess now has the line
+
+  Options MultiViews
+
+which turns on "content negotiation". This is a complicated process (of course) the upshot of which is that a request URI of
+
+  /images/valid-xhtml10
+
+will be matched with the file
+
+  images/valid-xhtml10.png
+
+and returned to the client with MIME type image/png. My life is the tiniest bit nicer now.
+
+----
+
+Another Apache config thought (but this is rather low priority right now). It would be nice to tell Apache to run as a user other than www. Ideally I'd like it to run as the user that owns each /home/www/data/<something> subdirectory, though maybe this is a security risk.
+
+Having to become root and manually "chown -R www" the pages/ directory for the wiki seems tedious. But, who knows. Maybe it's the best way.

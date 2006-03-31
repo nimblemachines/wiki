@@ -1,0 +1,62 @@
+== 2006 March 29 23:55
+
+Experimenting with new "icon" image. This is a picture I took, in Albuquerque (at the Explora science museum) of a contraption, of the kind often seen in airports (and all made by the same guy - C. Rhoads? or something), with lots of balls that roll around and do amazing things. Surprisingly fun to watch.
+
+I wanted it to stick against the right margin, in line with the page title/header, but couldn't figure out the CSS to make this happen.
+
+I also removed the underlines from links. They now only show when you "hover" over the link.
+
+----
+
+(''notes from the original "Haskell lambda" look'')
+
+I'm being officially silly.
+
+If we use '\' to represent lambda, as in Haskell, we can write functions in the lambda-calculus notation like this:
+
+  \x . x+1
+
+is the successor function. When this function is applied to an argument, the lambda "binds" the x to the argument, and substitutes it into the body of the lambda (everything to the right of the . ).
+
+In Haskell it would be written
+
+  \x -> x+1
+
+My "joke" is that each of these pages is a nullary (taking no arguments) function whose "value" is the page. Sigh.
+
+''I had a good chuckle when I first peeked in this evening.  Got it, like
+it.'' -- DouglasShacteau
+
+----
+
+As you all have noticed by now, the page header looks funny. By using floats and borders I have discovered the the h1 is behaving funny because it has non-zero margins. Unfortunately, there isn't a way (that I know of) to query or display the default values.
+
+I'd like to put space between the icon and the title, and also to align them vertically. If you set margin: 0 for the title h1, it moves up nicely, but the space before and after, which I like, disappears.
+
+Perhaps I'm misusing the h1 element here. Perhaps I should make my own. Right now the icon is ''outside'' the h1. I was having even more trouble with them both inside. Sigh. Someday I'll learn how CSS works.
+
+''I decided to stick with h1. I fixed the problem by setting''
+
+  vertical-align: bottom;
+
+''I think the text was, by default, using''
+
+  vertical-align: baseline;
+
+''instead, and this was messing up the alignment.''
+
+----
+
+I'm using an anchor (a) class (missing) to set the color of links to non-existent pages. The class used to be "create", but since when you follow the link you don't go directly to an edit page - where you could create the new page - but instead to showing a page that nicely ''invites'' you to create the new page, "missing" seemed like a better name. (Perhaps "inviting" would be an even better name! ;-)
+
+The color by no means fixed. I just threw together some hex - I was shooting for a light green - and got what you see.
+
+On my mom's computer (running IE) the "missing" link color is almost invisible. It's impossible to see. I guess it needs to be darker. Or something.
+
+Any and all comments and CSS suggestions are welcome.
+
+----
+
+This is a design comment more than a CSS comment. I think the validation buttons, which are a nice ''feature'', are too big and ugly for a clean, simple site. I noticed that the FancyPants [[http://alistapart.com/ alistapart]] (calistaflockpart?) designers used unobtrusive text links on their pages for XHTML validation, CSS validation, and RSS.
+
+Maybe we could come up with something like that. --DavidFrech

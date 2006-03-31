@@ -1,0 +1,177 @@
+See also MarkupDiscussion. Or maybe MarkupNotes. Make sure to play in the SandBox.
+
+The markup is shown in two ways: first as typed in, then as rendered.
+
+----
+
+= Headings and rules
+
+ = heading 1
+
+= heading 1
+
+ == heading 2
+
+== heading 2
+
+ === heading 3
+
+=== heading 3
+
+ ==== heading 4
+
+==== heading 4
+
+ ----
+
+creates an hrule:
+
+----
+
+= Lists
+
+ * a list
+ * of things
+
+* a list
+* of things
+
+ # an ordered list
+ # of things
+
+# an ordered list
+# of things
+
+ * an unordered list
+ ** with depth
+ *** and more depth
+
+* an unordered list
+** with depth
+*** and more depth
+
+ # an ordered list
+ ## with depth
+ ### and more depth
+
+# an ordered list
+## with depth
+### and more depth
+
+ * a list
+ *# with mixed up
+ *#* items that
+ *#*# keeps on going
+
+* a list
+*# with mixed up
+*#* items that
+*#*# keeps on going
+
+----
+
+= Inline markup
+
+ ''italic text'' '''bold''' '''''both'''''
+
+''italic text'' '''bold''' '''''both'''''
+
+ ''A sentence
+ that crosses
+ multiple lines
+ in the markup
+ but should 
+ '''all''' be italic
+ except for one bold
+ word.''
+
+''A sentence
+that crosses
+multiple lines
+in the markup
+but should 
+'''all''' be italic
+except for one bold
+word.''
+
+----
+
+= Making links
+
+ [[http://freebsd.org]]
+
+creates an unnamed URI link: [[http://freebsd.org]]
+
+ [[http://freebsd.org Some kind of operating system.]]
+
+creates a named URI link: [[http://freebsd.org Some kind of operating system.]]
+
+ CamelCase words
+
+create CamelCase links.
+
+ Camel""Case
+
+interrupted by double double-quotes prevents making a Camel""Case link. (Note: this is '''very''' likely to change or go away, so do not depend on it or use it much until things stabilize.)
+
+ Wiki:PairProgramming
+
+creates an interwiki link: Wiki:PairProgramming.
+
+ WikiPedia:How_to_edit_a_page#Links_and_URLs.
+
+is another, fancier interwiki link: WikiPedia:How_to_edit_a_page#Links_and_URLs.
+
+You should be able to combine these.
+
+ [[Wiki:WikiWikiWeb Ward's wiki]] .
+ [[?MarkupTest some markup]] .
+ [[?MarkupTest CamelCase]]
+
+render as [[Wiki:WikiWikiWeb Ward's wiki]] .
+[[?MarkupTest some markup]] .
+[[?MarkupTest CamelCase]]
+
+----
+
+= Preformatted (verbatim) text
+
+ This should be <pre>, without any CamelCase links, ''italic'' text,
+ or any of that '''nonsense'''.
+
+  [now] now remains unchanged in preformatted text!
+
+----
+
+= For advanced users
+
+ [now]
+
+creates a time stamp ("2005 January 27 18:53") at edit save time. '''Note:''' this is prevented from happening in preformatted text, so it won't interfere with program code.
+
+ [namesearch]
+
+creates a search box:
+
+[namesearch]
+
+to search for strings matching page names. Try it! Type something and press return.
+
+ [textsearch]
+
+creates a search box:
+
+[textsearch]
+
+to search for strings in the text of the pages. Try it! Type something and press return.
+
+----
+
+= Quotes and definition lists (NYI)
+
+"" This should
+be a big block quote. But the code hasn't been added
+yet, or doesn't
+work.
+
+''Hmm, another case of No Yeti Intrusion.''

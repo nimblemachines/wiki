@@ -1,0 +1,37 @@
+ARM stands for Advanced RISC Machines. It used to stand for Acorn RISC Machines, since a tiny British computer company called Acorn initially developed it, then eventually spun it off into today's ARM, the company.
+
+Developed in 1985, the ARM architecture has been coming into its own over the years, and now with the advent of tiny Flash-based microcontrollers like the [[http://www.semiconductors.philips.com/pip/LPC2106.html Philips LPC2106]], it is really poised to take over the world.
+
+The ARM architecture is interesting in several respects. It clearly has a RISC lineage, but the designers were also careful to make it a good "target" for humans writing in assembler, in addition to being a good target for C compilers. It was also designed, unlike many of its RISC cousins designed for cost-is-no-object high-end servers and workstations, as a "low-end" architecture. It was, in fact, originally designed to replace the 6502 in a new line of Acorn computers.
+
+The core was designed to be small, simple, and very low power. The first core had around 28000 transistors (IIRC). I think modern ARM7 cores are about 32000 transistors. Not being a VLSI wonk, I'm not sure how transistors equate with feature size, but with modern CMOS processes (like 0.18micron) an ARM core is ''tiny''. (ARM claim 0.53 mm^2 for the "hard macro" (7TDMI) core without cache, and 0.62mm^2 for the synthesizable (7TDMI-S) core without cache. Tiny indeed.)
+
+----
+
+ARM (the company) have always been very forthcoming in their documentation. One thing that appeals to me about the architecture is that the company behind it talks explicitly about tradeoffs, limitations, making the best use of quirks, etc. Their documentation is helpful, friendly, pragmatic, and clearly written by engineers who know their stuff. The internals of the JTAG debug unit are especially interesting, and in my (limited) experience, most companies leave these things helpfully undocumented.
+
+>>
+
+Hrm. Well, I have to take back some of this. It turns out that as time has passed they have become increasingly ''less'' forthcoming. These days the "technical manuals" that document their CPU cores (they used to call them "datasheets") lack any useful information about the instruction set, beyond a very sketchy summary. Their web site even suggests that to learn more about the ARM instruction sets (there are now two point three of them: the native (original) ARM set, the Thumb set (a 16-bit wide "projection"), and the Thumb-2 set (Thumb with some additions)) that you should ''buy'' the book about ARM published by Addison-Wesley! Ridiculous.
+
+They also used to publish a sort of "cookbook" that offered some really interesting insights into writing efficient C and ARM assembler code. That document is nowhere to be seen. The available application notes cover some but not all of that territory.
+
+We should all write them angry letters, and we should suggest that everyone we know (who is interested in ARM) do the same.
+
+In the short term, here is an [[files/ARM7TDMIvE.pdf older copy of the ARM 7TDMI datasheet]] - with information about the ARM and Thumb instruction sets! Unfortunately I only have a paper copy of the cookbook, so I can't post it here.
+
+I have also found, online, a copy of the [[http://www.deetc.isel.ipl.pt/microprocessadores/recursos/arm/arm/DDI0100E.pdf ARM Architecture Reference Manual]] (or ARM ARM). A '''warning''': this file is ''big'' (about 13M). This is, I think, the Addison-Wesley book that ARM would like all of us to purchase.
+
+-- NOTE: The link above serves this doc from Portugal. I've made a local copy (in files/) that we can use should that link ever break.
+
+----
+
+The best introduction, though not a friendly tutorial, is the [[http://www.arm.com/products/CPUs/ARM7TDMI.html 7TDMI]] [[http://www.arm.com/pdfs/DDI0210B_7TDMI_R4.pdf reference manual]]. This [no longer very] encyclopedic document describes the programmer's view of the chip, the memory interface, the coprocessor interface, and the Debug unit. The 7TDMI (7 is a series number, currently the "lowest end" ARM; T=Thumb, D=Debug, M=Multiplier, I=Icebreaker/EmbeddedIce) is the most popular core. It's showing up everywhere, and is the heart of the Philips LPC2100 series.
+
+There is lots more [[http://www.arm.com/documentation/ documentation]] available from ARM. [Though not as much as there used to be.]
+
+----
+
+I've wanted, for years, to put Forth on an ARM. It's ''perfect'' for it. I've done a lot of the design work; I just have to implement. Hopefully I will soon revive my on-hold MuForth project; I have most of what I need to develop for the ARM: a full-featured assembler and disassembler, a memory "exploration" mode, the framework of the target compiler. I just need to write the rest of the darn thing.
+
+If this sounds interesting, [[mailto:wiki@nimblemachines.com harangue]] me about it. Maybe it'll get done faster that way. ;-)

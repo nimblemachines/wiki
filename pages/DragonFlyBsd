@@ -1,0 +1,15 @@
+I recently "accidentally" upgraded my laptop (compiling from source, using build/install world) to FreeBSD 6-CURRENT from 5.2.something. The process went smoothly except for a few niggles with boot configuration (I had to change the module load path config and also force the loading of two modules for X to work ... grrr) but then the system became terribly unstable. I kept getting panics in the scheduler code.
+
+I shouldn't be surprised, right? That's what I get for running bleeding-edge code from -CURRENT, right?
+
+Then I discovered something ''much'' more alarming.
+
+Matt Dillon - a stalwart FreeBSD developer whose commit privilege (the right to change the FreeBSD source code) was revoked last year by the Core team because of his "outspokenness" (or something like that - I don't really care exactly what happened) - thinks that the technical direction (in both senses ;-) of FreeBSD 5.x and 6.x is misguided.
+
+Here's what I've been able to piece together of the story. FreeBSD 4.x has basic, but somewhat clumsy and inefficient support for symmetric multiprocessing (SMP). If you have more than one processor in your computer, FreeBSD 4.x won't be able to take full advantage of it. Much of the "push" for FreeBSD 5.x was to overhaul this - something they call SMPng (next generation).
+
+Matt had grave misgivings about the approach decided on by the technical leadership. Presumably (I do not know the details) his outspokenness on the subject lost him his commit privilege. Instead of whining about it, he decided to start another BSD project to try out his ideas for fixing SMP support in FreeBSD. The new project is called [[http://dragonflybsd.org/ DragonFlyBSD]]. It is based on what many consider the best, fastest, and stablest FreeBSD: 4.10.
+
+On the DragonFly main page and in the mail archives Matt explains what he thinks is wrong with FreeBSD and how to fix it. I'm no expert, but his approach seems appealing. In particular, he likes to fix what's broken, rather than to apply bandaids, and he also seems to favor simplicity and elegance.
+
+DragonFly is definitely a project to watch.

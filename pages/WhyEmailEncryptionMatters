@@ -1,0 +1,17 @@
+My dad runs Outlook, and he uses it to correspond with my parents' accountant. Earlier this year their accountant emailed my parents' tax return (a pdf file) "in the clear"; when my dad realized what had happened, he wasn't happy. But until that moment he hadn't really thought about the privacy of email. Or, rather, the lack. Your stuff is out there for everyone to read, baby!
+
+He talked to their accountant, who was unaware of the risks, and pretty clueless about fixing the problem. [[http://www.hhs.gov/ocr/hipaa/ HIPAA]] covers the exchange of medical & psychiatric records, but it appears that we (as consumers) need to educate other (non-medical) professional service providers about the privacy risks of email. After all, any documents concerning professional services done on your behalf are likely to be confidential, whether you are an individual or an organization.
+
+Given that [[http://philzimmermann.com/EN/findpgp/index.html Pretty Good Privacy]] (PGP) has been around since 1991 (thanks Phil!), it's amazing that so few people encrypt their email, know how to, or even know that it is possible to.
+
+Back to our story. Why did I mention Outlook?
+
+Like many geeks, I run mutt, a text-based mail user agent (MUA). I like it because I don't have to use the mouse, and I can configure it to do things my way. mutt works well with PGP and [[http://gnupg.org/ GnuPG]] (the GNU Privacy Guard), a program that is compatible with PGP - and free!
+
+Both PGP and GnuPG make it very easy to "roll your own" encryption keys and distribute them to friends and colleagues.
+
+Outlook has no idea what PGP and GnuPG are. But it's very savvy about S/MIME, the centralized, corporate, "enterprise" version of secure email. S/MIME is based on X509 certificates, which are also used in SSL transactions on the Web. You can [[http://openssl.org/ roll your own]] certificates as well, but the people you correspond with will have no idea what to do with them. (More technically, their email software won't recognize the digital signature on a home-made certificate.)
+
+It's possible to get [[http://www.thawte.com/secure-email/personal-email-certificates/index.html free email certificates]] from [[http://www.thawte.com/ thawte]] for personal use. (Since thawte is a well-known Certification Authority, everyone's software recognizes their digital signature on certificates. They act as a trusted third-party - a kind of notary.) While a bit clumsy to use, these are a good idea for people concerned about security but who don't (or can't) run email clients that work with PGP or GnuPG. Almost all modern GUI clients - such as Outlook, Outlook Express, Mozilla, Thunderbird, & Apple Mail, among others - can use S/MIME certificates.
+
+There are two incompatible standards for email encryption; one would be much better. But having two is better than having none.

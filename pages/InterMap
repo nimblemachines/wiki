@@ -1,0 +1,16 @@
+== What is intermap and why should I care?
+
+intermap is a feature of certain wikis (I discovered it in UseMod:UseModWiki) that facilitates making cross-wiki links. Actually it works for more than just wikis: anything with a URI query interface is intermappable.
+
+The UseMod link above is an example. The href that is generated is rather complicated, so using intermap saves a lot of typing.
+
+Basically, it is a bunch of macros. When you type a link of the form prefix:link, the wiki engine looks up ''prefix'' in its intermap. If it finds it, it replaces it with the destination site's initial URI, and adds, as a suffix, the ''link'' that you specified.
+
+Here are some examples.
+
+Wiki:WikiWikiWeb ....
+Google:dragonflybsd ....
+Wikipedia:Public_key_cryptography
+
+When the wiki engine starts up (ie, whenever you read a wiki page ;-), it reads the intermap file that contains all the macros.
+InterMapTxt is a current copy of the intermap file, but it is ''not'' the real thing. Changes made there will ''not'' affect the operation of this wiki.

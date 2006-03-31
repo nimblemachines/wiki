@@ -1,0 +1,15 @@
+== 2006 March 30 22:49
+
+Phew! I just checked in a clean copy of the ITC version (trunk) of MuForth. It's still slower than native (about 4x), but I don't care! For my purposes - cross-compiling - it will be more than fast enough.
+
+I've tried to clean up the code as much as possible. This feels like a solid version. Please check it out!
+
+[[http://svn.nimblemachines.com/muforth/trunk/ Browse the source]], or check it out:
+
+  svn co http://svn.nimblemachines.com/muforth/trunk/ muforth
+
+----
+
+== 2006 March 27 19:20
+
+Right now I'm thinking about MuForthThreading, and how to make it better. I borrowed some of MichaelPruemm's ideas (see XiForthDiary) but got them wrong, so my ITC muFORTH is about 7x slower than the native code, which wasn't all that highly optimized. I'd like to see more like 2x.

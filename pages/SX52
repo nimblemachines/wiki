@@ -1,0 +1,11 @@
+The SX52 PIC processor is a member of the SX processor family available from [[http://www.ubicom.com Ubicom]].  The SX52 is the biggest, baddest version of that processor family.
+
+It sports 262 bytes of user available RAM, one 8 bit accumulator, 4K 12 bit instructions, and 5 8 bit general purpose I/O ports.
+
+256 of the user available RAM are accessible as 4 bit offsets within 4 bit banks.  Or, an 8 bit pointer can point to an arbitrary byte.
+
+Additionally, there are 10 processor registers that are stored and addressable kind of as RAM, with 6 free bytes available to the programmer.  At this point, I can either get mired in the ugly details of the address models of the SX52, or I can simply be smart and leave the issue well alone.  :-)
+
+At any rate, I'll write notes here from time to time about my progress on using the SX52.
+
+Also, I'm using [[http://forums.parallax.com/forums/default.aspx?f=7&m=53539 SXSim]] from Günther Daubach for running my Forth CPU implementation.  So far, it's going quite well.  I've found a couple of bugs in SXSim, but Günther has been very prompt in responding with bug fixes.

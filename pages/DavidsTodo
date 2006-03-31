@@ -1,0 +1,5 @@
+* Finish the PATH_INFO based wiki script.
+
+* figure out how to keep old-style (query-style) links from breaking.
+
+* should the new script have a different name? (makes backwards compat easier in some ways). But then, how does svn work?

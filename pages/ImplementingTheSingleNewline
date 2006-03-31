@@ -1,0 +1,101 @@
+Now that I'm through ExplainingTheDoubleNewline, and having had a chance to take a nice walk in the hills, I have some interesting ideas about how to implement the markup engine without requiring two newlines to separate different types of block markup. One nice thing: it seems to also solve my problems with tangling & untangling lists, and seems a good match with functional programming techniques, so when I rewrite this in a RealLanguage it'll be a breeze.
+
+The basic idea is this: you split the page, using a single newline as the delimiter; this yields an array of lines. You have a state variable, called current_block_type, that contains the "type" of the current block of markup. You type each line, and call a transition function, which decides how to transition from current_block_type to line_block_type.
+
+Here is a list of types, some of which are not yet implemented (NYI):
+
+  <blank>  a blank line
+  p        paragraph
+  hr       hrule
+  h2..h5   headings
+  pre      preformatted (verbatim) text
+  blockquote
+  dl       definition list (what I need to markup this table!)
+
+I've left out lists (ol & ul). They are special, and complicated. The reason: they nest. So the "type" for a list isn't simply "ol" or "ul"; instead it's something like "***" or "#*#", where * is ul and # is ol (reflecting the markup).
+
+Leaving out the issue of lists for the moment, this makes the code to generate the enclosing block elements rather easy. I've written it down here, in a kind of Haskell/Perl. Hopefully it makes sense.
+
+  -- return the "block type" of a line by regular exp pattern-matching
+  block_type line =
+    /^\s+/            => pre
+    /^-{4,}/          => hr
+    /^(={1,4})/       => nth $1 [h2, h3, h4, h5]
+    /^\[namesearch\]/ => namesearch
+    /^\[textsearch\]/ => textsearch
+    _                 => p   -- if nothing else matches
+
+  -- generate an empty element
+  empty e = "<" ++ e ++ " />"
+
+  -- return a string representing the closing tag of an element,
+  -- or the empty string
+  close_elem e =
+    <blank>    => ""
+    hr         => ""
+    namesearch => ""
+    textsearch => ""
+    _          => "</" ++ e ++ ">"
+
+  -- return a string representing the opening tag of an element
+  -- or the empty string
+  open_elem e =
+    <blank>    => ""
+    hr         => empty e
+    namesearch => namesearchform   -- these two are macros
+    textsearch => textsearchform
+    _          => "<" ++ e ++ ">"
+
+  -- generate a string to "represent" the transition between two block
+  -- types; return "" if old == new
+  transition old new =
+    if old != new then
+      close_elem old ++ open_elem new
+    else
+       ""
+
+   -- an iterator to accumulate the processed text
+   -- old is the last block type we saw
+   -- new is the block type of the current line
+   -- split splits a string into a list of strings, given a delimiter
+
+   let loop old lines text =
+     case lines of
+       []     => text    -- we are done, return accumulated text
+       (l:ls) => let new = block_type l in
+          loop new ls (text ++ transition old new)
+   in loop <blank> (split '\n' (read_file page)) ""
+
+Ok, so that wasn't too hard. Of course, since lists are the hard part this should be no surprise.
+
+I think I'm going to try to implement this, and come back and do lists later.
+
+----
+
+Ok, so even without lists this isn't trivial. The thing I forgot is this: I didn't deal at all in the above code with converting the ''inline'' markup, which I currently do by splitting the text into chunks delimited by two or more newlines, and then process chunk by chunk. This way a paragraph, for example, is processed all at once for inline markup, and it is also easy to  avoid inline markup processing for preformatted text.
+
+I need another approach to this problem if I want to process the text line-by-line.
+
+I could do the block markup for the whole file and then go back and do the inline, but this would be more error-prone, since it could match across a p and ul element, for instance. It would also be harder at that point to avoid touching the pre text.
+
+I could accumulate text ''while'' we're seeing lines of the same block type and then inline process the chunk together. (This is basically what using double newlines does.) This is better, but really I only want to collect lines into a chunk for p elements.
+
+How to structure this?
+
+2005 January 30 03:36
+
+''Sorry.  When I got to this I was essentially brain dead.  I'll pick it
+up in the am.  S. is heading to the Zendo and I'll try to mainline some
+coffee and think about it.''
+
+My fake "Haskell" code isn't 100% correct, but I think it conveys the basic idea. Of course, now I think I have to have another approach: I think I need to collect a sequence of lines with the same type into a "chunk" and then process the chunk all at once.
+
+I'm interested in developing here a piece of code, looking Haskell-like, that I can then convert into Perl. I'd like it to do this "collection of like types, then process" model.
+
+>>
+
+2005 April 11 09:35
+
+For an alternative view, see MarkupSyntax. It tries to explain all this using a formal syntax in EBNF. Nevertheless, I like the pseudo-Haskell above and think it is worthwhile to find an algorithmic description here. --MichaelPruemm
+
+>

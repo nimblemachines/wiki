@@ -1,0 +1,65 @@
+Objective Caml (OCaml) is a dialect of the MlLanguage. It is the latest in a series of CamlLanguage""s. It can be compiled to bytecode or native code (for quite a number of architectures). It is competitive (in speed) with C for many applications.
+
+The bytecode interpreter is based on the ZincAbstractMachine.
+
+More info at [[http://caml.inria.fr]].
+
+----
+
+>>
+
+Yesterday, I started learning OCaml by writing a '''cat''' program and immediately discovered something I don't like at all: When reaching the end of file OCaml raises an '''exception'''!
+
+Why do people consider end-of-file being something exceptional? I guess this is a very old argument, but I just needed to vent some air and make it clear on which side of the argument I stand. --MichaelPruemm
+
+>>>
+
+Can you tell if this is a "bug" or a  "feature"?  Erlang had a remotely similar problem which they finally fixed in OTP-3.
+
+dgs
+
+>>
+
+The OCaml reference manual has the following to say about exceptions
+
+""Caml provides exceptions for signalling and handling exceptional conditions. Exceptions can also be used as a general-purpose non-local control structure.
+
+and further
+
+""Exceptions are used throughout the standard library to signal cases where the library functions cannot complete normally.
+
+But Jason Hickey says it best in chapter 7 ''Exceptions'' of his [[http://www.cs.caltech.edu/courses/cs134/cs134b/book.pdf book]]:
+
+""Exceptions are used in OCaml as a control mechanism, either to signal errors, or to control the flow of execution.
+
+In this light, it is defensible to signal an exception on end-of-file. There are more examples in the OCaml library, so the use of exceptions could be called consistent.
+
+>>>>
+
+(Hmm. I see you're using "experimental" markup to get blockquotes. I never decided what I wanted to use for this. If anything, I think single double quote is a bad choice. Double double quote is perhaps better. --DavidFrech)
+
+>>
+
+(Let's talk about this on MarkupDiscussion.)
+
+>
+
+Another view on exceptions. From the glossary section of the Python tutorial:
+
+""'''EAFP'''
+Easier to ask for forgiveness than permission. This common Python coding style assumes the existence of valid keys or attributes and catches exceptions if the assumption proves false. This clean and fast style is characterized by the presence of many try and except statements. The technique contrasts with the LBYL style that is common in many other languages such as C.
+
+""'''LBYL'''
+Look before you leap. This coding style explicitly tests for pre-conditions before making calls or lookups. This style contrasts with the EAFP approach and is characterized by the presence of many if statements.
+
+--DavidFrech
+
+>>
+
+I am not against the use of exceptions for control flow. A "key not found" exception is fine with me. It is the ''EOF exception'' that is bothering me. It is like using an exception when you have iterated through a list.
+
+>
+
+Understood. Perhaps I should have been clearer. I did not mean this to have direct bearing on your experience wrt EOF triggering an exception; rather, your experience seemed like a good opportunity to mention the Python "perspective" on exceptions being useful as a more general control structure, rather than simply as a way to handle "exceptional" circumstances.
+
+I agree with you that OCaml's consideration of EOF as "exceptional" is a bit surprising, and, IMO, flawed. --DavidFrech

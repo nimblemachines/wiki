@@ -1,0 +1,15 @@
+Alan Kay worked at Xerox PARC helping to invent Smalltalk; he worked at Atari Research; and when Disney was footing the bill he lead the Squeak Smalltalk team there.
+
+He was recently [[http://acmqueue.com/modules.php?name=Content&pa=showpage&pid=273 interviewed]] in ACM Queue.
+
+My favorite quote from that interview:
+
+""One of my favorite old languages is one called Lucid by Ed Ashcroft. It was a beautiful idea. He said, "Hey, look, we can regard a variable as a stream, as some sort of ordered thing of its values and time, and use Christopher Strachey's idea that everything is wonderful about tail recursion and Lisp, except what it looks like." When he looked at Lisp, he had a great insight: which was that tail-recursive loops and Lisp are so clean because you're generating the right-hand side of all the assignment statements before you do any rebinding. So you're automatically forced to use only old values. You cannot rebind, so there are no race conditions on anything.
+
+""You just write down all of those things, and then when you do the tail recursion, you rebind all of those variables with these new values. Strachey said, "I can write that down like a sequential program, as a bunch of simultaneous assignment statements, and a loop that makes it easier to think of." That's basically what Lucid did - there is no reason that you have to think recursively for things that are basically iteration, and you can make these iterations as clean as a functional language if you have a better theory about what values are.
+
+When I learned about this idea (from the StructureAndInterpretationOfComputerPrograms) it seemed like a deep way to think about - and do! - iteration.
+
+What I didn't get from this interview is what Alan means when he talks about some "new generation" of languages that he hoped would succeed Smalltalk and Lisp, but because Smalltalk and Lisp were so ''great'', people stopped innovating at that point, and the education of programmers lagged behind the wonderful technology available (even truer today!!), so that it became a pop culture of Basic, Pascal, then C, and now Java and Python/Perl/Ruby.
+
+I disagree that the innovation stopped; it went ''back'' into research labs and research universities, hidden away from the popular gaze. The new languages that Alan hoped for are precisely the functional languages from Europe that he seems to like. He doesn't say they are the next big thing, though; I ''do'' think they are. --DavidFrech

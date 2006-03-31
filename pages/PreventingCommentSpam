@@ -1,0 +1,11 @@
+== Tuesday, January 18, 2005
+
+=== Preventing comment spam
+
+''(quoted from a googleblog post that no longer exists)'':
+
+If you're a blogger (or a blog reader), you're painfully familiar with people who try to raise their own websites' search engine rankings by submitting linked blog comments like "Visit my discount pharmaceuticals site." This is called comment spam, we don't like it either, and we've been testing a new tag that blocks it. From now on, when Google sees the attribute (rel="nofollow") on hyperlinks, those links won't get any credit when we rank websites in our search results. This isn't a negative vote for the site where the comment was posted; it's just a way to make sure that spammers get no benefit from abusing public areas like blog comments, trackbacks, and referrer lists.
+
+----
+
+This would be very easy to add to the wiki; the trouble is, there is no distinction made between public and private writing spaces. In effect, everything on the wiki is a comment. If you created "special" markup so you could link to external sites ''without'' the rel="nofollow" - to "vote" for your friends' web sites, eg - but didn't document this markup, a wiki spammer would eventually come along and figure it out. --DavidFrech

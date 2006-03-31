@@ -1,0 +1,135 @@
+== 2006 March 21 12:33
+
+I have several aims in doing this rewriting:
+
+* use a nicer language than Perl;
+
+* make better use of the filesystem for storing page metadata;
+
+* standardize the markup;
+
+* standardize linking (I'm likely to get rid of CamelCase linking);
+
+* implement a simple caching structure and inter-page dependencies;
+
+* add support for ''tags'', !!agrave!! la [[http://flickr.com/ flickr]] and [[http://del.icio.us/ del.icio.us]].
+
+I'll address each in turn.
+
+----
+
+== Use a nicer language than Perl
+
+C'mon, do you ''really'' think this needs explaining? Perl bites. There's more than one way to do it, and they all ''suck''.
+
+----
+
+== Make better use of the filesystem for storing page metadata
+
+Right now I store the content of the page in a ''pages/'' directory, and each time a page is changed its entire previous contents is timestamped and saved in ''pages/archive''. This is wasteful and clumsy, and there is no provision for metadata, such as the revision number of a page, notes on edits made, &c.
+
+Since I don't want to use a database - I'm stubborn! - I need somewhere to put my metadata. My thought is to have a ''directory'' for each page, with the following contents (this is a first stab):
+
+  content             - current content of the page, in wiki markup
+  tags                - a list of tags for the page (optional)
+  rev@                - symlink to revs/<current>? or
+  rev                 - the page's current revision number?
+  revs/               - a directory for each rev, including the current
+    <rev#>
+      comment         - logged each time you make a change
+      diff            - from this rev to previous (rev-1)
+      author          - maybe
+  rendered            - a cached copy of the rendered HTML
+  linkedfrom/         - pages that link to this page
+
+The last two are necessary because I'd like to be able to serve cached static pages. Normally this isn't possible with a wiki because you want to render links to other pages differently depending on the existence or not of the linked page. Most wikis render pages "live" - when requested. This is pretty server-intensive, but is the easiest way to get up-to-date links.
+
+I'll talk in a later section about how caching works.
+
+>>
+
+How about this variant:
+
+  page/
+    content@   symlink to current content in Wiki markup (in rev/)
+    rendered   cached copy of rendered HTML of content
+    rev/       directory with all revisions of the page
+      2006-03-22T16:24   dated revision of page in Wiki markup
+      ...
+    ...        other stuff
+
+Instead of having numbered revisions, where the numbers are quite arbitrary, have a date revision which is more useful in my opinion. If you really want to know how many revisions there are and what number each has, it should be easy to sort the directory and then number the files.
+
+----
+
+== Standardize the markup
+
+This is a bear. There are numerous discussions (on this wiki and every other!) about markup. It's a personal thing, and having lots of different wiki markup styles in unhelpful to the wiki-ing community, since they have to remember where they are when they are writing.
+
+Unfortunately, I don't think any of the current "systems" of markup is regular or systematic enough to remember easily, and to allow flexibility in marking up links - one of the most important aspects of wiki markup, IMHO.
+
+I need to think about this still and make a final executive decision. The implementation is pretty easy - except maybe for doing lists. ;-)
+
+----
+
+== Standardize linking
+
+As mentioned above, there are lots of linking styles. I want something simple and easy, but that allows all possible styles of linking. If I want to be able to link to other wikis (like [[http://c2.com/cgi/wiki/ Ward's]]), then I need to recognize CamelCase. But I would prefer to ''deprecate'' its use - to the point of making it not work! - on this wiki.
+
+As often as not I make links to the rest of the web, rather than to other wiki pages (here or elsewhere); I want that to be as easy as possible.
+
+See LinkMarkupNotes for more thoughts about this, and a good description of the current state of linking on this wiki.
+
+----
+
+== Implement a simple caching structure and inter-page dependencies
+
+The problem: when we render a page, we do not know if the wiki pages linked to (on this wiki) exist or not. We need to know this since we render the links differently in each case.
+
+''But is this really necessary? If a visited page doesn't exist, it's easy to bring up the edit page for it. It's a nicety that the links are rendered in a way the represents the (non)existence of the linked-to page, but it is not a necessity.''
+
+Ok, so regardless of that, it might be nice to cache the rendered version of a page. If we don't care about correct rendering of links, this is easy. When we save a page, we delete its cached rendered version (if any). When the user requests a page, then either Apache (using mod_rewrite - ugh!) or the CGI script runs, returning the cached version if it exists, and if not, renders it, and saves and returns the rendered version.
+
+If we ''do'' care about links, it isn't much harder. In this case, when a page is saved, we scan its contents looking for (intra-wiki) page links, and for each one put a pointer to ''this'' page (the one we're saving) in each of ''those'' pages' ''linkedfrom/'' directory. This way every page has a list of ''backpointers'' to pages that depend on it. When it first springs into being, we invalidate all the pages that link to it, so they will be re-rendered before being shown to the user.
+
+It's a bit of work, but not conceptually hard.
+
+----
+
+== Add support for ''tags'', !!agrave!! la [[http://flickr.com/ flickr]] and [[http://del.icio.us/ del.icio.us]]
+
+Tags are cool, and very useful. Wikipedia:Folksonomy is the next taxonomy. Anyway.
+
+Instead of using the CategoryCategory facility - which is very Wiki:WikiZen (and in that sense, ''elegant''), but is also clumsy and takes lots of typing and is, in ''that'' sense, inelegant - use a purpose-built tagging mechanism, again with metadata features in the filesystem to support it efficiently.
+
+I have in mind the following. In addition to the ''pages/'' directory - which, as explained above, contains a ''directory'' per wiki page - there is a ''tags'' directory, with a directory per tag, and in the directory are links to all the pages tagged with that tag. This makes it trivially easy to retrieve pages based on their tags.
+
+Although, hmm, we need to go the other way as well. It should be easy to get from a page's ''name'' to its ''tags''...
+
+I know! I'll use a '''relational database'''! ;-)
+
+Actually, just add a "tags" file to the page's directory in ''pages/''.
+
+----
+
+I'm thinking about RewritingThisWiki in Python.
+
+I knew I wanted to rewrite it ''eventually'', and in several languages (including either Haskell or OCaml, and possibly both!). Perl has served its purpose. I dislike Perl. I learned a lot about it by writing the code for this wiki, and I'm done with Perl.
+
+I'm thinking that rather than hack on the Perl code, I should recast it in Python and hack on that. Of course it would be much more involved than simply "translating" the code, because I think a nicer solution should be possible in Python, and I've also been reading about how string concatenation (which I do a lot of in the Perl version) can be quadratic in the length of the string, or the number of strings concat'ed. In any case, it's bad. It may even be bad in Perl.
+
+So I would have to come up with another approach. I'm thinking that since I'll be appending bits to lists a lot, that maybe I should read the markup file ''backwards'' and build up the lists that way, then print them out in order.
+
+And I have this crazy idea of using higher-order functions to do this. The (tree) structure of the document would be represented by a list of lists of ... The first element of each (sub)list would be a function that would consume the remainder of its list and output it, very probably wrapping it in an HTML element. Sounds like a Scheme interpreter, right?
+
+Unfortunately, lambdas in Python can only represent ''expressions'' and not complete functions. But it's possible to define a function inside the lexical scope of another, and return it, hopefully closing on some free variable(s) that refer back to my under-construction list.
+
+Anyway, those are my confused morning thoughts. --DavidFrech
+
+----
+
+== 2005 February 07 12:23
+
+Thinking about this some more, I realized that an interesting approach might be to represent the rendered documented not as a ''list'' (of lists of ...) but as a ''function''. Each time I ''render'' an element of markup, instead of printing it I return a function that when called ''later'' will print it. Stringing these together into a tree, at the end I have a single function that, when called, prints the entire document!
+
+One downside: this will generate lots of small I/Os, rather than one big one. Is there a way around this? I don't know.

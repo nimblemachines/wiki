@@ -1,0 +1,75 @@
+See also WikiUriFormat.
+
+----
+
+A quick note about making persistent blog URIs.
+
+Let's say we have a blog script running at
+
+  nimblemachines.com/blog
+
+We can throw a URI at it like this:
+
+  nimblemachines.com/blog/2005/01/28aa
+
+or even like this:
+
+  nimblemachines.com/blog/2005/01/28/aa
+
+whether or not "28" (the day-of-month) is truly a directory in the filesystem.
+
+This format allows us to write 26*26 = 676 blog entries every day (plenty), and to have a persistent URI that need never change.
+
+Why does this work? The web server strips out the path part ''after'' the script ("/2005/01/28/aa", eg) and puts it into a CGI environment variable called PATH_INFO. The script can do whatever it likes with it.
+
+----
+
+>>
+
+Why not use the time (in 24 hour format) to distinguish different posts on the same day? It is usually possible to configure an editor to create a file name out of date and time, but it may not be easy to create a unique file name if of the form "aa", "ab", etc.
+
+Generally, I like this URI format, but it is inconsistent with the format of the wiki URIs:
+
+  nimblemachines.com/wiki?PageName
+
+-- MichaelPruemm
+
+>
+
+Hmm. I agree with your comments about configuring editors. I was thinking in terms of a wiki-like (web-based editor) interface. But, frankly, I would prefer Emacs. ;-)
+
+I chose the format I did out of a desire to make the URIs short and easy to tell someone, to write on a napkin (without error), things like that. (For instance, I initially thought of using hex to encode the last part, which distinguishes among posts from a single day, but realized there was too much potential for confusion between 1 (one) and l (ell), 0 (zero) and o (oh), etc. So I decided on a sequence of two lowercase letters.
+
+You raise an interesting point, though: If I used the time in hh:mm:ss (or even hh.mm.ss) in 24-hour format, it would be much easier to get vi or Emacs to play along. It's more junk in the URI and more room for error, but... OTOH, maybe counting seconds is too much. Is anyone really going to be able to create two posts in a single minute? Only if they are a Dvorak typist... ;-)
+
+It's true that the format is different from (incompatible with) the wiki format. I'm not sure that matters. I'm thinking these could somehow be two windows onto one dataset (or "docbase" - short for document database - as Jon Udell likes to call them). I don't have the details at all worked out. --DavidFrech
+
+>>>
+
+Hmm. I think Michael might have a good point.  Consistency between URI
+formats would be a win; the users/visitors don't have to think about switching formats, they just change one word:
+ 
+ nimblemachines.com/blog?User_''timestamp''
+
+Also,
+
+ nimblemachines.com/blog?User
+
+could take them to the blog with the current day's entries displayed. (Previous days/months/weeks/epoch's entries would be ''transparently archived''.)
+
+Consistency in the docbase would be good design choice as well.
+--DouglasShacteau  
+
+>
+
+I think the only thing that really matters is that the URIs have longevity built-in. I don't think it's necessary that blog & wiki URIs have "compatible" formats because I don't foresee users typing them in mamually anyway. They'll reach a page via a search engine, and from there the blog <-> wiki linking will be done by scriptural transformation (heh heh): The links on the page will do all the work for them.
+
+There are two big questions:
+
+* What is the format of the URIs? and
+
+* How are they mapped between blog and wiki?
+
+----
+
+CategoryWikiBlogIntegration

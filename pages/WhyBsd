@@ -1,0 +1,35 @@
+= Why I like BSD
+
+I run BSD - [[http://freebsd.org/ FreeBSD]] and [[http://netbsd.org/ NetBSD]] in particular (and I'm about to jump into DragonFlyBsd).
+
+Why? I used to run Linux. What makes these systems different from (most) Linux systems?
+
+First, a little history. I stumbled over Linux in 1995 in Powell's Technical Books in lovely Portland, Oregon. (I bought a CD set of Slackware Linux before I had a computer to run it on.) Running Linux brought me "back into the fold" of popular computing. I had soured on technology - computers in particular - after working at Microsoft in their early days, and I had been frustrated by the lack of reasonable tools for building software on PCs. All I wanted was a flat 32-bit address-space!
+
+Linux, via the gcc compiler, gave me that, and a lot more. I undertook a self-taught "crash course" in network- and system administration (like all Linux newbies, I might add). Linux was a great platform for this - it's a lovely white box that you can open up, inspect, and change. I got excited about computers again.
+
+But Linux started to irritate me. System administration tasks - keeping the system up-to-date, building new kernels, adding and upgrading software - seemed clumsy. I started distro hopping: from Slackware to early Red Hat (versions 4 & 5), and thence to Debian, my favorite. Nothing satisfied me.
+
+But when I finally tried FreeBSD (some time in 2000) - a friend and fellow Linux enthusiast wanted to install it on a firewall machine at home - I was hooked. Almost everything that bugged me about Linux was fixed in FreeBSD.
+
+What are the main differences?
+
+== Linux is a kernel, not a complete system.
+
+To get a full, usable system you have to install a distribution (distro). These are all different, and all quirky (broken?) in different ways. In contrast, a BSD system integrates the kernel with the "userland" - the basic non-graphical programs that make up the system: the compiler & assorted tools, a few shells, text processing tools, basic text editors. The BSD system tends to have fewer problems with things like system utilities and libraries getting out of sync with the kernel. Also, there is only one FreeBSD (though there are several BSDs). Two FreeBSD systems are likely to be much more alike than two Linux systems. This helps when troubleshooting problems and getting help from others.
+
+== Linux distros install add-on software from precompiled binaries.
+
+The base system - on Linux or BSD - lacks the "big" software packages that many people depend on daily: web browsers, X11 desktops, fancy editors, etc. Many Linux distros (Debian is an exception) make it hard to keep these up-to-date, and it's also hard to tweak their configurations, since someone else compiled them.
+
+BSD systems contain a large chunk of magic, called the ''ports tree'' on FreeBSD (and ''pkgsrc'' on NetBSD). They basically consist of a bunch of makefiles and patch files that automate downloading, configuring, patching, building, and installing add-on packages. Because make was designed as a "dependency engine", no fancy (brittle) packaging tools are necessary - make does all the dependency work, although there is a tool (pkg_add) for installing precompiled binary packages that does have its own dependency engine.
+
+This approach has immense flexibility, and for whatever reason, struck me as the Right Thing. (Of course, compiling Mozilla and Gnome on every machine you run them on is a waste of time; there are shortcuts you can take, like building binary packages on one machine and installing them on several others, or simply installing the precompiled versions for "big" things, and building your own for smaller things.)
+
+Also, to be honest, the interactions between the binary package install tools and the ports tree can induce painful hair-pulling. (NetBSD's pkgsrc seems better in many regards than FreeBSD's ports tree, in my experience anyway.)
+
+== BSD has a long Unix heritage
+
+This one is pretty fuzzy, but the main difference that I experience is that BSD systems are, in some sense anyway, designed by system administrators for system administrators. It's very easy and quick to tweak the configuration of the system. This may be a minor difference - unless you've got a lot of machines to look after.
+
+Of course, the BSDs aren't perfect, but mostly I'm happier running FreeBSD and NetBSD than I ever was running Linux. (And I hope to be even happier running DragonFlyBsd. ;-)

@@ -1,0 +1,70 @@
+People (ahem) have complained that requiring double newlines between different kinds of block markup - paragraphs, headings, hrules, lists, pre-formatted text, etc. - is both non-intuitive and annoying. I made this choice in writing my "markup engine" for very good reasons, and wanted to explain them.
+
+I don't want to ''excuse'' my choice, only ''explain'' it. (I'm sounding a bit like Mark Antony here.)
+
+It makes sense to first look at my goals in writing this markup engine. The first and foremost is strict XHTML compliance. I refuse to budge on this. Every other Perl wiki engine I looked at took a dim view of XHTML compliance, and without exception they produced horrendous and sloppy HTML.
+
+A second goal is that the code be well-factored, elegant, and simple. While all three of things are hard to achieve in Perl, I tried. ;-) This second goal is a bit fuzzy, so let's ignore it.
+
+Ok, so we are challenged to generate strict XHTML-compliant code. What does this mean in practice? It means that we have to carefully close all of the elements that we open. (This is where the other wiki engines play fast and loose.) Why is this hard or tricky? Let's look at a concrete example. Assume we are trying to render the following input (I've numbered each line so I can refer to it in the text):
+
+   1 = Intro
+   2 This is an introductory paragraph.
+   3 It spans multiple lines separated by single newlines.
+   4
+   5 This is a second paragraph.
+   6 It introduces a list:
+   7 * a first thing
+   8 * a second thing
+   9 then an hrule:
+  10 ----
+  11 then some preformatted (verbatim) text:
+  12   my @paras =  split /\n{2,}/, $edit;
+  13   foreach my $para (@paras) {
+  14     $para =~ s/\[now\]/$stamp/ge unless $para =~ m/^\s+/;
+  15   }
+  16 In conclusion, I have this to say: ''Read my lips.
+  17 I. Hate. Perl.''
+
+Line 1 opens an h2 element (I don't map any of the markup to h1's, which are reserved for the page heading.) Between lines 1 & 2 the block element changes from h1 to p, so we have to close the h1 and open the p. Between 2 & 3 there is no transition - we are still inside a p. Between 3 & 4 it changes from p to <blank> so we close the p. Between 4 & 5 it changes from <blank> to p, so we open another p. Etc.
+
+There is a troublesome case on lines 16 & 17: there is inline (italic) markup that spans lines. Since we're processing line-by-line, our regular expression won't match because it's looking for '""'text'""' and it only gets to see ''text.
+
+So we have to be clever about inline markup in paragraphs. Perhaps we can "collect" the text of a paragraph into one long line before we do the inline markup transformations? (But would we then word-wrap it back into shorter lines? That could wreak havoc with the HTML. Hrm. Perhaps we could do what I already do: collect the multiple lines of a single paragraph, leaving the single separating newlines, and use REs that can match across newlines.)
+
+Parsing by newlines you'll need some kind of state variable to remind you what you're in the middle of - or, if you had tail-recursion, a bunch of mutually tail-recursive routines: processing-p, processing-ol, processing-pre, etc.
+
+Now let's look at the markup as my engine requires it:
+
+   1 = Intro
+   2
+   3 This is an introductory paragraph.
+   4 It spans multiple lines separated by single newlines.
+   5
+   6 This is a second paragraph.
+   7 It introduces a list:
+   8
+   8 * a first thing
+  10 * a second thing
+  11
+  12 then an hrule:
+  13
+  14 ----
+  15
+  16 then some preformatted (verbatim) text:
+  17
+  18   my @paras =  split /\n{2,}/, $edit;
+  19   foreach my $para (@paras) {
+  20     $para =~ s/\[now\]/$stamp/ge unless $para =~ m/^\s+/;
+  21   }
+  22
+  23 In conclusion, I have this to say: ''Read my lips.
+  24 I. Hate. Perl.''
+
+Now, what I do is ''split'' the input using a pattern that matches two or more newlines. I get an array of "chunks". If the person has typed their input correctly (a weakness of this method) each chunk has a single type. In order, the types go: h1 p p ul p hr p pre p. All I have to do is look at the first few characters of a chunk to decide what to do with the whole thing.
+
+Our "boundary" case with the inline markup is ok here because we are using regular expressions that match across newlines. Remember that the last chunk consists of lines 23 & 24 separated by a single newline.
+
+Clearly this method has (at least) two weaknesses: its "non-intuitive" nature, and its brittleness in the face of ill-formed input.
+
+And, oddly enough, having gone thru this exercise to illustrate the process of parsing the single-newline-delimited form of input, I think I now understand it better and have a decent algorithm for implementing it.

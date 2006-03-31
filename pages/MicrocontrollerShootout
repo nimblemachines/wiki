@@ -1,0 +1,89 @@
+Hrm. After working really hard to make a nice list of 8051 links, I realized I'd done it already. So clearly this page and EightBitMicrocontrollersAreObsolete need to be merged.
+
+----
+
+This page initially started out
+
+""We're gathering here to discuss small and cheap microcontrollers of the 8-bit (and maybe 16-bit) variety. Even though they are obsolete, people still use them, and we'd like to understand how to program them without bleeding too heavily.
+
+I'd like to open this up. Since EightBitMicrocontrollersAreObsolete, and ARM-based MCUs are dirt cheap, tiny, low-power, and ridiculously fast, I'd like to include them in this "OK Corrall".
+
+Please mention development/evaluation boards for a given architecture when you know about them.
+
+----
+
+= 8051
+
+A bit of documentation of the 8051 family: local copies of the [[files/80C51_FAM_ARCH_1.pdf architecture manual]] . [[files/80C51_FAM_HARDWARE_1.pdf hardware manual]] . [[files/80C51_FAM_PROG_GUIDE_1.pdf programming guide]]
+
+An awful architecture, but the most successful microcontroller, ever. It's a bit slow and register- and resource-starved to run Forth well, but it's been done.
+
+It's still firmly in production, and new chips are being designed. Lots of manufacturers make then, each with their own quirks. One interesting thing is the proliferation of "cores". The original Intel core took 12 clocks (1!!micro!!s) to execute a 1-byte instruction. Newer cores take 6, 2, or 1 clock per instruction. So look at more than clock speed when comparing 8051s.
+
+Some manufacturers: 
+
+* [[http://www.semiconductors.philips.com/products/microcontrollers/80c51/index.html Philips]]
+
+* [[http://www.maxim-ic.com/products/microcontrollers/8051/ Dallas/Maxim]]
+
+* [[http://atmel.com/products/8051/ Atmel]]
+
+* [[http://www.analog.com/en/subCat/0,2879,762%255F%255F0%255F%255F0%255F,00.html Analog Devices]]
+
+* Silabs offer several 8051-based MCU families:  [[http://www.silabs.com/tgwWebApp/public/web_content/products/Microcontrollers/Small_Form_Factor/en/SFF.htm  small form factor]], [[http://www.silabs.com/tgwWebApp/public/web_content/products/Microcontrollers/USB/en/USBMCU.htm USB]], [[http://www.silabs.com/tgwWebApp/public/web_content/products/Microcontrollers/CAN/en/CANMCU.htm CAN]], [[http://www.silabs.com/tgwWebApp/public/web_content/products/Microcontrollers/Precision_Mixed-Signal/en/mixedsig.htm precision mixed-signal]]
+
+* [[http://www.sst.com/products.xhtml/embedded_controllers/89/ SST (Silicon Storage Technology)]]
+
+----
+
+= PIC
+
+''Anyone?''
+
+On some days I like the PIC architecture; other days not. There are so many slightly different instruction sets, and chip families. It's a bit overwhelming - like you need a PhD in PICs to know how to proceed.
+
+----
+
+= MSP430
+
+The [[http://www.ti.com/msp430 MSP430]] is a cheap, ultra low-power 16-bit RISC microcontroller from Texas Instruments, similar to a PIC or one of the Atmel chips. A bit of documentation (local copies):
+
+[[files/msp430f14x.pdf MSP430x13x, MSP430x14x Mixed Signal Microcontroller datasheet]] .
+
+[[files/msp430_SLAU049D.pdf MSP430x1xx family user manual]] .
+
+[[files/msp430_SLAU012A.pdf MPS430x3xx family user manual]] .
+
+[[files/msp430_SLAU056D.pdf MSP430x4xx family user manual]] .
+
+>>
+
+This looks like a really nice architecture for Forth. It's already 16-bit, so, unlike the 8051, you don't have to do twice as much work for a 16-bit-wide Forth cell. It's also small, low power, and quite fast.
+
+Are development/eval boards easily available?
+
+>
+
+== MSP430 Eval Boards
+
+>>>
+
+A quick google search:
+
+[[http://microcontrollershop.com/product_info.php?products_id=786 microcontrollershop]]  
+
+[[http://www.softbaugh.com/ProductPage.cfm?strPartNo=D437V softbaugh]] 
+
+[[http://www.embeddedkits.com/msp430dvswsoftware.htm embeddedkits]]
+
+--NeddySeagoon
+
+>>
+
+Funny. I fixed it, but MSP430 was spelled "MPS430" above; and resulted in a hit from a misspelled Google search. ;-)
+
+----
+
+= ARM
+
+There is lots to say here. The ArmArchitecture is quite nice. When I have a moment I'll make a nice list here of manufacturers and dev boards.

@@ -1,0 +1,51 @@
+MichaelsNotes
+
+----
+
+Thanks, David, for putting up the wiki.
+
+>>
+
+My motives were 100% selfish. With Doug's help and yours, I hope to make the wiki engine something lovely. It's already been an inspiration, to be able - for the last week! - to have the conversation that Doug and I have been having. It can only get better.
+
+>
+
+I am back from our Winter-Wellness week in the Alps. No skiing, just hiking -- with and without snowshoes.
+
+>>
+
+Welcome! Look around, try things out, and tell me how to solve all my problems!!
+
+More specifically, the real "sticking points" right now are:
+
+ * finalizing markup, both 
+     inline (emphasis etc and links) and
+     block (para, lists blockquote, dl, etc)
+
+ * fixing the processing of the input text so it no longer requires two
+   newlines to separate text belonging in separate block elements, and
+
+ * fixing lists (currently broken, but I think they will "fall out" of
+   the way I'd like to process the input).
+
+See ToDoList . MarkupTest . LinkMarkupNotes . ExplainingTheDoubleNewline . ImplementingTheSingleNewline
+
+Perhaps start a MarkupDiscussion.  --DavidFrech
+
+----
+
+>>
+
+Michael, you may or may not have noticed that links to absent pages have a light bluish background. I didn't like Ward's choice of a tiny trailing "?" as a target to click on; however, I may have chosen the color poorly. It doesn't show up at all on my Mom's 'doze box (running IE). I just wanted you to know that that feature is there. If you wanna toss me some RGB hex, I can put it into the stylesheet. --DavidFrech
+
+>
+
+I noticed the light bluish background and after clicking once or twice on such a link I made the connection to "this is a non-existent page". I like it, but I think as soon as I try to sit on the balcony with my laptop I won't be able to see this colour. I don't have a solution for that, yet. When editing code, I only use "syntax hilighting" for comments, using magenta as the color. This is distinguishable from black even when working outside. --MichaelPruemm
+
+>>
+
+Are you talking about a magenta foreground and white background? Or some other combo? --DavidFrech
+
+>
+
+Background is always white. I am using black on white for code, and magenta on white for comments. --MichaelPruemm

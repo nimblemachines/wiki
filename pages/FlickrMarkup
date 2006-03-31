@@ -1,0 +1,53 @@
+It is now possible to generate a [[http://flickr.com flickr]] "badge" on any page, by just saying
+
+  [flickr]
+
+where you want the badge to go. It defaults to a horizontal row of five pictures, randomly chosen from ''all'' the user's photos, like this:
+
+[flickr]
+
+If you want more photos, append a number to the word "flickr", like this:
+
+  [flickr10]
+
+Flickr limits you to ten pictures at a time. You can also see the latest pictures (rather than a random selection), like this:
+
+  [flickr10:latest]
+
+If you want to see pictures using tags, just put the tags in, like this:
+
+  [flickr10 white flower]
+
+[flickr10 white flower]
+
+By editing the wiki's ''config.pl'' it's easy to set this up to serve someone else's pictures! Right now it serves mine, from a dazzling assortment of about 24 pictures!
+
+It's also possible to see ''any'' pictures from flickr, tagged or not, by appending ":all" like this:
+
+  [flickr10:all]
+
+[flickr10:all]
+
+or, with tags:
+
+  [flickr10:all yellow flower]
+
+[flickr10:all yellow flower]
+
+If you want the latest from everyone, use
+
+  [flickr10:all:latest]
+
+At the moment "all" and "latest" have to be in that order. I might try to fix this later...
+
+I left the "10" in there; if you take it out, you'll only see five pictures instead. Put another way, the following features are all ''orthogonal'':
+
+* choosing the number of pictures;
+
+* choosing whose pictures (the configured user, or all of flickr);
+
+* choosing random or latest;
+
+* choosing to display only images with certain tags, or any images regardless of tagging.
+
+Enjoy! --DavidFrech

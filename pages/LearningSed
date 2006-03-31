@@ -1,0 +1,81 @@
+Today (2006 January 04 20:57) I finished a small ''sed'' project: converting the 5000-line body of an html page to a form that was much more useful (to me). It was a good excuse to put ''sed'' through its paces, and to finally learn about its hidden nooks and crannies. The main feature I missed: the ability to set variables and to copy their values into RHSs of ''s'' (substitution) commands. As it was, I got to practice my Forth programming: moving strings between the pattern (stack) and hold (return stack) spaces. ;-)
+
+Unfortunately the FreeBSD man page is an awful tutorial (and a mediocre reference). After getting quite frustrated with it I searched and found some more useful sources. The [[http://www.faqs.org/faqs/editor-faq/sed/index.html FAQ]] was a good start. But the gold mine I found [[http://sed.sourceforge.net/grabbag/tutorials/sed_mcmahon.txt here]]: the original manual that the original ''sed'' author - Lee McMahon - wrote for the original version. (Here is the [[http://plan9.bell-labs.com/7thEdMan/vol2/sed original troff source]].)
+
+As is often the case, the first telling of the story is clearer, crisper, and gentler than all its successors.
+
+I have edited out the page headers and footers (which were printed inline), and have removed (and added) a few blank lines, for clarity.
+
+Ladies and gentlemen, please give a warm welcome to...
+
+----
+
+               SED -- A Non-interactive Text Editor
+ 
+                          Lee E. McMahon
+ 
+                      AT&T Bell Laboratories
+                   Murray Hill, New Jersey 07974
+ 
+                             ABSTRACT
+ 
+           Sed  is a non-interactive context editor that runs
+      on the UNIX operating system.  Sed is  designed  to  be
+      especially useful in three cases:
+ 
+           1)  To edit files too large for comfortable inter-
+                active editing;
+           2) To edit any size  file  when  the  sequence  of
+                editing  commands  is  too  complicated to be
+                comfortably typed in interactive mode.
+           3) To perform multiple `global' editing  functions
+                efficiently in one pass through the input.
+
+----
+
+I've moved the text of the SedManual elsewhere, to give more room on this page for discussion.
+
+----
+
+>>
+
+It's amazing what you can do with just the basic tools: ed, sed, lex, yacc, awk, cat, dd, rm, ls, mv, sh, cp, & grep.
+
+Neddy Seagoon
+
+>>>
+
+Why was it necessary to use ''sed''? Personally, I find ''awk'' more ''user friendly'' -- and it works for most of the things I need. And I can remember all (well, most) of its builtins. --MichaelPruemm
+
+>
+
+The way I had to tear apart and rebuild the text seemed much harder in awk. I wasn't breaking things up by spaces; instead I relied entirely on REs, and I didn't see a clean way to do this in awk. I didn't want to use ''substr'' and friends: REs were a much better match.
+
+Am I mistaken here?
+
+>>>
+
+Awk has ''match'', ''sub'' and ''gsub'' functions that take regular expressions. Also, ''split'' and the field and record separators can be regular expressions. So I would say, yes, you can do all that in awk and it is probably more readable.
+
+Note that this applies to what is sometimes called ''new awk'' as described in the book ''[[http://cm.bell-labs.com/cm/cs/awkbook/ The AWK Programming language]]'' by Aho, Weinberger and Kernighan. Some (older) systems have ''awk'' and ''nawk'' executables where the latter supports the new features described in the book. The programs ''gawk'' and ''mawk'' always did, as does the version that is available from the book page, ''the one true awk''.
+
+A small example of what you wanted to do might be helpful for further discussion.
+
+>
+
+Well, I had an HTML file full of references (inside a table) of the form:
+
+ <td width="60">1/4/05</td>
+ <td width="120">This is a title</td>
+ <td width="480">This is a long description, probably several lines long,  
+     describing the object</td>
+
+There were several hundred of these triples, and a bunch of other junk. The first thing I did was to throw away everything that didn't match one of the three lines. Then I canonicalized the date formats - they needed to be mm/dd/yyyy so I could later generate link names of the form ''yyyymmdd-special''.
+
+Then, for each triple I generated (roughly, given the above "example"):
+
+ <h2><em>2005.01.04</em>.
+ <a href="http://example.com/20050104-special">This is a title</a></h2>
+ <p>This is a long ... object</p>
+
+Not complicated, mind, and quite easy to do in ''sed'', but only ''once I had concatenated the three things into one long line'' (using ''h'' and ''H'') so I could match all three parts in one long RE to build the final HTML.

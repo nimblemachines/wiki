@@ -1,0 +1,236 @@
+[[http://python.org/pics/hahaha.gif Perl? Yeah, right.]]
+
+Of course, we aren't even going to ''consider'' talking about Perl. ;-)
+
+>>
+
+''Why not?  We don't have a FrothingRage page yet....'';-)
+
+>
+
+----
+
+Today (2005 February 05 23:41) I read thru a bunch of online stuff about Python. Yesterday I was looking at RubyOnRails, and trying to figure it out. Not to use it, but to understand it. I want to build an ApplicationFramework using OCaml or Haskell.
+
+Anyway, even though Dave Thomas et al (PragmaticProgrammers) want me to believe that Ruby is somehow ''cleaner'' or ''purer'' or better than Python, I don't necessarily agree. Ruby is touted as being more purely object-oriented. Since I don't care ''how'' object-oriented it is, that doesn't convince me to use it. The philosophy of Python appeals more to me, given my limited exposure to both. --DavidFrech
+
+>> 
+
+''I think the operative phrase here is "limited exposure to both."'' ;-) --DouglasShacteau
+
+>
+
+Here are some things I like about Python:
+
+'''Documentation''' . GuidoVanRossum and friends have done a ''great'' job on the documentation. At [[http://python.org/ python.org]] there is a carefully-written tutorial, a language reference manual, and a libraries reference. All are of superb quality. In the case of Ruby, the only free documentation is an out-of-date copy of ProgrammingRuby. For shame.
+
+>>
+
+[[http://www.ruby-doc.org/  ruby-doc.org]]
+
+[[http://www.ruby-lang.org/en/20020103.html Ruby Documents Online]]
+
+>
+
+The online Ruby docs seem to be out of date. The refman is for version 1.4, eg.
+
+'''Division''' . The tutorial specifies (and I think the language spec agrees, although it confused me a bit) that division ''floors''. Hooray! That makes ''two'' languages that I know of that are careful enough to specify this: Haskell and Python. (Oddly, the OCaml implementation goes to some lengths to guarantee ''symmetric'', rather than flooring, division.)
+
+>>
+
+[[http://blade.nagaokaut.ac.jp/cgi-bin/scat.rb/ruby/ruby-talk/3116 Ruby and Division]]
+
+>
+
+Interestingly, I think this has changed. When I tried, using ''irb'' and ''python'' interactively, I got the same results. ''Both'' Ruby and Python seem to do flooring division. It's interesting that little mention is made of this in the Ruby world (excepting mailing list postings); it's a point that is ''very clearly made'' in the [[http://www.python.org/doc/current/tut/node5.html#SECTION005110000000000000000 Python tutorial]].
+
+'''Decimal floating point''' . I have long been thinking about how to properly do financial calculations, since using the processor's native floating point (as most spreadsheets do, I think) is a disaster, because of the mismatch between 1/10 and 2^-n. Python has a library to do arbitrary precision decimal math. I assume this is like a BigInt, but it also specifes how many decimal digits of fraction to keep, and is smart about calculating the number of digits of significance.
+
+'''Networking''' . Lots of network support, the quality of which I haven't yet assessed, although the comments in the BaseHTTPServer made me nervous. ;-) But the pieces are there.
+
+>>
+
+Can you qualify ''lots''?  Ruby seems to support ''a bit.'' ;-)
+
+>
+
+'''Regular expressions''' . Python has Perl-compatible REs, doubtless thanks to the PCRE C library. Why do I put that here as an advantage of Python? Of course Ruby and Perl have them as well... I think I ''like'' the fact that they are not, unlike with Perl & Ruby, an integrated part of Python: you have to call functions to compile and to use REs. I prefer this. It makes things much less cryptic - no more "o" options at the end of RE matches to specify "optimization" of the RE, etc.
+
+'''Layout''' . Haskell & Python have something else in common: the use of layout to disambiguate the syntax to the parser. This makes the language much cleaner to read and write. And I enjoyed reading the rules (in the language reference) about the stack of indents and how the layout gets converted to INDENT and DEDENT tokens - it was clearly thought thru carefully. A good sign of things in general.
+
+'''Generators & iterators''' . It is possible to do imperative-style "lazy evaluation" in Python using generators & iterators. You basically write a (stateful) function that is repeatedly called, and each time returns
+the next object in the sequence.
+
+'''Control structures''' . Python is the only language I know of, other than MuForth, that allows an ''else'' clause after a ''while''. This is extremely useful, and allows writing, in a perspicuous way, code that would require a silly state variable in C. The basic idea is that the loop has two exits: via ''break'' (when condition A is met), and via falling thru to the ''else''. If you need to do one thing if an object is found and another if not found, this is a clean way to do it.
+
+>>
+
+''Aha! This is what I was looking for in Ruby.  Are you sure it doesn't
+exist?  Sigh.  So instead of playing with pebbles I'll get kinky with TheSnake. I don't really give a damn either way.;-)''
+
+>
+
+Actually I think something like this ''does'' exist in Ruby. Note that this section is a list of things I like about Python, not things I dislike or have found missing in Ruby. ;-)
+
+>>
+
+Ah, I see.  Hence the page name PythonVsRuby.  Yes, that's very clear now.
+
+>
+
+You're more than welcome to post a section entitled "Why I like Ruby". (Or maybe a page called RubyVsPython.;-) As I said, this page is my initial reaction, not the last word on the subject.
+
+>> 
+
+Forgot the smiley face.  It's that cheeky bastard NeddySeagoon up to his
+usual tricks. ;-) To tell you the truth, I'm not entirely sure I ''like''
+or ''dislike'' Ruby.  I like what I've seen so far.  Anyway, I just downloaded the latest stable of Python and docs and I'll see where that
+gets me.  In the end it will probably come down to a coin toss.
+
+>
+
+Truly, Python & Ruby are more alike than different. Ruby has some Perlisms; it also has slightly cleaner syntax when it comes to redefining certain methods (like "[]"). But it's not a big deal either way. I think the real deciding factors are the rest of the package: the documentation, the libraries, and the framework(s) available.
+
+Also these things can be very personal. Some people looove Perl. I barely tolerate it, and I would ''never'' use it for anything larger than the code of this wiki; its lack of modularity is a strain even at ~1000 lines. Ruby has some Smalltalkisms. If you reeeeally like Smalltalk, you'll like Ruby (more than Python). Sometimes a language rubs you wrong (or right) and it's entirely an hysterical reaction, where rationality dare not enter.
+
+'''List comprehensions''' . Another similarity between Haskell & Python. (Apparently when Guido saw these in Haskell he wanted them for Python.) A declarative way to generate a list, based on another list. Very terse, rather powerful.
+
+Then there is the [[http://twistedmatrix.com/ Twisted]] framework. JonUdell mentioned this a while back and it looked incredibly cool. The implementation may not live up to the ideas, but I applaud and agree with the idea of putting a bunch of basic Internet protocol plumbing all under one roof: HTTP, FTP, DNS, SMTP, POP3, IMAP, NNTP, LDAP. What can you do with all that? A lot. Groupware, for one thing. Exporting the same content in several forms, eg.
+
+>> 
+
+It would be nice if someone with experience with either Python or Ruby
+could provide a rebuttal to your comments.  I'm not terribly interested in
+CategoryLanguageWars or CategoryReligiousWars.  I picked Ruby because of
+positive comments you had made and because I really don't want to bother
+with Perl.  I'll take a look at Python and if it looks as intuitive (to me)
+as Ruby I'll use it instead.  In fact, I'll try writing what I have now in Python and see how I feel.  I like what you've written about Python, but then again I liked what you originally had to say about Ruby.
+--NeddySeagoon
+
+>
+
+It's MichaelPruemm's fault, really. He originally (when he visited at the turn of 2003 -> 2004) was all jazzed about Ruby. I subsequently read all the drooling "press" in dynamic languages/web hoohah community which seemed to back up MP's comment. It wasn't until I started really ''looking'', myself, that I finally developed a mildly informed opinion of my own, which still is: I am attracted to Python. It's a gut reaction at this point more than anything else.
+
+I should add: I do ''not'' think that Python is better than Haskell or OCaml - quite the reverse. However, some of the deep ideas in those languages do exist in Python, and Python has the advantage of being relatively mainstream & well-known, so I suppose part of my interest in it is too learn about what's going on in that community. The Haskell and OCaml communities are largely pointed-headed academics; the Python community seems pretty pragmatic: lots of talk about using it extensively at Google and ILM/LucasFilm. Python could be a good stepping-stone, for many people, into functional programming. (I've already seen anecdotal evidence of this on a blog comment. Something like this: I didn't like FP when I first saw it, but now, using those ideas in Python, I'm starting to see their power.)
+
+>>>>
+
+This is ''exactly'' the conclusion I came to after grabbing a few moments
+with Python the other night. ''Aha, dovetail mode with FP.''  And yes,
+the documentation is orders of magnitude better (than Ruby).  For the lousy
+availability of online docs for Ruby I think we have Matz and the PragmaticP's to blame. Matz admits to being more interested in writing code than documentation, and the P2's are into selling copies of their book. There ''is'' documentation out there, but you have to hunt and peck to find it (unlike Python etc).  My hunch is that there is far more available in Japanese, but ''watashi wa nihongo ga sukoshi wakarimasu''. I think Ruby is syntactically cleaner than Python, (after my ''brief'' experience with both) but I think there's a lot more power in Python land.  
+
+OTOH, against Python I have to say that it took a ''fscking'' long time to build on my machine, and when you fire the interpreter up it loads a ''ton'' of stuff that, while interesting to explore isn't useful to me at the moment. (The ability to compute complex nums for instance. Actually, does anyone know of any benchmarks which have been performed on Ruby/Python?)  In the back of my mind is a JefRaskin rant in ''The Humane Interface'' about bloated programs and programming tools.  Personally, I'd rather have a minimum set of features and then load modules as required.  And, to tell you the truth, for what I'm doing right now I could just as easily use ''strings'' and 'sed'. ;-)
+
+--PerhapsDouglasShacteau
+
+> 
+
+>>>
+
+Hm, very interesting... I used a bit of Ruby and recently used some Python. For some reason, I seem to like Python better than Ruby. It may have to do with the documentation, or maybe the better interactive environment? List comprehension is very powerful, too.
+
+>
+
+I'd like to hear more about this. It's funny really: there was all this propaganda about Ruby being "Python for the next millenium". Lots of smart people were foaming at the mouth about how great it is, so I expected it to be somehow infinitely superior to Python. But after scratching around in the dirt for a couple of days (but not writing any code in either language) I have a feeling that I like Python better. But (with apologies to Boston) it's not much more than a feeling. ;-)
+
+>>>>
+Me too!  Me too! (you can tell by the way I walk)(w/ apologies to disco in
+general)
+
+>
+
+>>>
+
+And now for something completely different: I have trouble figuring out who is voice 1 and who is voice 2. The original page starts with "... '''I read''' ..." and I immediately wanted to know who the "'''I'''" referred to. Then suddenly a second voice chimed in. Again, who is that? I think, pages like this and the comments should be signed. --AnonymousCoward (MichaelPruemm, perhaps? ;-)
+
+>
+
+>>>>
+
+You're right PerhapsMichaelPruemm!  I blame myself for not signing '''my'''
+name; in my defense, I looked at RecentChanges, saw that it was David's
+ip and we engaged in our usual pastime of throwing mutton legs at each other whilst braying loudly with large viking voices.  Or something like that.
+
+Problem easily solved by all of us either signing our name or picking a
+color.  My favorite colors are blue, as in TheBigBlueWetThing, or happy
+yellow, as in sunshine, buttercups and my cheerful disposition.  But I'm
+not picky, I'll take anything (except magenta -- clashes with my eyes).
+(I'd really rather not do cookies, although if we implement WikiChat we'll
+probably find it necessary.)
+
+--NeddySeagoon
+
+>
+
+----
+
+The jury is still out, however. I'm recording my first impressions here. And my "gut" responses. A while ago I read thru the first part of the 1st ed Ruby book (online) and thought: "ho hum". Oddly the Python docs have gotten me more inspired. Go figure.
+
+>>
+
+Gee, I thought you were poking a stick in the anthill of TheUniversalTranslator. ;-)
+
+>
+
+----
+
+[[http://python.org/security/PSF-2005-001/ Alert! Python Security Advisory]]
+
+----
+
+Perhaps this is a minor issue, of little or no importance.
+
+John Muir wrote a wonderful book called ''How to Keep Your Volkswagen Alive: A Guide For The Compleat Idiot.''  I used this book to rebuild my
+first Volkswagen engine when I was about 18. (Over the years I've rebuilt
+many, many Volkswagen's, but that's another thread. ;-) )  
+
+John dispensed little gems of wisdom throughout the book, and after firing
+up Python for the very first time, I recalled one of my favorite
+Muir aphorisms (I'm paraphrasing here; the book has long since rotted away.):
+
+''The ability to stop, in cars or people, is often the most important attribute either can possess.''
+
+Which brings me to Python.  When I encounter a new piece of software the
+first two questions I ask are: 
+
+How do I fire this sucker up?
+
+How do I stop this thing?
+
+Rather than choose something simple and intuitive like
+''bye'', ''exit'', ''(quit)'', '':quit'' or ''q().'', the designer(s) of Python would have you type ctrl -D (EOF) or if that proves too daunting, remember the following: ''import sys; sys.exit()''.
+
+Perhaps I'm too picky, but what concerns me here is this:  if they're
+counterintuitive in the design of quitting the interpreter, what other fun awaits?
+
+--FearlessFredTheFootpadDread
+
+----
+
+ Subject: Re: Why did you switch from Python to Ruby?
+ From: William Webber <wew williamwebber.com>
+ Date: Tue, 19 Aug 2003 18:12:40 +0900
+ References: 79412
+ In-reply-to: 79412
+
+ On Tue, Aug 19, 2003 at 04:03:15PM +0900, Brandon J. Van Every wrote:
+ > This question is only meant to apply to people who used to use Python,   but
+ > switched to Ruby.  Why did you do so?
+
+ Closures + iterators + blocks.
+
+ Being a scheme/lisp fan, every time I had to create
+ temporary array to store the results of looping over another
+ in Python, I felt a bit nauseous.  (Perhaps there's a better
+ way of doing this is more recent Python versions, but I
+ didn't know about it.)  So I set out to find a language that
+ was Python-like but supported proper closures and lambda
+ functions.  I'd only heard the name Ruby, but I thought it
+ might have these features -- and it did!
+
+ William
+
+----
+
+CategoryLanguageWars . CategoryReligiousWars . CategoryBelaLugosi

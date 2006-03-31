@@ -1,0 +1,47 @@
+Last week I used - intensively - an iMac for the first time. I was impressed with certain things (iTunes was slick and mostly worked) and unimpressed with others (Mail had subtle bugs relating to using IMAP folders).
+
+An inveterate critic, I came away disappointed. I had wanted to really ''love'' this machine. It had cool things I thought I wanted: BSD under the hood, GarageBand, a groovy user interface... And yet something spoiled it for me.
+
+I thought about this later and realized what it was: '''Apple has sold out the Open Source community''', at least where audio software is concerned.
+
+Why do I claim this?
+
+It helps to step back a bit. In September 1998, [[http://www.iis.fraunhofer.de/amm/ Fraunhofer IIS]] sent a "letter of infringement" to several open-source [[WikiPedia:MP3 MP3]]-related projects, sending an immediate chill through that community. Like the [[WikiPedia:GIF GIF]] image format, it was clear that MP3 was going to be a software patent battleground.
+
+Immediately thereafter [[http://www.xiph.org/about.html xiph.org]] was founded to develop free, open source audio (and now video) codecs that everyone could use (and sell!) without fear of patent infringement.
+
+In parallel with this, the [[WikiPedia:MPEG MPEG]] developed a new non-free codec, the so-called "Advanced Audio Codec" ([[WikiPedia:AAC AAC]]), designed to be a higher-quality replacement for MP3. xiph.org's free [[http://www.xiph.org/ogg/vorbis/ Ogg Vorbis]] codec is AAC's main competition.
+
+Given this bit of background, which high-quality codec do you think Apple chose for the iPod, the iTunes software (when importing, or "ripping", songs from CD), and the iTunes store?
+
+That's right: AAC. They had an awesome opportunity to support an open-source audio project that is critically-important in the fight against corporate control of media, and they failed. Given the huge popularity of iPods & iTunes this would have been a huge boon to Ogg Vorbis. Apple may instead have sounded its death knell.
+
+I consider this a crime, and evil. --DavidFrech
+
+----
+
+>>
+
+Death to Apple!  Umm, as an aside, how often is content "reflected" onto
+the public wiki?  I wanted to link to the public version of this page
+from the anarchitech site, but it wasn't there yet.  So, I took the liberty
+of liberating it, but will redirect to nimblepublic when the page is available.
+
+--NeddySeagoon
+
+>
+
+All pages on the public wiki, with the single exception of RecentChanges, are symlinks to editable ones, so changes should appear immediately. Just browse [[http://nimblemachines.com/browse?show=ItunesIpodsAndAudioCodecs]] to see it.
+You should be able to get there from [[http://nimblemachines.com/browse?show=RecentChanges]] as well. --DavidFrech
+
+>>
+
+Ack.  Pilot error. Forgot the browse? and used wiki?  Nivvermynd.
+
+>
+
+----
+
+The epilogue to this story is that my parents returned their iMac to Apple. All the music we had "ripped" from CD - a gigabyte! - I copied to my mom's Windows laptop (via Samba) and discovered that she can can do everything from RealPlayer 10 that she could do with iTunes.
+
+I think my next step (um, so to speak ;-) is to set her up on a Linux box, maybe running something drool-proof like RedHat Fedora. The Mac was going to solve the issues of (1) reliability, (2) hardness-of-use, and (3) parasite hosting that plague Windows. Linux can do at least as well on all of these, and the hardware is 50% the price of Apple's. Plus, she can run '''fanless''' and '''diskless'''...
