@@ -787,6 +787,10 @@ sub make_edit_page {
     <textarea name="edittext" rows="25" cols="75">$text</textarea>
   </p>
   <p>
+    What did you change? Your comments will be added to Subversion:<br />
+    <input type="text" name="comment" value="" size="75" />
+  </p>
+  <p>
     If you've made only small changes - like to punctuation or spelling -
     and don't want a new entry in RecentChanges - press Tweak.
     Otherwise, to save changes and log RecentChanges, press Save.
@@ -820,6 +824,17 @@ sub make_backup_page {
     }
 }
 
+sub svn_command {
+    my ($cmd, $comment, $target) = @_;
+
+    my @m = ();
+    if ("$comment" ne "") {
+        @m = ("-m", "$comment");
+    }
+    my @svn = ("svn", "$cmd", "--quiet", @m, "$pagedir/$target");
+    system(@svn) == 0 or die "can't run @svn: $!";
+}
+
 sub do_save {
     my $edit = $form{'edittext'};
     $edit =~ s/\r//g;   # CRLF -> LF
@@ -840,6 +855,14 @@ to merge your changes.
         return -1;      # we failed to save, so don't do a "show"
     }
 
+    # check if user wants to delete the page
+    if ($form{'edittext'} =~ m/chainsaw kitty/i) {
+        svn_command("rm", "", "$page");
+        svn_command("ci", "wiki: deleted $page", "");
+        $page = $defaultpage;        # gotta go somewhere!
+        return 0;
+    }
+        
     make_backup_page("$page", iso_timestamp("$mod_current"));
 
     # convert time stamps - now honors <pre>
@@ -857,21 +880,35 @@ to merge your changes.
         $para =~ s/\[now\]/$stamp/ge unless $para =~ m/^\s+/;
     }
 
+    # if this is a new page, do an "svn add"; but not until the page exists!
+    my $svnadd = (-f "$pagedir/$page") ? 0 : -1;
+
     # joins bits together separated by \n\n
     write_file("$pagedir/$page", (join "\n\n", @paras));
+
+    # now we can do the actual svn add
+    if ($svnadd) {
+        svn_command("add", "", "$page");
+    }
 
 # XXX: remove 2nd \n after I fix ul code!!
 # XXX: and add back in the '* ' at the start of the line!!
 #    my $text = "* $page (modified $stamp from $ip)\n\n";
 
+    # moved this out here so svn ci can use it too.
+    my $ip = $ENV{'REMOTE_ADDR'};
+    my $changed = "$page ... $stamp ... $ip";
+
     # tweak will save edit but not affect RecentChanges
     if ($form{'submit'} =~ m/save/i) {
-        my $ip = $ENV{'REMOTE_ADDR'};
-        my $text = "$page ... $stamp ... $ip\n\n";
         # prefix existing contents of RecentChanges with newest entry.
-        my $contents = $text . page_text("RecentChanges");
+        my $contents = $changed . "\n\n" . page_text("RecentChanges");
         write_file("$pagedir/RecentChanges", $contents);
     }
+
+    # check in change to svn repo
+    svn_command("ci", "wiki: $changed\ncomment: $form{'comment'}", "");
+
     return 0;
 }
 
