@@ -238,6 +238,7 @@ sub generate_xhtml {
     $heading_template =~ s/<heading \/>/$heading/;
 
     $metas{'robots'} = "${robots}index,${robots}follow";
+
     my $meta_elements = join "\n",
         map "<meta name=\"$_\" content=\"$metas{$_}\" />", keys %metas;
 
@@ -313,19 +314,23 @@ sub iso_timestamp {
 
 # If the file doesn't exist or isn't readable, use a modtime of 0.
 # We're long past 1970, so this should be ok. ;-)
-sub modtime {
-    my ($file) = @_;
-    (-r "$file" && -f "$file") ? (stat "$file")[9] : 0;
+# Get time by reading the svn property "modtime" on the file.
+sub page_modtime {
+    my ($p) = @_;
+    my $pp = "$pagedir/$p";
+    (-r "$pp" && -f "$pp")
+        ? `svn pg modtime $pp`
+        : 0;
 }
 
 sub modtimestring {
-    my ($file) = @_;
-    stamp(modtime("$file"));
+    my ($p) = @_;
+    stamp(page_modtime("$p"));
 }
 
 sub editfooter {
     my $edittext = scriptlink("edit", $page, "EditText") . " of this page";
-    my $modtime = modtime("$pagedir/$page");
+    my $modtime = page_modtime("$page");
     my $modtext  = ($modtime != 0)
         ? " (last edited " .  scriptlink("diff", $page, stamp($modtime)) . ")"
         : "";
@@ -768,18 +773,13 @@ sub do_show {
 
 sub make_edit_page {
     my ($text) = @_;
-    my $mod = modtime("$pagedir/$page");
+    my $mod = page_modtime("$page");
     my $action_href = script_href("show", $page);
 
     $content .= <<"" unless $text;
   <p>
     $page doesn't exist. Why not create it by entering some text below?
   </p>
-
-#  <p>
-#    Comment about changes you made:<br />
-#    <input type="text" name="comment" value="Ignore this for now" size="75" />
-#  </p>
 
     $content .= <<"";
 <form action="$action_href" method="post" enctype="application/x-www-form-urlencoded">
@@ -825,13 +825,7 @@ sub make_backup_page {
 }
 
 sub svn_command {
-    my ($cmd, $comment, $target) = @_;
-
-    my @m = ();
-    if ("$comment" ne "") {
-        @m = ("-m", "$comment");
-    }
-    my @svn = ("svn", "$cmd", "--quiet", @m, "$pagedir/$target");
+    my @svn = ("svn", @_);
     system(@svn) == 0 or die "can't run @svn: $!";
 }
 
@@ -839,7 +833,7 @@ sub do_save {
     my $edit = $form{'edittext'};
     $edit =~ s/\r//g;   # CRLF -> LF
 
-    my $mod_current = modtime("$pagedir/$page");
+    my $mod_current = page_modtime("$page");
 
     # we have to check for edit collisions
     if ($mod_current != $form{'modtime'}) {
@@ -857,8 +851,8 @@ to merge your changes.
 
     # check if user wants to delete the page
     if ($form{'edittext'} =~ m/chainsaw kitty/i) {
-        svn_command("rm", "", "$page");
-        svn_command("ci", "wiki: deleted $page", "");
+        svn_command("rm", "-q", "$pagedir/$page");
+        svn_command("ci", "-q", "wiki: deleted $page", "$pagedir/");
         $page = $defaultpage;        # gotta go somewhere!
         return 0;
     }
@@ -883,12 +877,15 @@ to merge your changes.
     # if this is a new page, do an "svn add"; but not until the page exists!
     my $svnadd = (-f "$pagedir/$page") ? 0 : -1;
 
+    # capture current (file write) time so "svn ps modtime" is accurate
+    my $new_modtime = time();
+
     # joins bits together separated by \n\n
     write_file("$pagedir/$page", (join "\n\n", @paras));
 
     # now we can do the actual svn add
     if ($svnadd) {
-        svn_command("add", "", "$page");
+        svn_command("add", "-q", "$pagedir/$page");
     }
 
 # XXX: remove 2nd \n after I fix ul code!!
@@ -906,8 +903,11 @@ to merge your changes.
         write_file("$pagedir/RecentChanges", $contents);
     }
 
+    # update modtime property
+    svn_command("ps", "-q", "modtime", "$new_modtime", "$pagedir/$page");
+
     # check in change to svn repo
-    svn_command("ci", "wiki: $changed\ncomment: $form{'comment'}", "");
+    svn_command("ci", "-q", "-m", "wiki: $changed\ncomment: $form{'comment'}", "$pagedir/");
 
     return 0;
 }
