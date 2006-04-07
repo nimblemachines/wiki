@@ -852,7 +852,7 @@ to merge your changes.
     # check if user wants to delete the page
     if ($form{'edittext'} =~ m/chainsaw kitty/i) {
         svn_command("rm", "-q", "$pagedir/$page");
-        svn_command("ci", "-q", "wiki: deleted $page", "$pagedir/");
+        svn_command("ci", "-q", "-m", "wiki: deleted $page", "$pagedir/");
         $page = $defaultpage;        # gotta go somewhere!
         return 0;
     }
