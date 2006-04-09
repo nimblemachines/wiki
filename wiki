@@ -10,8 +10,10 @@ package nimblewiki;
 
 $| = 1;         # flush after each print
 
-$wikiword = "[A-Z][a-z0-9]+";
-$wikilink = "(?:$wikiword){2,}";
+#$wikiword = "[A-Z][a-z0-9]+";
+$wikiword0 = "[A-Z][a-z]+";
+$wikiword  = "(?:$wikiword0)|(?:[0-9]+)";
+$wikilink = "(?:$wikiword0)(?:$wikiword)+";
 $interprefix = "[A-Z][A-Za-z0-9]+";
 $interword = "[A-Za-z0-9]+";
 $interquery = "$interword(?:[_+#?:.-]$interword)*";
@@ -200,6 +202,7 @@ sub fancy_title {
 
     if ($title =~ m/$wikilink/) {
         $title =~ s/([a-z])([A-Z0-9])/$1 $2/g;
+        $title =~ s/([0-9])([A-Z])/$1 $2/g;
     }
     else {
         $title =~ tr/_/ /;
