@@ -906,6 +906,9 @@ to merge your changes.
     # update modtime property
     svn_command("ps", "-q", "modtime", "$new_modtime", "$pagedir/$page");
 
+    # update editcomment property
+    svn_command("ps", "-q", "editcomment", "$form{'comment'}", "$pagedir/$page");
+
     # check in change to svn repo
     svn_command("ci", "-q", "-m", "wiki: $changed\ncomment: $form{'comment'}", "$pagedir/");
 
