@@ -201,8 +201,11 @@ sub fancy_title {
     my ($title) = @_;
 
     if ($title =~ m/$wikilink/) {
-        $title =~ s/([a-z])([A-Z0-9])/$1 $2/g;
-        $title =~ s/([0-9])([A-Z])/$1 $2/g;
+        # run numbers into prev word
+        $title =~ s/([a-z0-9])([A-Z])/$1 $2/g;
+# these two make numbers separate
+#        $title =~ s/([a-z])([A-Z0-9])/$1 $2/g;
+#        $title =~ s/([0-9])([A-Z])/$1 $2/g;
     }
     else {
         $title =~ tr/_/ /;
