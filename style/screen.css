@@ -19,9 +19,8 @@ div#footer a img {
 }
 
 img#icon {
-/*  border: solid red 1px; */
-  border: none;
-  margin: 0 0 0 -40px;
+  border: solid black 1px;
+  margin: 0 0 0 -115px;
   padding: 0;
 }
 
@@ -31,9 +30,29 @@ div#header h1 {
   margin-left: 0em;
   padding: 0;
   display: inline;
-  vertical-align: bottom;
-  color: blue;
+/*  vertical-align: bottom; */
+  color: #008;
 /*  float: left; */
+}
+
+a:link {
+  text-decoration: none;
+}
+
+a:visited {
+  text-decoration: none;
+}
+
+a:active {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+div#header h1 a {
+  color: #008;
 }
 
 div#content {
@@ -136,7 +155,7 @@ div.flickr_badge {
 }
 
 /* Forth markup!! (Sorry, Michael!) */
-code.forth, div.voiceforth {
+code.forth, div.voiceforth, div.voiceforth pre {
   font-family: monospace;
   font-size: 100%;
   font-weight: bold;
