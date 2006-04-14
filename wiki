@@ -687,7 +687,7 @@ sub inline_markup {
     # XXX: code, cite, kbd, ???
 
     # forth word
-    s#fw\(\((.+?)\)\)#<code class="forth">$1</code>#gs;
+    s#fw\(\(\s*(.+?)\s*\)\)#<code class="forth">$1</code>#gs;
 
     # Quote character entities so that the browser doesn't "helpfully"
     # convert them. Use !!name!! or ??name??.
