@@ -136,7 +136,7 @@ div.flickr_badge {
 }
 
 /* Forth markup!! (Sorry, Michael!) */
-code.forth {
+code.forth, div.voiceforth {
   font-family: monospace;
   font-size: 100%;
   font-weight: bold;

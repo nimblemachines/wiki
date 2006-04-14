@@ -629,6 +629,9 @@ sub block_markup {
         s#^-{4,}#start_voice(1) . "<hr />"#e ||
         s/^(={1,4})\s*(.*)/start_voice(1) . wrap("h".((length $1)+1), $2)/e ||
 
+        # special "forth" voice
+        s/^(>>forth)/start_voice("forth")/e ||
+        
         # multiple "voices"
         s/^(>{1,8})/start_voice(length($1))/e ||
 #        s/^([*#]{1,5})\s*(.*?)/listitem($1, $2)/gme ||
@@ -832,7 +835,9 @@ sub make_backup_page {
 
 sub svn_command {
     my @svn = ("svn", @_);
-    system(@svn) == 0 or die "can't run @svn: $!";
+    if ($subversion eq "yes") {
+        system(@svn) == 0 or die "can't run @svn: $!";
+    }
 }
 
 sub do_save {

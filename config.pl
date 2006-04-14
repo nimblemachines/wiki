@@ -28,3 +28,7 @@ $heading_template = "<home />\n<h1>. <heading /></h1>";
 # where pages and page archive are located
 $pagedir = "pages";
 $archivedir = "$pagedir/archive";
+
+# really run subversion commands; default to no
+$subversion = "no";
+
