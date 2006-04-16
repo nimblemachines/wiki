@@ -503,17 +503,17 @@ sub wrap {
 }
 
 # For every voice except the first (">") there is an open div.
-$current_voice = 1;
+$current_voice = "1";
 
 sub end_voice {
-    ($current_voice != 1) ? "</div>\n" : "";
+    ($current_voice ne "1") ? "</div>\n" : "";
 }
 
 sub start_voice {
     my ($v) = @_;
-    if ($v != $current_voice) {
+    if ($v ne $current_voice) {
         my $old = end_voice();
-        my $new = ($v != 1) ? "<div class=\"voice" . $v . "\">" : "";
+        my $new = ($v ne "1") ? "<div class=\"voice" . $v . "\">" : "";
         $current_voice = $v;
         "$old$new";
     }
