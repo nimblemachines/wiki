@@ -326,7 +326,7 @@ sub page_modtime {
     my ($p) = @_;
     my $pp = "$pagedir/$p";
     (-r "$pp" && -f "$pp")
-        ? (("$subversion" eq "yes") ? `svn pg modtime $pp` : (stat($pp))[9])
+        ? (("$subversion" eq "yes") ? `$svn pg modtime $pp` : (stat($pp))[9])
         : 0;
 }
 
@@ -834,8 +834,8 @@ sub make_backup_page {
     }
 }
 
-sub svn_command {
-    my @svn = ("svn", @_);
+sub run_svn {
+    my @svn = ("$svn", @_);
     if ($subversion eq "yes") {
         system(@svn) == 0 or die "can't run @svn: $!";
     }
@@ -863,8 +863,8 @@ to merge your changes.
 
     # check if user wants to delete the page
     if ($form{'edittext'} =~ m/chainsaw kitty/i) {
-        svn_command("rm", "-q", "$pagedir/$page");
-        svn_command("ci", "-q", "-m", "wiki: deleted $page", "$pagedir/");
+        run_svn("rm", "-q", "$pagedir/$page");
+        run_svn("ci", "-q", "-m", "wiki: deleted $page", "$pagedir/");
         $page = $defaultpage;        # gotta go somewhere!
         return 0;
     }
@@ -897,7 +897,7 @@ to merge your changes.
 
     # now we can do the actual svn add
     if ($svnadd) {
-        svn_command("add", "-q", "$pagedir/$page");
+        run_svn("add", "-q", "$pagedir/$page");
     }
 
 # XXX: remove 2nd \n after I fix ul code!!
@@ -916,13 +916,13 @@ to merge your changes.
     }
 
     # update modtime property
-    svn_command("ps", "-q", "modtime", "$new_modtime", "$pagedir/$page");
+    run_svn("ps", "-q", "modtime", "$new_modtime", "$pagedir/$page");
 
     # update editcomment property
-    svn_command("ps", "-q", "editcomment", "$form{'comment'}", "$pagedir/$page");
+    run_svn("ps", "-q", "editcomment", "$form{'comment'}", "$pagedir/$page");
 
     # check in change to svn repo
-    svn_command("ci", "-q", "-m", "wiki: $changed\ncomment: $form{'comment'}", "$pagedir/");
+    run_svn("ci", "-q", "-m", "wiki: $changed\ncomment: $form{'comment'}", "$pagedir/");
 
     return 0;
 }

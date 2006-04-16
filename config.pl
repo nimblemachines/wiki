@@ -31,4 +31,4 @@ $archivedir = "$pagedir/archive";
 
 # really run subversion commands; default to no
 $subversion = "no";
-
+$svn = "/usr/local/bin/svn";
