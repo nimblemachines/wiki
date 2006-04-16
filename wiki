@@ -320,12 +320,13 @@ sub iso_timestamp {
 
 # If the file doesn't exist or isn't readable, use a modtime of 0.
 # We're long past 1970, so this should be ok. ;-)
-# Get time by reading the svn property "modtime" on the file.
+# If $subversion = "yes", get time by reading the svn property "modtime" on
+# the file; otherwise just get its modtime.
 sub page_modtime {
     my ($p) = @_;
     my $pp = "$pagedir/$p";
     (-r "$pp" && -f "$pp")
-        ? `svn pg modtime $pp`
+        ? (("$subversion" eq "yes") ? `svn pg modtime $pp` : (stat($pp))[9])
         : 0;
 }
 
