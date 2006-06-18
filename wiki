@@ -702,6 +702,17 @@ sub inline_markup {
     # named interwiki link: [[prefix:suffix link text]]
     s/\[\[($interprefix):($interquery)\s+(.+?)\]\]/hide(make_interwiki_link($1, $2, $3))/geo;
 
+    # Since Flickr claims that we're in violation of their Terms of Service
+    # unless we link images to their flickr page, I've made some special
+    # case matching to create markup that uses the image given as a
+    # "thumbnail" and makes it a link to the picture's "home page" on
+    # Flickr. Sigh.
+
+    # flickr img link: [[uri.ext alt text]] where ext is img type
+    s#\[\[img (http://static.flickr.com/([0-9]+)/([0-9]+)_([0-9a-f]+).jpg)\s+(.+?)\]\]#hide(
+        "<a href=\"http://www.flickr.com/photos/$flickr_name/$3/\">
+           <img src=\"$1\" alt=\"$5\" />")#ge;
+
     # inline img link: [[uri.ext alt text]] where ext is img type
     s#\[\[img (\S+\.(?:jpg|jpeg|gif|png))\s+(.+?)\]\]#hide(
         "<img src=\"$1\" alt=\"$2\" />")#ge;

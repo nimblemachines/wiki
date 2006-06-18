@@ -17,6 +17,7 @@ $style = "style/screen";
 # change this to be *you*!! and make sure to escape the '@' into '%40'
 # as below.
 $flickr_user = "52541558%40N00";
+$flickr_name = "nimblemachines";
 
 %metas = (
     keywords => "wiki",
