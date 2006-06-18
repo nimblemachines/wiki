@@ -711,7 +711,7 @@ sub inline_markup {
     # flickr img link: [[uri.ext alt text]] where ext is img type
     s#\[\[img (http://static.flickr.com/([0-9]+)/([0-9]+)_([0-9a-f]+).jpg)\s+(.+?)\]\]#hide(
         "<a href=\"http://www.flickr.com/photos/$flickr_name/$3/\">
-  <img src=\"$1\" alt=\"$5\" />")#ge;
+  <img src=\"$1\" alt=\"$5\" /></a>")#ge;
 
     # inline img link: [[uri.ext alt text]] where ext is img type
     s#\[\[img (\S+\.(?:jpg|jpeg|gif|png))\s+(.+?)\]\]#hide(
