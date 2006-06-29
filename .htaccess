@@ -7,10 +7,6 @@ Options ExecCGI FollowSymLinks
   SetHandler cgi-script
 </Files>
 
-<Files browse>
-  SetHandler cgi-script
-</Files>
-
 # These two are for testing and learning how CGI works.
 <Files env>
   SetHandler cgi-script
