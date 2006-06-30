@@ -10,7 +10,7 @@ $webhamster = 'webhamster@example.com';
 $wikiname = "My Wiki";
 $defaultpage = "WelcomePage";
 $editscript = "wiki";
-$iconimgsrc = "images/lambda";
+$iconimgsrc = "_images/lambda";
 $iconimgalt = "lambda the ultimate!";
 $style = "style/screen";
 
@@ -27,6 +27,8 @@ $flickr_name = "nimblemachines";
 $heading_template = "<home />\n<h1>. <heading /></h1>";
 
 # where pages and page archive are located
+# NOTE: you should copy _pages/ to pages/ (or something) and put your
+# pages/ under subversion!
 $pagedir = "pages";
 $archivedir = "$pagedir/archive";
 
