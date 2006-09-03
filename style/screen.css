@@ -80,31 +80,38 @@ div#footer hr {
 }
 
 div.voice2 /*, div.voice2 a */ {
-  color: #008000
+  color: #008000;
+  margin: 0 -3pc 0 3pc;
 }
 
 div.voice3 /*, div.voice3 a */ {
-  color: #000080
+  color: #000080;
+  margin: 0 -3pc 0 3pc;
 }
 
 div.voice4 /*, div.voice4 a */ {
-  color: #800000
+  color: #800000;
+  margin: 0 -3pc 0 3pc;
 }
 
 div.voice5 /*, div.voice5 a */ {
-  color: #008080
+  color: #008080;
+  margin: 0 -3pc 0 3pc;
 }
 
 div.voice6 /*, div.voice6 a */ {
-  color: #800080
+  color: #800080;
+  margin: 0 -3pc 0 3pc;
 }
 
 div.voice7 /*, div.voice7 a */ {
-  color: #808000
+  color: #808000;
+  margin: 0 -3pc 0 3pc;
 }
 
 div.voice8 /*, div.voice8 a */ {
-  color: #808080
+  color: #808080;
+  margin: 0 -3pc 0 3pc;
 }
 
 .changed {
