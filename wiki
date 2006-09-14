@@ -336,7 +336,7 @@ sub modtimestring {
 }
 
 sub editfooter {
-    my $edittext = scriptlink("edit", $page, "EditText") . " of this page";
+    my $edittext = scriptlink("edit", $page, "Edit") . " this page";
     my $modtime = page_modtime("$page");
     my $modtext  = ($modtime != 0)
         ? " (last edited " .  scriptlink("diff", $page, stamp($modtime)) . ")"
@@ -346,8 +346,8 @@ sub editfooter {
 }
 
 sub findfooter {
-    push @footerlines, scriptlink("show", "SearchWiki", "SearchWiki")
-        . " for titles or text,\n"
+    push @footerlines, scriptlink("show", "SearchPage", "Search")
+        . " for page titles or text,\n"
         . "browse " . scriptlink("show", "RecentChanges", "RecentChanges") . ",\n"
         . "or return to " . scriptlink("show", $defaultpage, $defaultpage) . "\n";
 #Search for &nbsp;$searchform
