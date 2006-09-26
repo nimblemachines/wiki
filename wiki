@@ -346,8 +346,8 @@ sub editfooter {
 }
  
 sub commentfooter {
-    push @footerlines, obfuscate_mailto("$webhamster", "Send a comment")
-        . " about this page";
+    push @footerlines, obfuscate_mailto("$webhamster", "Comment")
+        . " on this page";
 }
 
 sub findfooter {
