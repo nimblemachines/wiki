@@ -67,15 +67,9 @@ div#footer {
 /*  font-size: 80%; */
 }
 
-div#content h2 {
-  margin-top: 4pt;
-  margin-bottom: 2pt;
-/*  border: black solid 1px; */
-}
-
-div#content h3, div#content h4, div#content h5, div#content h6 {
-  margin-top: 2pt;
-  margin-bottom: 0pt;
+div#content h2, div#content h3, div#content h4, div#content h5, div#content h6 {
+  margin-top: 0.33em;
+  margin-bottom: 0.16em;
 /*  border: black solid 1px; */
 }
 
