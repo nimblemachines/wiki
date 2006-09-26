@@ -6,7 +6,7 @@
 
 body {
   margin: 1pc 3pc 1pc 8pc;
-  width: 35pc;
+  width: 37pc;
 /*  border: blue solid 1px; */
 }
 
@@ -25,8 +25,7 @@ img#icon {
 }
 
 div#header h1 {
-/*  border: solid blue 1px; */
-  border: none;
+/*  border: solid blue 1px;*/
   margin-left: 0em;
   padding: 0;
   display: inline;
@@ -59,7 +58,7 @@ div#content {
   clear: both;
 /*  border: solid green 1px; */
 /*  background: #eeeecc; */
-/*  border: black solid 1px; */
+  margin-top: 12pt;
 }
 
 div#footer {
@@ -68,10 +67,29 @@ div#footer {
 /*  font-size: 80%; */
 }
 
+div#content h2 {
+  margin-top: 4pt;
+  margin-bottom: 2pt;
+/*  border: black solid 1px; */
+}
+
+div#content h3, div#content h4, div#content h5, div#content h6 {
+  margin-top: 2pt;
+  margin-bottom: 0pt;
+/*  border: black solid 1px; */
+}
+
+div#content p {
+/*  border: black solid 1px;*/
+  margin-top: 0pt;
+  margin-bottom: 1em;
+}
+
 /* hrules in the document can be styled separately from the footer hrule */
 div#content hr {
   border: solid gray;
   border-width: 1px 0 0 0;
+  margin: 1em 0;
 }
 
 div#footer hr {
@@ -81,37 +99,37 @@ div#footer hr {
 
 div.voice2 /*, div.voice2 a */ {
   color: #008000;
-  margin: 0 -3pc 0 3pc;
+  margin: 0 -1pc 0 1pc;
 }
 
 div.voice3 /*, div.voice3 a */ {
   color: #000080;
-  margin: 0 -3pc 0 3pc;
+  margin: 0 -1pc 0 1pc;
 }
 
 div.voice4 /*, div.voice4 a */ {
   color: #800000;
-  margin: 0 -3pc 0 3pc;
+  margin: 0 -1pc 0 1pc;
 }
 
 div.voice5 /*, div.voice5 a */ {
   color: #008080;
-  margin: 0 -3pc 0 3pc;
+  margin: 0 -1pc 0 1pc;
 }
 
 div.voice6 /*, div.voice6 a */ {
   color: #800080;
-  margin: 0 -3pc 0 3pc;
+  margin: 0 -1pc 0 1pc;
 }
 
 div.voice7 /*, div.voice7 a */ {
   color: #808000;
-  margin: 0 -3pc 0 3pc;
+  margin: 0 -1pc 0 1pc;
 }
 
 div.voice8 /*, div.voice8 a */ {
   color: #808080;
-  margin: 0 -3pc 0 3pc;
+  margin: 0 -1pc 0 1pc;
 }
 
 .changed {
