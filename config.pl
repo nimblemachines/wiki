@@ -14,6 +14,11 @@ $iconimgsrc = "_images/lambda";
 $iconimgalt = "lambda the ultimate!";
 $style = "style/screen";
 
+## typographic style
+$convert_endash = 1;
+$convert_emdash = 0;
+$convert_quotes = 1;
+
 # change this to be *you*!! and make sure to escape the '@' into '%40'
 # as below.
 $flickr_user = "52541558%40N00";

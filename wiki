@@ -342,21 +342,22 @@ sub editfooter {
         ? " (last edited " .  scriptlink("diff", $page, stamp($modtime)) . ")"
         : "";
 
-    push @footerlines, "$edittext$modtext\n";
+    push @footerlines, "$edittext$modtext";
+}
+ 
+sub commentfooter {
+    push @footerlines, obfuscate_mailto("$webhamster", "Send a comment")
+        . " about this page";
 }
 
 sub findfooter {
     push @footerlines, scriptlink("show", "SearchPage", "Search")
-        . " for page titles or text,\n"
-        . "browse " . scriptlink("show", "RecentChanges", "RecentChanges") . ",\n"
-        . "or return to " . scriptlink("show", $defaultpage, $defaultpage) . "\n";
+        . " for page titles or text, browse "
+        . scriptlink("show", "RecentChanges", "RecentChanges")
+        . ", or return to " . scriptlink("show", $defaultpage, $defaultpage);
 #Search for &nbsp;$searchform
 #Pages like &nbsp;$namesearchform
-
 }
-
-#  <img src="_images/valid-xhtml10" alt="Valid XHTML 1.0 Strict!" />
-#  <img src="_images/valid-css" alt="Valid CSS!" />
 
 sub validator {
     push @footerlines, << "";
@@ -694,6 +695,34 @@ sub inline_markup {
     # convert them. Use !!name!! or ??name??.
     s#[!\?]{2}(.+?)[!\?]{2}#&$1;#gs;
 
+    if ($convert_endash) {
+        # convert ' - ' to an en-dash
+        s/ - / &ndash; /g;
+    }
+
+    if ($convert_emdash) {
+        # convert ' -- ' to an em-dash, eliding the surrounding spaces
+        s/ -- /&mdash;/g;
+
+        # convert '--' to an em-dash, if surrounded by reasonable text
+        s/([a-zA-Z!)"'])--([a-zA-Z("'])/$1&mdash;$2/g;
+    }
+
+    if ($convert_quotes) {
+        # convert " to ldquo or rdquo, ' to lsquo or rsquo
+
+        # special case: for prefix number abbrevs, like '76
+        s/(^|\s+|[[({])'([0-9]+($|\s+|[])},.?;:-]))/$1&rsquo;$2/g;
+
+        s/(^|\s+|[[({]|<[a-z]+>)"([a-zA-Z0-9])/$1&ldquo;$2/g;
+        s/(^|\s+|[[({]|<[a-z]+>)'([a-zA-Z0-9])/$1&lsquo;$2/g;
+
+        s#([a-zA-Z0-9.?,;:_])"($|\s+|[])},.?;:-]|</[a-z]+>)#$1&rdquo;$2#g;
+        s#([a-zA-Z0-9.?,;:_])'($|\s+|[])},.?;:-]|</[a-z]+>)#$1&rsquo;$2#g;
+
+        s/([a-zA-Z0-9])'([a-zA-Z0-9])/$1&rsquo;$2/g;  # acting as an apostrophe
+    }
+
     # obfuscated mailto links: [[mailto:email link text]]
     # link text is required, since what would we put there other than the
     # unescaped mailto address, thereby making the whole thing moot?
@@ -764,6 +793,7 @@ sub render_page {
     my ($robots) = @_;
     render_body();
     editfooter() if $editable;
+    commentfooter() unless $editable;
     findfooter();
     validator();
     generate_xhtml(fancy_title($page), "", $robots);
