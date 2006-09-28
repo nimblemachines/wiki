@@ -712,15 +712,15 @@ sub inline_markup {
         # convert " to ldquo or rdquo, ' to lsquo or rsquo
 
         # special case: for prefix number abbrevs, like '76
-        s/(^|\s+|[[({])'([0-9]+($|\s+|[])},.?;:-]))/$1&rsquo;$2/g;
+        s/(^|\s+|[[({])'([0-9]+s?|t|tis|ere($|\s+|[])},.?;:-]))/$1&rsquo;$2/gi;
 
         s/(^|\s+|[[({]|<[a-z]+>)"([a-zA-Z0-9])/$1&ldquo;$2/g;
         s/(^|\s+|[[({]|<[a-z]+>)'([a-zA-Z0-9])/$1&lsquo;$2/g;
 
-        s#([a-zA-Z0-9.?,;:_])"($|\s+|[])},.?;:-]|</[a-z]+>)#$1&rdquo;$2#g;
-        s#([a-zA-Z0-9.?,;:_])'($|\s+|[])},.?;:-]|</[a-z]+>)#$1&rsquo;$2#g;
+        s#([a-zA-Z0-9.?!,;:_])"($|\s+|[])},.?!;:-]|</[a-z]+>)#$1&rdquo;$2#g;
+        s#([a-zA-Z0-9.?!,;:_])'($|\s+|[])},.?!;:-]|</[a-z]+>)#$1&rsquo;$2#g;
 
-        s/([a-zA-Z0-9])'([a-zA-Z0-9])/$1&rsquo;$2/g;  # acting as an apostrophe
+        s/([]a-zA-Z0-9])'([a-zA-Z0-9])/$1&rsquo;$2/g;  # acting as an apostrophe
     }
 
     # obfuscated mailto links: [[mailto:email link text]]
