@@ -90,13 +90,13 @@ div#content p {
 div#content hr {
   border: solid gray;
   border-width: 1px 0 0 0;
-  margin: 0.5em 0;
+  margin: 4pt 0;
 }
 
 div#footer hr {
   border: solid gray;
   border-width: 1px 0 0 0;
-  margin: 0.4em 0;
+  margin: 4pt 0;
 }
 
 div.voice2 /*, div.voice2 a */ {
@@ -159,7 +159,7 @@ div.flickr_badge_image {
 .flickr_badge_image img {
   border: 1px solid black;
 /*  margin: 5px 5px 5px 5px; */
-  margin: 5px;
+  margin:  5px;
   padding: 0px;
 
 /* This is very interesting. There was a "bug", it seemed, that there was
@@ -177,6 +177,7 @@ div.flickr_badge_image {
 
 div.flickr_badge {
 /*  background-color: #CCCCCC; */
+  margin: 0;
   padding: 0px;
   text-align: left;
 }

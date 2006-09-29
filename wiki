@@ -223,8 +223,6 @@ sub fancy_link {
 
 sub generate_xhtml {
     my ($title, $heading, $robots) = @_;
-    my $home_link = scriptlink("show", $defaultpage,
-          "<img id=\"icon\" src=\"$iconimgsrc\" alt=\"$iconimgalt\" />");
 
     # Mostly we want the title and heading to be the same text. $heading is
     # usually a link to a search page, but the link text is the same as
@@ -240,6 +238,14 @@ sub generate_xhtml {
     # (do_show) pages should be indexed.
 
     $heading = scriptlink("search", $page, "$title") unless $heading;
+
+    my $home_link = "";
+    # only display icon if we're *not* editing
+    if ($action ne "edit") {
+        $home_link = scriptlink("show", $defaultpage,
+            "<img id=\"icon\" src=\"$iconimgsrc\" alt=\"$iconimgalt\" />");
+    }
+
     $metas{'robots'} = "${robots}index,${robots}follow";
 
     my $meta_elements = join "\n",
@@ -247,7 +253,7 @@ sub generate_xhtml {
 
     # string together footer lines, separated by <br />
     my $footer = join "<br />\n", @footerlines;
-    
+
     print <<EOT;
 Content-type: text/html
 Status: $http_status
