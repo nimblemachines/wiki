@@ -10,7 +10,7 @@ $webhamster = 'webhamster@example.com';
 $wikiname = "My Wiki";
 $defaultpage = "WelcomePage";
 $editscript = "wiki";
-$iconimgsrc = "_images/lambda";
+$iconimgsrc = "images/contraption";
 $iconimgalt = "lambda the ultimate!";
 $style = "style/screen";
 
@@ -29,7 +29,6 @@ $flickr_name = "nimblemachines";
     description => "A wiki for discussing the things that I care about.",
     copyright => "All content on example.com is copyrighted. All rights are reserved."
     );
-$heading_template = "<home />\n<h1>. <heading /></h1>";
 
 # where pages and page archive are located
 # NOTE: you should copy _pages/ to pages/ (or something) and put your

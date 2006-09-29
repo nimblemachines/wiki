@@ -5,7 +5,7 @@
  */
 
 body {
-  margin: 1pc 3pc 1pc 8pc;
+  margin: 40px 3pc 1pc 8pc;  /* top should be -icon top for icon flush */
   width: 37pc;
 /*  border: blue solid 1px; */
 }
@@ -20,18 +20,30 @@ div#footer a img {
 
 img#icon {
   border: solid black 1px;
-  margin: 0 0 0 -115px;
+  margin:  -40px -60px 1pc 1pc;  /* current icon is 240px w * 180 px h */
   padding: 0;
+  float: right;
 }
 
 div#header h1 {
-/*  border: solid blue 1px;*/
-  margin-left: 0em;
+/*  border: solid blue 1px; */
+  margin: 0 0 0 0;
   padding: 0;
-  display: inline;
-/*  vertical-align: bottom; */
   color: #008;
-/*  float: left; */
+}
+
+div#header h1 a {
+  color: #008;
+}
+
+div#header hr {
+  margin: 0;
+  border: solid #008;
+  border-width: 1px 0 0 0;
+}
+
+pre {
+  clear: right;  /* so it can't run into icon */
 }
 
 a:link {
@@ -50,15 +62,10 @@ a:hover {
   text-decoration: underline;
 }
 
-div#header h1 a {
-  color: #008;
-}
-
 div#content {
-  clear: both;
 /*  border: solid green 1px; */
 /*  background: #eeeecc; */
-  margin-top: 12pt;
+  margin: 1pc 0 0 0;
 }
 
 div#footer {
@@ -83,12 +90,13 @@ div#content p {
 div#content hr {
   border: solid gray;
   border-width: 1px 0 0 0;
-  margin: 1em 0;
+  margin: 0.5em 0;
 }
 
 div#footer hr {
   border: solid gray;
   border-width: 1px 0 0 0;
+  margin: 0.4em 0;
 }
 
 div.voice2 /*, div.voice2 a */ {
@@ -183,7 +191,7 @@ code.forth, div.voiceforth, div.voiceforth pre {
 }
 
 /* multiline li's are hard to read unless separated */
-li {
+div#content li {
   margin: 0 0 0.25em 0;
 }
 

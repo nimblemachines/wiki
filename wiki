@@ -240,9 +240,6 @@ sub generate_xhtml {
     # (do_show) pages should be indexed.
 
     $heading = scriptlink("search", $page, "$title") unless $heading;
-    $heading_template =~ s/<home \/>/$home_link/;
-    $heading_template =~ s/<heading \/>/$heading/;
-
     $metas{'robots'} = "${robots}index,${robots}follow";
 
     my $meta_elements = join "\n",
@@ -268,17 +265,19 @@ $meta_elements
 <body>
 
 <div id="header">
-$heading_template
+  $home_link
+  <h1>$heading</h1>
+  <hr />
 </div>
 
 <div id="content">
-$content
+  $content
 </div>
 
 <div id="footer">
-<hr />
+  <hr />
 
-$footer
+  $footer
 </div>
 
 </body>
