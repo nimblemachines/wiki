@@ -399,7 +399,7 @@ sub make_interwiki_link {
 #    $link_text =~ s/#/ :: /g;
 
     defined $interlink
-        ? "<a href=\"out.php?$interlink$suffix\">$link_text</a>" : "$link_text";
+        ? "<a href=\"out?$interlink$suffix\">$link_text</a>" : "$link_text";
 }
 
 sub hide {
@@ -744,7 +744,7 @@ sub inline_markup {
 
     # flickr img link: [[uri.ext alt text]] where ext is img type
     s#\[\[img (http://static.flickr.com/([0-9]+)/([0-9]+)_([0-9a-f]+).jpg)\s+(.+?)\]\]#hide(
-        "<a href=\"out.php?http://www.flickr.com/photos/$flickr_name/$3/\">
+        "<a href=\"out?http://www.flickr.com/photos/$flickr_name/$3/\">
   <img src=\"$1\" alt=\"$5\" /></a>")#ge;
 
     # inline img link: [[uri.ext alt text]] where ext is img type
@@ -752,10 +752,10 @@ sub inline_markup {
         "<img src=\"$1\" alt=\"$2\" />")#ge;
 
     # unnamed href link: [[uri]]
-    s#\[\[(\S+?)\]\]#hide("<a href=\"out.php?$1\">$1</a>")#ge;
+    s#\[\[(\S+?)\]\]#hide("<a href=\"out?$1\">$1</a>")#ge;
 
     # generic href link: [[url lots of link text]]
-    s#\[\[(\S+?)\s+(.+?)\]\]#hide("<a href=\"out.php?$1\">$2</a>")#ge;
+    s#\[\[(\S+?)\s+(.+?)\]\]#hide("<a href=\"out?$1\">$2</a>")#ge;
 
     # ISBN ...
     # RFC ...
