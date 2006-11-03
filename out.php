@@ -8,4 +8,8 @@
 
 $uri =  $_SERVER['QUERY_STRING'];
 header("Location: $uri");
+
+// header("Location: {$_SERVER['QUERY_STRING']}");
+// also works, but it's hard to read & parse. You need the extra { } to
+// parse the more complicated array reference.
 ?>
