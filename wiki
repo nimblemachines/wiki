@@ -360,11 +360,18 @@ sub findfooter {
         . " for page titles or text, browse "
         . scriptlink("show", "RecentChanges", "RecentChanges")
         . ", or return to " . scriptlink("show", $defaultpage, $defaultpage);
+
 #Search for &nbsp;$searchform
 #Pages like &nbsp;$namesearchform
 }
 
+#  <a href="http://www.spreadfirefox.com/?q=affiliates&amp;id=0&amp;t=62">
+#    <img src="http://sfx-images.mozilla.org/affiliates/Buttons/110x32/take.gif"
+#         alt="Get Firefox!" title="Get Firefox!" />
+#  </a>
+
 sub validator {
+    if ($editable) {
     push @footerlines, << "";
 <p>
   <a href="http://validator.w3.org/check/referer">
@@ -373,12 +380,9 @@ sub validator {
   <a href="http://jigsaw.w3.org/css-validator/check/referer">
     <img src="_images/valid-css" alt="Valid CSS!" />
   </a>
-  <a href="http://www.spreadfirefox.com/?q=affiliates&amp;id=0&amp;t=62">
-    <img src="http://sfx-images.mozilla.org/affiliates/Buttons/110x32/take.gif"
-         alt="Get Firefox!" title="Get Firefox!" />
-  </a>
 </p>
 
+    }
 }
 
 sub make_wiki_link {
@@ -525,6 +529,15 @@ sub start_voice {
     }
     else { "" }
 }
+
+# This implementation (by mip) has a built-in "protection" for the user.
+# Only the first item's kind (* or #) is used to determine the kind of the
+# list. After that, items are added whether their kind matches the current
+# open list.
+#
+# This has the benefits of simplicity and resiliency; OTOH, it prevents you
+# from doing things you might want to do. mip will dispute this, of course.
+# ;-)
 
 $curlist = "";
 
@@ -784,7 +797,7 @@ sub render_body {
     foreach (split /\n{2,}/, $_) {
         inline_markup() unless m/^\a?\s+/;  # leave pre alone
         block_markup();
-        $content .= "$_\n" , unwind();
+        $content .= "$_\n";
     }
 
     # close any open list
