@@ -702,6 +702,10 @@ sub obfuscate_mailto {
 sub inline_markup {
     hide_uris();
 
+    # obscure something so Google won't properly index it - like "Eric Raymond"
+    # should this be "bracketing" markup instead?
+    s#\.\.#<span class="empty"></span>#gs;
+
     s#'{3}(.+?)'{3}#<strong>$1</strong>#gs;
     s#'{2}(.+?)'{2}#<em>$1</em>#gs;
     # XXX: code, cite, kbd, ???
