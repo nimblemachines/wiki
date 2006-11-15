@@ -769,11 +769,22 @@ sub inline_markup {
     s#\[\[img (\S+\.(?:jpg|jpeg|gif|png))\s+(.+?)\]\]#hide(
         "<img src=\"$1\" alt=\"$2\" />")#ge;
 
+    # Added local link types (missing the initial "http://"; these do not
+    # get an "out?" prepended.
+
+    # Non-local links
     # unnamed href link: [[uri]]
-    s#\[\[(\S+?)\]\]#hide("<a href=\"out?$1\">$1</a>")#ge;
+    s#\[\[(http://\S+?)\]\]#hide("<a href=\"out?$1\">$1</a>")#ge;
 
     # generic href link: [[url lots of link text]]
-    s#\[\[(\S+?)\s+(.+?)\]\]#hide("<a href=\"out?$1\">$2</a>")#ge;
+    s#\[\[(http://\S+?)\s+(.+?)\]\]#hide("<a href=\"out?$1\">$2</a>")#ge;
+
+    # Local links
+    # unnamed href link: [[uri]]
+    s#\[\[(\S+?)\]\]#hide("<a href=\"$1\">$1</a>")#ge;
+
+    # generic href link: [[url lots of link text]]
+    s#\[\[(\S+?)\s+(.+?)\]\]#hide("<a href=\"$1\">$2</a>")#ge;
 
     # ISBN ...
     # RFC ...
