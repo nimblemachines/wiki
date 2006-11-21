@@ -10,7 +10,7 @@ $webhamster = 'webhamster@example.com';
 $wikiname = "My Wiki";
 $defaultpage = "WelcomePage";
 $editscript = "wiki";
-$iconimgsrc = "_images/lambda";
+$iconimgsrc = "images/contraption";
 $iconimgalt = "lambda the ultimate!";
 $style = "style/screen";
 
@@ -25,8 +25,8 @@ $flickr_user = "52541558%40N00";
 $flickr_name = "nimblemachines";
 
 %metas = (
-    keywords => "wiki",
-    description => "A wiki for discussing the things that I care about.",
+#    keywords => "wiki",
+#    description => "A wiki for discussing the things that I care about.",
     copyright => "All content on example.com is copyrighted. All rights are reserved."
     );
 
