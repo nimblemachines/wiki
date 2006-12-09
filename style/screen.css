@@ -20,7 +20,7 @@ div#footer a img {
 
 img#icon {
   border: solid black 1px;
-  margin:  -40px -60px 1pc 1pc;  /* current icon is 240px w * 180 px h */
+  margin:  -30px -60px 1pc 1pc;  /* current icon is 240px w * 180 px h */
   padding: 0;
   float: right;
 }
