@@ -375,10 +375,10 @@ sub validator {
     push @footerlines, << "";
 <p>
   <a href="http://validator.w3.org/check/referer">
-    <img src="_images/valid-xhtml10" alt="Valid XHTML 1.0 Strict!" />
+    <img src="_images/valid-xhtml10-blue" alt="Valid XHTML 1.0 Strict!" />
   </a>
   <a href="http://jigsaw.w3.org/css-validator/check/referer">
-    <img src="_images/valid-css" alt="Valid CSS!" />
+    <img src="_images/valid-css-blue" alt="Valid CSS!" />
   </a>
 </p>
 
@@ -663,8 +663,11 @@ sub block_markup {
         s/^\[namesearch\]/$namesearchform/ ||
         s/^\[textsearch\]/$textsearchform/ ||
 
+        # daf: mip pointed out that this breaks signatures (--DavidFrech)
+        # at the starts of lines, so we need different markup.
         # comments, using Haskell notation: --
-        s/^--.*//s ||
+#        s/^--.*//s ||
+        s/^\+\+.*//s ||
         # ...could also render this, and put display: none in the css...
 #        s#^--\s*(.*)#<p class="comment">$1</p>#s ||
 
