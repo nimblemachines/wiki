@@ -777,10 +777,10 @@ sub inline_markup {
 
     # Non-local links
     # unnamed href link: [[uri]]
-    s#\[\[(http://\S+?)\]\]#hide("<a href=\"out?$1\">$1</a>")#ge;
+    s#\[\[(https?://\S+?)\]\]#hide("<a href=\"out?$1\">$1</a>")#ge;
 
     # generic href link: [[url lots of link text]]
-    s#\[\[(http://\S+?)\s+(.+?)\]\]#hide("<a href=\"out?$1\">$2</a>")#ge;
+    s#\[\[(https?://\S+?)\s+(.+?)\]\]#hide("<a href=\"out?$1\">$2</a>")#ge;
 
     # Local links
     # unnamed href link: [[uri]]
