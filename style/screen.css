@@ -5,7 +5,7 @@
  */
 
 body {
-  margin: 40px 3pc 1pc 8pc;  /* top should be -icon top for icon flush */
+  margin: 40px 3pc 1pc 5pc;  /* top should be -icon top for icon flush */
   width: 37pc;
 /*  border: blue solid 1px; */
 }
