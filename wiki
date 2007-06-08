@@ -424,7 +424,7 @@ sub convert_wiki_links {
 }
 
 sub convert_interwiki_links {
-    s/($interprefix):($interquery)/hide(make_interwiki_link($1, $2, "$1:$2"))/geo;
+    s/($interprefix):($interquery)/hide(make_interwiki_link($1, $2, "$2"))/geo;
 }
 
 @nestelems = ();
