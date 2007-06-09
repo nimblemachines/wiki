@@ -1,0 +1,68 @@
+#!/usr/bin/perl -w
+
+# $Id$
+
+do "common.pl";
+
+sub do_diff {
+    # get a time stamp for the earlier version of the page
+    my $when = "$page.";
+    $_ = $query{when};
+    if (m/\d\d\d\d-\d\d-\d\d(T\d\d:\d\d(:\d\d)?)?/) {
+        # some form of ISO time
+        $when .= $_;
+        $when .= "T00:00" if $1 eq "";
+        $when .= ":00" if $2 eq "";
+    }
+    else {  # should be a delta in hours
+        my $delta = 24;     # default, in hours
+        $delta = $1 if m/(\d+)h?/i;
+        $when .= iso_timestamp(time() - $delta * 60 * 60);
+    }
+
+    # find earlier version of page
+    my @matches = filter_pages($archivedir, sub { m/^$page/ });
+    my $oldpage = "/dev/null";
+    foreach (sort @matches) {
+        last if $_ gt $when;
+        $oldpage = "$archivedir/$_";
+    }
+
+    my $cmd = "diff -U 99999 $oldpage $pagedir/$page";
+    my $contents = "";
+    open DIFF, "-|", $cmd or choke "cannot compare $page with $oldpage: $!";
+
+    # ignore first few lines until line starts with @@
+    while (<DIFF>) {
+        last if /^@@/;
+    }
+
+    my @contents = "";
+    my @saved = ();
+    my $isnew = 0;
+
+    while (<DIFF>) {
+        next if /^-/;   # don't care about deleted lines
+        $isnew = 1 if /^[+]\s*\S/;
+        s/^.//;
+
+        if (/^$/) {     # blank line
+            #@saved = map { s/^./+/; $_ } @saved if $isnew;
+            $contents .= ($isnew ? "\a" : "");
+            $contents .= join '', @saved;
+            $contents .= "\n";
+            $isnew = 0;
+            @saved = ();
+        } else {
+            push @saved, $_;
+        }
+    }   
+    if (@saved) {
+        $contents .= ($isnew ? "\a" : "");
+        $contents .= join '', @saved;
+    }
+    close DIFF;
+
+    $_ = $contents;
+    render_page("no");
+}

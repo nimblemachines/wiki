@@ -1,0 +1,51 @@
+#!/usr/bin/perl -w
+
+# $Id$
+
+do "common.pl";
+
+sub filter_pages {
+    my ($dir, $pred) = @_;
+    opendir PAGES, "$dir" or die "can't opendir $dir: $!";
+    my @matches = grep { ! m/^\./ && -r "$dir/$_" && -f "$dir/$_"
+                         && &$pred() } readdir PAGES;
+    closedir PAGES;
+    return @matches;
+}
+
+sub do_text_search {
+    my @matches = filter_pages($pagedir, sub { page_text($_) =~ m/$page/i });
+    gen_search_page("Pages matching $page",
+                    "Pages matching <em>$page</em>", @matches);
+}
+
+sub do_name_search {
+    my @matches = filter_pages($pagedir, sub { m/$page/i });
+    gen_search_page("Page names matching $page",
+                    "Page names matching <em>$page</em>", @matches);
+}
+
+sub gen_search_page {
+    my ($title, $heading, @matches) = @_;
+    my $text = "";
+    foreach my $m (sort @matches) {
+        $text .= "<li>" . make_wiki_link($m) . "</li>\n";
+    }
+    if ($text) {
+        $content  = "<ul>\n$text</ul>\n";
+    } else {
+        $content  = "<p>No matches found.</p>\n";
+    }
+    findfooter();
+    validator();
+    generate_xhtml($title, $heading, "no");
+}
+
+($type, $page) = parse_http_data($ENV{'QUERY_STRING'});
+if ($type eq "name") {
+    do_name_search();
+} elsif ($type eq "text") {
+    do_text_search();
+} else {
+    gen_search_page("Unknown search", "Unknown search", ());
+}
