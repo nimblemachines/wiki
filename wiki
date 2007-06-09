@@ -10,14 +10,10 @@ package nimblewiki;
 
 $| = 1;         # flush after each print
 
-#$wikiword = "[A-Z][a-z0-9]+";
-$wikiword0 = "[A-Z][a-z]+";
-$wikiword  = "(?:$wikiword0)|(?:[0-9]+)";
-$wikilink = "(?:$wikiword0)(?:$wikiword)+";
-$interprefix = "[A-Z][A-Za-z0-9]+";
-$interword = "[A-Za-z0-9]+";
-$interquery = "$interword(?:[_+#?:.-]$interword)*";
-#$markurl = "\001";
+$wikiword = "I|A|[A-Z][a-z]+";
+$wikilink = "\\b(?:$wikiword){2,}\\b";
+$interprefix = "[A-Za-z.]+";
+$interquery = "[A-Za-z0-9+_]+";
 
 ### Read in configuration variables ###
 do "config.pl";
@@ -200,25 +196,14 @@ sub do_request {
 sub fancy_title {
     my ($title) = @_;
 
-    if ($title =~ m/$wikilink/) {
-        # run numbers into prev word
-        $title =~ s/([a-z0-9])([A-Z])/$1 $2/g;
-# these two make numbers separate
-#        $title =~ s/([a-z])([A-Z0-9])/$1 $2/g;
-#        $title =~ s/([0-9])([A-Z])/$1 $2/g;
-    }
-    else {
-        $title =~ tr/_/ /;
-        $title =~ s/^([a-z])/uc($1)/e;  # capitalize first letter
-    }
+    # Separate wikiwords with spaces. I split this into *two* expressions
+    # because it wasn't working when I folded them together. My conjecture
+    # is that the one-letter REs (I and A) need to match both at the
+    # beginning and the end of a wikiword (since they are only one letter
+    # long); but the RE matching rules only lets them match once.
+    $title =~ s/([a-z])([A-Z])/$1 $2/g;    # end of one, start of another
+    $title =~ s/([IA])([A-Z])/$1 $2/g;     # special wikiwords I and A
     $title
-}
-
-sub fancy_link {
-    my ($link) = @_;
-
-    $link =~ tr/_/ /;   # works for both wiki and extended links
-    $link;
 }
 
 sub generate_xhtml {
@@ -387,23 +372,24 @@ sub validator {
 
 sub make_wiki_link {
     my ($page) = @_;
-    my $link = fancy_link($page);
     (-r "$pagedir/$page" && -f "$pagedir/$page")
-        ? scriptlink("show", $page, $link)
-        : ($editable ? scriptlinkclass("edit", $page, $link, "missing")
-           : "$page");
+        ? scriptlink("show", $page, $page)
+        : ($editable ? scriptlinkclass("edit", $page, $page, "missing")
+                     : "$page");
 }
 
-# a way to escape query strings? Thinking of google queries w/embedded spaces.
 sub make_interwiki_link {
-    my ($prefix, $suffix, $link_text) = @_;
+    my ($prefix, $query) = @_;
     my $interlink = $intermap{$prefix};
 
-    $link_text =~ tr/_/ /;
-#    $link_text =~ s/#/ :: /g;
+    # can use _ or + to encode spaces into query
+    my $query_with_spaces =~ tr/_/ /;
+    $query_with_spaces =~ tr/+/ /;
+    my $query_uri = escape_uri($query_with_spaces);
 
     defined $interlink
-        ? "<a href=\"out?$interlink$suffix\">$link_text</a>" : "$link_text";
+        ? "<a href=\"out?$interlink$query_uri\">$query</a>"
+        : "$prefix:$query";
 }
 
 sub hide {
@@ -411,100 +397,15 @@ sub hide {
 
     # use "" to hide links
     $link =~ s/($wikiword)/$1\"\"/go;
-#   $link =~ s/($extendedlinkbit)/$1\"\"/go;
     $link;
 }
 
 sub convert_wiki_links {
     s/($wikilink)/make_wiki_link($1)/geo;
-#    s/($extendedlinkre)/make_wiki_link($1)/geo;
-
-    # forced link of single word
-#    s/``($extendedlinkbit)/make_wiki_link($1)/geo;
 }
 
 sub convert_interwiki_links {
-    s/($interprefix):($interquery)/hide(make_interwiki_link($1, $2, "$2"))/geo;
-}
-
-@nestelems = ();
-$nestdepth = 0;
-
-sub pushelem {
-    my ($type) = @_;
-    my $out = indent() . "<$type>";
-    push @nestelems, $type;
-    $nestdepth++;
-    $out;
-}
-
-sub popelem {
-    $nestdepth--;
-    indent() . "</" . (pop @nestelems) . ">\n";
-}
-
-sub unwind {
-    my $out = "";
-    $out .= popelem() while ($nestdepth);
-    $out;
-}
-
-sub indent {
-    ' ' x ($nestdepth * 2);
-}
-
-# I just learned that nested ol and ul elements have to be _inside_ an li.
-# ol and ul can only contain li - nothing else. So we need to rewrite this
-# code to keep li's "open" until the last possible moment. Make them part of
-# of the pushelem/popelem code. Misuse of nesting (by wiki content authors)
-# may result in li's with no text content.
-
-# a couple of thoughts. use split //, type to blow up type/nesting into an
-# array/list of chars. Iterate over this to do indenting.
-
-sub oldlistitem {
-    my ($type, $text) = @_;
-    my $out = "";
-    my $elem = $type =~ m/\*/ ? "ul" : "ol";
-    my $depth = 2 * (length $type) - 1;
-
-    if ($nestdepth == 0)
-    { $out .= pushelem($elem) . "\n"; }
-    else
-        # close last open li
-    { $out .= popelem(); }
-
-    $out .= pushelem("li") . "\n" . pushelem($elem) . "\n"
-        while ($depth > $nestdepth);
-
-    $out .= popelem()
-        while ($depth < $nestdepth);
-
-    # now we're at the right level but might be inside a different list elem
-    $out .= popelem() . pushelem("li") . "\n" . pushelem($elem) . "\n"
-        if ($nestelems[-1] ne $elem);
-
-    # now indent and add open li and text
-    $out . pushelem("li") . $text . "\n";
-
-    $out .= pushelem($elem) . "\n" . pushelem("li") while ($depth > $nestdepth);
-    $out .= popelem()                               while ($depth < $nestdepth);
-
-    # now we're at the right level but might be inside a different nest elem
-    $out .= popelem() . pushelem("li") . pushelem($elem)
-        if (@nestelems && $nestelems[-1] ne $elem);
-
-    # now indent for item
-    $out . indent() . "<li>$text</li>";
-}
-
-sub listblock {
-    my ($listpara) = @_;
-    my $elem = $listpara =~ m/\*/ ? "ul" : "ol";
-
-    $listpara =~ s:^([*#]{1,5})\s*(.*):<li>$2</li>\n:gm;
-
-    wrap("$elem", "\n$listpara");
+    s/($interprefix):($interquery)/hide(make_interwiki_link($1, $2))/geo;
 }
 
 sub wrap {
@@ -654,8 +555,6 @@ sub block_markup {
         
         # multiple "voices"
         s/^(>{1,8})/start_voice(length($1))/e ||
-#        s/^([*#]{1,5})\s*(.*?)/listitem($1, $2)/gme ||
-#        s/^([*#]{1,5}.*?)/listblock($1)/e ||
 
         # special links - these generate form elements, which are considered to
         # be block-level markup. In order to validate, these cannot be enclosed
@@ -666,10 +565,7 @@ sub block_markup {
         # daf: mip pointed out that this breaks signatures (--DavidFrech)
         # at the starts of lines, so we need different markup.
         # comments, using Haskell notation: --
-#        s/^--.*//s ||
         s/^\+\+.*//s ||
-        # ...could also render this, and put display: none in the css...
-#        s#^--\s*(.*)#<p class="comment">$1</p>#s ||
 
         # generate a flickr badge, with user or public content
         s/^\[flickr(([0-9]+))?(:(all))?(:(latest))?(\s+(.*))?\]/flickr_badge($2, $4, $6, $8)/e ||
@@ -678,15 +574,6 @@ sub block_markup {
         s#^(.*)#<p$class>$1</p>#s;
         $_ = listend() . $_;
     }
-}
-
-sub hideuri {
-    $uri[$uri++] = shift;
-    "$urimark$uri$urimark";
-}
-
-sub hide_uris {
-#    s/\[\[.+\]\]/hideuri($1)/ge;
 }
 
 sub show_uris {
@@ -703,8 +590,6 @@ sub obfuscate_mailto {
 }
 
 sub inline_markup {
-    hide_uris();
-
     # obscure something so Google won't properly index it - like "Eric Raymond"
     # should this be "bracketing" markup instead? Matches only between "word"
     # characters (\w).
@@ -754,9 +639,6 @@ sub inline_markup {
     # unescaped mailto address, thereby making the whole thing moot?
     s#\[\[mailto:(\S+)\s+(.+)\]\]#hide(obfuscate_mailto($1, $2))#ge;
 
-    # named interwiki link: [[prefix:suffix link text]]
-    s/\[\[($interprefix):($interquery)\s+(.+?)\]\]/hide(make_interwiki_link($1, $2, $3))/geo;
-
     # Since Flickr claims that we're in violation of their Terms of Service
     # unless we link images to their flickr page, I've made some special
     # case matching to create markup that uses the image given as a
@@ -794,7 +676,6 @@ sub inline_markup {
 
     convert_interwiki_links();
     convert_wiki_links();
-
     show_uris();
 }
 
