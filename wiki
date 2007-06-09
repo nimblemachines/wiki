@@ -383,12 +383,13 @@ sub make_interwiki_link {
     my $interlink = $intermap{$prefix};
 
     # can use _ or + to encode spaces into query
-    my $query_with_spaces =~ tr/_/ /;
+    my $query_with_spaces = $query;
+    $query_with_spaces =~ tr/_/ /;
     $query_with_spaces =~ tr/+/ /;
     my $query_uri = escape_uri($query_with_spaces);
 
     defined $interlink
-        ? "<a href=\"out?$interlink$query_uri\">$query</a>"
+        ? "<a href=\"out?$interlink$query_uri\">$query_with_spaces</a>"
         : "$prefix:$query";
 }
 
