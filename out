@@ -1,5 +1,7 @@
 #!/usr/bin/perl -w
 
+# $Id$
+
 $| = 1;         # flush after each print
 
 my $new_uri = $ENV{'QUERY_STRING'};
