@@ -10,7 +10,7 @@ $webhamster = 'webhamster@example.com';
 $wikiname = "My Wiki";
 $defaultpage = "WelcomePage";
 $editscript = "wiki";
-$iconimgsrc = "images/contraption";
+$iconimgsrc = "_images/lambda";
 $iconimgalt = "lambda the ultimate!";
 $style = "style/screen";
 
