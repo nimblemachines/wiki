@@ -15,8 +15,11 @@ $wikilink = "\\b(?:$wikiword){2,}\\b";
 $interprefix = "[A-Za-z.]+";
 $interquery = "[A-Za-z0-9+_]+";
 
-### Read in configuration variables ###
+### Read in default configuration variables ###
 do "config.pl";
+
+### Read in site-custom configuration variables ###
+do "content/config.pl";
 
 sub unescape_uri {
     $_ = shift;
