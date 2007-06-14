@@ -41,7 +41,6 @@ sub escape_uri {
 sub escape_html {
     s/&/&amp;/g;
     s/</&lt;/g;
-#    s/>/&gt;/g;
 }
 
 sub parse_http_data {
@@ -347,15 +346,7 @@ sub findfooter {
         . " for page titles or text, browse "
         . scriptlink("show", "RecentChanges", "RecentChanges")
         . ", or return to " . scriptlink("show", $defaultpage, $defaultpage);
-
-#Search for &nbsp;$searchform
-#Pages like &nbsp;$namesearchform
 }
-
-#  <a href="http://www.spreadfirefox.com/?q=affiliates&amp;id=0&amp;t=62">
-#    <img src="http://sfx-images.mozilla.org/affiliates/Buttons/110x32/take.gif"
-#         alt="Get Firefox!" title="Get Firefox!" />
-#  </a>
 
 sub validator {
     if ($editable) {
@@ -692,7 +683,6 @@ sub render_body {
     # XXX if we do inline on a per-para basis, we can "catch" dangling
     # markup that spans para boundaries. I wonder if everything shouldn't
     # be wrapped in the foreach by para.
-#    inline_markup();
 
     # we're going to do "paragraph" markup delimited with multiple newlines
     foreach (split /\n{2,}/, $_) {
@@ -1000,7 +990,6 @@ sub print_debug_values {
     }
     print STDERR "\n:: VARIABLES ::\n";
     print STDERR "script = $script\n";
-#    print STDERR "base = $base\n";
     print STDERR "page = $page\n";
     print STDERR "action = $action\n";
 }
