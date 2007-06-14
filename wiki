@@ -187,8 +187,7 @@ sub do_request {
 
     # $action will match show" ...
     $method =~ m/post/i
-        # both Save & Tweak buttons save the edit
-        && $form{'submit'} =~ m/(save|tweak)/i
+        && $form{'submit'} =~ m/save/i
         && do_save() != 0
         && return;
 
@@ -762,12 +761,6 @@ sub make_edit_page {
     <input type="text" name="comment" value="" size="75" />
   </p>
   <p>
-    If you've made only small changes - like to punctuation or spelling -
-    and don't want a new entry in RecentChanges - press Tweak.
-    Otherwise, to save changes and log RecentChanges, press Save.
-  </p>
-  <p>
-    <input type="submit" name="submit"  value="Tweak" />
     <input type="submit" name="submit"  value="Save" />
     <input type="reset"                 value="Revert" />
     <input type="submit" name="submit"  value="Cancel" />
@@ -869,12 +862,9 @@ to merge your changes.
     my $ip = $ENV{'REMOTE_ADDR'};
     my $changed = "$page ... $stamp ... $ip";
 
-    # tweak will save edit but not affect RecentChanges
-    if ($form{'submit'} =~ m/save/i) {
-        # prefix existing contents of RecentChanges with newest entry.
-        my $contents = $changed . "\n\n" . page_text("RecentChanges");
-        write_file("$pagedir/RecentChanges", $contents);
-    }
+    # prefix existing contents of RecentChanges with newest entry.
+    my $contents = $changed . "\n\n" . page_text("RecentChanges");
+    write_file("$pagedir/RecentChanges", $contents);
 
     # update modtime property
     run_svn("ps", "-q", "modtime", "$new_modtime", "$pagedir/$page");
