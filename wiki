@@ -815,8 +815,10 @@ to merge your changes.
         return -1;      # we failed to save, so don't do a "show"
     }
 
-    # check if user wants to delete the page
-    if ($form{'edittext'} =~ m/chainsaw kitty/i) {
+    # check if user wants to delete the page - edittext has to consist
+    # solely of the words "chainsaw kitty"
+
+    if ($form{'edittext'} =~ m/^chainsaw kitty$/i) {
         run_svn("rm", "-q", "$pagedir/$page");
         run_svn("ci", "-q", "-m", "wiki: deleted $page", "$pagedir/");
         $page = $defaultpage;        # gotta go somewhere!
