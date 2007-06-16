@@ -15,11 +15,24 @@ $wikilink = "\\b(?:$wikiword){2,}\\b";
 $interprefix = "[A-Za-z.]+";
 $interquery = "[A-Za-z0-9+_]+";
 
+$pagedir = "$ENV{'DOCUMENT_ROOT'}/pages";
+$use_subversion = 0;  # default to off
+$svn = "/usr/local/subversion-1.4/bin/svn";
+
 ### Read in default configuration variables ###
 do "config.pl";
 
 ### Read in site-custom configuration variables ###
-do "content/config.pl";
+do "$ENV{'DOCUMENT_ROOT'}/config.pl";
+
+if ($ENV{'READONLY'}) {
+    $editable = 0;
+    $use_subversion = 0;   # force off for readonly
+} else {
+    $editable = 1;
+    $wikiname = "Edit $wikiname";      # remind us
+    # don't force use of subversion either way
+}
 
 sub unescape_uri {
     $_ = shift;
@@ -129,8 +142,6 @@ sub dispatch_on_action {
 sub do_init {
     $script = (split '/', $ENV{'SCRIPT_NAME'})[-1];     # keep only last part
 
-    $editable = $script eq $editscript;
-
     $method = $ENV{'REQUEST_METHOD'};
     if ($method =~ m/post/i){ 
         read(STDIN, my $form, $ENV{'CONTENT_LENGTH'});
@@ -225,6 +236,11 @@ sub generate_xhtml {
 
     $heading = scriptlink("search", $page, "$title") unless $heading;
 
+    # if not using a default icon, rewrite URI to get site's image dir
+    if ($iconimgsrc !~ m/^_images/) {
+        $iconimgsrc = "static/$iconimgsrc";
+    }
+
     my $home_link = "";
     # only display icon if we're *not* editing
     if ($action ne "edit") {
@@ -232,6 +248,10 @@ sub generate_xhtml {
             "<img id=\"icon\" src=\"$iconimgsrc\" alt=\"$iconimgalt\" />");
     }
 
+    # force to no for editable version
+    if ($editable) {
+        $robots = "no";
+    }
     $metas{'robots'} = "${robots}index,${robots}follow";
 
     my $meta_elements = join "\n",
@@ -317,7 +337,7 @@ sub page_modtime {
     my ($p) = @_;
     my $pp = "$pagedir/$p";
     (-r "$pp" && -f "$pp")
-        ? (("$subversion" eq "yes") ? `$svn pg modtime $pp` : (stat($pp))[9])
+        ? ($use_subversion ? `$svn pg modtime $pp` : (stat($pp))[9])
         : 0;
 }
 
@@ -581,6 +601,24 @@ sub obfuscate_mailto {
     "<a href=\"mailto:$email?subject=$page\">$link</a>";
 }
 
+sub img_link {
+    my ($uri, $text) = @_;
+    if ($uri !~ m/^https?:/) {
+        $uri = "static/$uri";
+    }
+    "<img src=\"$uri\" alt=\"$text\" />";
+}
+
+sub href_link {
+    my ($uri, $text) = @_;
+    if ($uri !~ m/^https?:/) {
+        $uri = "static/$uri";
+    } else {
+        $uri = "out?$uri";
+    }
+    "<a href=\"$uri\">$text</a>";
+}
+
 sub inline_markup {
     # obscure something so Google won't properly index it - like "Eric Raymond"
     # should this be "bracketing" markup instead? Matches only between "word"
@@ -643,25 +681,13 @@ sub inline_markup {
   <img src=\"$1\" alt=\"$5\" /></a>")#ge;
 
     # inline img link: [[uri.ext alt text]] where ext is img type
-    s#\[\[img (\S+\.(?:jpg|jpeg|gif|png))\s+(.+?)\]\]#hide(
-        "<img src=\"$1\" alt=\"$2\" />")#ge;
+    s#\[\[img (\S+\.(?:jpg|jpeg|gif|png))\s+(.+?)\]\]#hide(img_link($1,$2))#ge;
 
-    # Added local link types (missing the initial "http://"; these do not
-    # get an "out?" prepended.
-
-    # Non-local links
     # unnamed href link: [[uri]]
-    s#\[\[(https?://\S+?)\]\]#hide("<a href=\"out?$1\">$1</a>")#ge;
+    s#\[\[(\S+?)\]\]#hide(href_link($1,$1))#ge;
 
     # generic href link: [[url lots of link text]]
-    s#\[\[(https?://\S+?)\s+(.+?)\]\]#hide("<a href=\"out?$1\">$2</a>")#ge;
-
-    # Local links
-    # unnamed href link: [[uri]]
-    s#\[\[(\S+?)\]\]#hide("<a href=\"$1\">$1</a>")#ge;
-
-    # generic href link: [[url lots of link text]]
-    s#\[\[(\S+?)\s+(.+?)\]\]#hide("<a href=\"$1\">$2</a>")#ge;
+    s#\[\[(\S+?)\s+(.+?)\]\]#hide(href_link($1,$2))#ge;
 
     # ISBN ...
     # RFC ...
@@ -780,7 +806,7 @@ sub make_backup_page {
 
 sub run_svn {
     my @svn = ("$svn", @_);
-    if ($subversion eq "yes") {
+    if ($use_subversion) {
         system(@svn) == 0 or die "can't run @svn: $!";
     }
 }

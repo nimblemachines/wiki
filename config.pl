@@ -8,8 +8,7 @@
 ### Set up the config variables ###
 $webhamster = 'webhamster@example.com';
 $wikiname = "My Wiki";
-$defaultpage = "WelcomePage";
-$editscript = "wiki";
+$defaultpage = "WelcomeVisitors";
 $iconimgsrc = "_images/lambda";
 $iconimgalt = "lambda the ultimate!";
 $style = "style/screen";
@@ -30,12 +29,5 @@ $flickr_name = "nimblemachines";
     copyright => "All content on example.com is copyrighted. All rights are reserved."
     );
 
-# where pages and page archive are located
-# NOTE: you should copy _pages/ to pages/ (or something) and put your
-# pages/ under subversion!
-$pagedir = "pages";
-$archivedir = "$pagedir/archive";
-
 # really run subversion commands; default to no
-$subversion = "no";
-$svn = "/usr/local/bin/svn";
+$use_subversion = "no";
