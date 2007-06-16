@@ -2,7 +2,6 @@
 
 User-agent: *
 Disallow: /static/
-Disallow: /style/
 Disallow: /wiki?edit=
 Disallow: /wiki?diff=
 Disallow: /wiki?search=
