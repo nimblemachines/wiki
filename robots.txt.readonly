@@ -1,10 +1,7 @@
 # $Id$
 
 User-agent: *
-Disallow: /files/
-Disallow: /images/
-Disallow: /pages/
-Disallow: /photos/
+Disallow: /static/
 Disallow: /style/
 Disallow: /wiki?edit=
 Disallow: /wiki?diff=
