@@ -16,8 +16,10 @@ $interprefix = "[A-Za-z.]+";
 $interquery = "[A-Za-z0-9+_]+";
 
 $pagedir = "$ENV{'DOCUMENT_ROOT'}/pages";
+$archivedir = "$pagedir/archive";
+
 $use_subversion = 0;  # default to off
-$svn = "/usr/local/subversion-1.4/bin/svn";
+$svn = "/usr/local/bin/svn";
 
 ### Read in default configuration variables ###
 do "config.pl";
@@ -241,6 +243,12 @@ sub generate_xhtml {
         $iconimgsrc = "static/$iconimgsrc";
     }
 
+    # if "local" style is set, create another <link> for it
+    $localstyle = "";
+    if ($style) {
+        $localstyle = "\n<link rel=\"stylesheet\" href=\"static/$style\" type=\"text/css\" />";
+    }
+
     my $home_link = "";
     # only display icon if we're *not* editing
     if ($action ne "edit") {
@@ -271,7 +279,7 @@ Status: $http_status
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 $meta_elements
-<link rel="stylesheet" href="$style" type="text/css" />
+<link rel="stylesheet" href="style/screen" type="text/css" />$localstyle
 <title>$wikiname :: $title</title>
 </head>
 <body>

@@ -11,7 +11,6 @@ $wikiname = "My Wiki";
 $defaultpage = "WelcomeVisitors";
 $iconimgsrc = "_images/lambda";
 $iconimgalt = "lambda the ultimate!";
-$style = "style/screen";
 
 ## typographic style
 $convert_endash = 1;
@@ -30,4 +29,4 @@ $flickr_name = "nimblemachines";
     );
 
 # really run subversion commands; default to no
-$use_subversion = "no";
+$use_subversion = 0;
