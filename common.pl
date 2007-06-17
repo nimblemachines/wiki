@@ -11,7 +11,8 @@ $http_status = "200 Groovy";        # default is everything Ok
 
 # everything but the script name
 my @scriptpath = split '/', $ENV{'SCRIPT_NAME'};
-$scriptpath[-1] = "";    # null the last element
+pop @scriptpath;         # lose last bit of path, and trailing slash
+#$scriptpath[-1] = "";    # null the last element
 $pathprefix = join '/', @scriptpath;
 
 sub choke {
@@ -75,13 +76,21 @@ sub page_text {
     (-r "$file" && -f "$file") ? read_file($file) : "";
 }
 
+sub make_href {
+    my ($uri) = @_;
+    if ($uri =~ m/^https?:/) {
+        return "$uri";
+    } else {
+        return "$pathprefix/$uri";
+    }
+}
+        
 # XXX: do we still need to ever call this with action empty?
 sub script_href {
     my ($action, $page) = @_;
     my $href = "";
-    $page = "/$page" if $page;
-    $href = "$action$page" if $action;  # and nothing otherwise!
-    "${pathprefix}${href}";
+    $href = "$action/$page" if $action;  # and nothing otherwise!
+    "${pathprefix}/${href}";
 }
 
 sub scriptlink {
@@ -126,7 +135,7 @@ sub generate_xhtml {
     # only display icon if we're *not* editing
     if ($action ne "edit") {
         $home_link = scriptlink("page", $defaultpage,
-            "<img id=\"icon\" src=\"$pathprefix$iconimgsrc\" alt=\"$iconimgalt\" />");
+            "<img id=\"icon\" src=\"$pathprefix/$iconimgsrc\" alt=\"$iconimgalt\" />");
     }
 
     $metas{'robots'} = "${robots}index,${robots}follow";
@@ -148,7 +157,7 @@ Status: $http_status
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 $meta_elements
-<link rel="stylesheet" href="$pathprefix$style" type="text/css" />
+<link rel="stylesheet" href="$pathprefix/$style" type="text/css" />
 <title>$wikiname :: $title</title>
 </head>
 <body>
@@ -186,10 +195,10 @@ sub validator {
     push @footerlines, << "";
 <p>
   <a href="http://validator.w3.org/check/referer">
-    <img src="${pathprefix}_images/valid-xhtml10-blue" alt="Valid XHTML 1.0 Strict!" />
+    <img src="${pathprefix}/_images/valid-xhtml10-blue" alt="Valid XHTML 1.0 Strict!" />
   </a>
   <a href="http://jigsaw.w3.org/css-validator/check/referer">
-    <img src="${pathprefix}_images/valid-css-blue" alt="Valid CSS!" />
+    <img src="${pathprefix}/_images/valid-css-blue" alt="Valid CSS!" />
   </a>
 </p>
 
