@@ -931,7 +931,11 @@ sub gen_search_page {
     foreach (sort @matches) {
         $text .= "<li>" . make_wiki_link($_, $_) . "</li>\n";
     }
-    $content  = "<ul>\n$text</ul>\n" if $text;
+    if ($text) {
+        $content  = "<ul>\n$text</ul>\n";
+    } else {
+        $content  = "<p>No matches found.</p>\n";
+    }
     findfooter();
     validator();
     generate_xhtml($title, $heading, "no");
