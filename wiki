@@ -408,7 +408,7 @@ sub make_interwiki_link {
     $link_text =~ tr/+/ /;
 
     defined $interlink
-        ? "<a href=\"out?$interlink$query\">$link_text</a>"
+        ? "<a href=\"out/$interlink$query\">$link_text</a>"
         : "$prefix:$query";
 }
 
@@ -622,7 +622,7 @@ sub href_link {
     if ($uri !~ m/^https?:/) {
         $uri = "static/$uri";
     } else {
-        $uri = "out?$uri";
+        $uri = "out/$uri";
     }
     "<a href=\"$uri\">$text</a>";
 }
@@ -685,7 +685,7 @@ sub inline_markup {
 
     # flickr img link: [[uri.ext alt text]] where ext is img type
     s#\[\[img (http://static.flickr.com/([0-9]+)/([0-9]+)_([0-9a-f]+).jpg)\s+(.+?)\]\]#hide(
-        "<a href=\"out?http://www.flickr.com/photos/$flickr_name/$3/\">
+        "<a href=\"out/http://www.flickr.com/photos/$flickr_name/$3/\">
   <img src=\"$1\" alt=\"$5\" /></a>")#ge;
 
     # inline img link: [[uri.ext alt text]] where ext is img type
