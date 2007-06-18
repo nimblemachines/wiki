@@ -1,0 +1,47 @@
+#!/usr/bin/perl -w
+
+# $Id$
+
+# Return a page of links to pages that are referenced but don't exist.
+
+do "common.pl";
+
+# In the following code I use "map" when I do not have to capture a default
+# ($_) variable value for use deeper in the nesting, and "foreach" when I
+# do have to capture a value.
+
+%missing = ();
+
+opendir PAGES, "$pagedir" or die "can't opendir $pagedir: $!";
+foreach my $source
+    (grep { $_ !~ m/^\./ && -r "$pagedir/$_" && -f "$pagedir/$_" }
+          readdir PAGES) {
+    # no lines that start with whitespace
+    my $t = join '\n', (grep { m/^\S+/ } (split '\n', page_text($source)));
+    $t =~ s/\[\[.*?\]\]//go;                     # no explicit links
+    $t =~ s/\b$interprefix:$wikilink\b//go;      # no interwiki links
+    map { $missing{$_}{$source} = 1 }
+        (grep { ! -r "$pagedir/$_" || ! -f "$pagedir/$_" }
+         ($t =~ m/\b$wikilink\b/go));
+};
+
+
+closedir PAGES;
+
+@missing = ();
+foreach my $m (sort keys %missing) {
+    @sources = ();
+    map { push @sources, scriptlink("page", $_, $_) }
+        (sort keys %{$missing{$m}});
+
+    push @missing,
+        "<h2>" . scriptlinkclass("edit", $m, $m, "missing")
+        . "</h2>\n<ul>\n  <li>"
+        . (join "</li>\n  <li>", @sources) . "</li>\n</ul>\n";
+}
+
+$content = "<div class=\"missingpages\">\n" . (join "\n", @missing) . "</div>";
+
+findfooter();
+validator();
+generate_xhtml("Missing pages", "Referenced but missing pages", "no");
