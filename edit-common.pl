@@ -20,12 +20,6 @@ sub make_edit_page {
     <input type="text" name="comment" value="" size="75" />
   </p>
   <p>
-    If you've made only small changes - like to punctuation or spelling -
-    and don't want a new entry in RecentChanges - press Tweak.
-    Otherwise, to save changes and log RecentChanges, press Save.
-  </p>
-  <p>
-    <input type="submit" name="submit"  value="Tweak" />
     <input type="submit" name="submit"  value="Save" />
     <input type="reset"                 value="Revert" />
     <input type="submit" name="submit"  value="Cancel" />

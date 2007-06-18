@@ -15,8 +15,26 @@ $wikilink = "\\b(?:$wikiword){2,}\\b";
 $interprefix = "[A-Za-z.]+";
 $interquery = "[A-Za-z0-9+_]+";
 
-### Read in configuration variables ###
+$pagedir = "$ENV{'DOCUMENT_ROOT'}/pages";
+$archivedir = "$pagedir/archive";
+
+$use_subversion = 0;  # default to off
+$svn = "/usr/local/bin/svn";
+
+### Read in default configuration variables ###
 do "config.pl";
+
+### Read in site-custom configuration variables ###
+do "$ENV{'DOCUMENT_ROOT'}/config.pl";
+
+if ($ENV{'READONLY'}) {
+    $editable = 0;
+    $use_subversion = 0;   # force off for readonly
+} else {
+    $editable = 1;
+    $wikiname = "Edit $wikiname";      # remind us
+    # don't force use of subversion either way
+}
 
 sub unescape_uri {
     $_ = shift;
@@ -38,7 +56,6 @@ sub escape_uri {
 sub escape_html {
     s/&/&amp;/g;
     s/</&lt;/g;
-#    s/>/&gt;/g;
 }
 
 sub parse_http_data {
@@ -127,8 +144,6 @@ sub dispatch_on_action {
 sub do_init {
     $script = (split '/', $ENV{'SCRIPT_NAME'})[-1];     # keep only last part
 
-    $editable = $script eq $editscript;
-
     $method = $ENV{'REQUEST_METHOD'};
     if ($method =~ m/post/i){ 
         read(STDIN, my $form, $ENV{'CONTENT_LENGTH'});
@@ -184,8 +199,7 @@ sub do_request {
 
     # $action will match show" ...
     $method =~ m/post/i
-        # both Save & Tweak buttons save the edit
-        && $form{'submit'} =~ m/(save|tweak)/i
+        && $form{'submit'} =~ m/save/i
         && do_save() != 0
         && return;
 
@@ -224,6 +238,17 @@ sub generate_xhtml {
 
     $heading = scriptlink("search", $page, "$title") unless $heading;
 
+    # if not using a default icon, rewrite URI to get site's image dir
+    if ($iconimgsrc !~ m/^_images/) {
+        $iconimgsrc = "static/$iconimgsrc";
+    }
+
+    # if "local" style is set, create another <link> for it
+    $localstyle = "";
+    if ($style) {
+        $localstyle = "\n<link rel=\"stylesheet\" href=\"static/$style\" type=\"text/css\" />";
+    }
+
     my $home_link = "";
     # only display icon if we're *not* editing
     if ($action ne "edit") {
@@ -231,6 +256,10 @@ sub generate_xhtml {
             "<img id=\"icon\" src=\"$iconimgsrc\" alt=\"$iconimgalt\" />");
     }
 
+    # force to no for editable version
+    if ($editable) {
+        $robots = "no";
+    }
     $metas{'robots'} = "${robots}index,${robots}follow";
 
     my $meta_elements = join "\n",
@@ -250,7 +279,7 @@ Status: $http_status
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 $meta_elements
-<link rel="stylesheet" href="$style" type="text/css" />
+<link rel="stylesheet" href="style/screen" type="text/css" />$localstyle
 <title>$wikiname :: $title</title>
 </head>
 <body>
@@ -316,7 +345,7 @@ sub page_modtime {
     my ($p) = @_;
     my $pp = "$pagedir/$p";
     (-r "$pp" && -f "$pp")
-        ? (("$subversion" eq "yes") ? `$svn pg modtime $pp` : (stat($pp))[9])
+        ? ($use_subversion ? `$svn pg modtime $pp` : (stat($pp))[9])
         : 0;
 }
 
@@ -345,15 +374,7 @@ sub findfooter {
         . " for page titles or text, browse "
         . scriptlink("show", "RecentChanges", "RecentChanges")
         . ", or return to " . scriptlink("show", $defaultpage, $defaultpage);
-
-#Search for &nbsp;$searchform
-#Pages like &nbsp;$namesearchform
 }
-
-#  <a href="http://www.spreadfirefox.com/?q=affiliates&amp;id=0&amp;t=62">
-#    <img src="http://sfx-images.mozilla.org/affiliates/Buttons/110x32/take.gif"
-#         alt="Get Firefox!" title="Get Firefox!" />
-#  </a>
 
 sub validator {
     if ($editable) {
@@ -588,6 +609,24 @@ sub obfuscate_mailto {
     "<a href=\"mailto:$email?subject=$page\">$link</a>";
 }
 
+sub img_link {
+    my ($uri, $text) = @_;
+    if ($uri !~ m/^https?:/) {
+        $uri = "static/$uri";
+    }
+    "<img src=\"$uri\" alt=\"$text\" />";
+}
+
+sub href_link {
+    my ($uri, $text) = @_;
+    if ($uri !~ m/^https?:/) {
+        $uri = "static/$uri";
+    } else {
+        $uri = "out?$uri";
+    }
+    "<a href=\"$uri\">$text</a>";
+}
+
 sub inline_markup {
     # obscure something so Google won't properly index it - like "Eric Raymond"
     # should this be "bracketing" markup instead? Matches only between "word"
@@ -650,25 +689,13 @@ sub inline_markup {
   <img src=\"$1\" alt=\"$5\" /></a>")#ge;
 
     # inline img link: [[uri.ext alt text]] where ext is img type
-    s#\[\[img (\S+\.(?:jpg|jpeg|gif|png))\s+(.+?)\]\]#hide(
-        "<img src=\"$1\" alt=\"$2\" />")#ge;
+    s#\[\[img (\S+\.(?:jpg|jpeg|gif|png))\s+(.+?)\]\]#hide(img_link($1,$2))#ge;
 
-    # Added local link types (missing the initial "http://"; these do not
-    # get an "out?" prepended.
-
-    # Non-local links
     # unnamed href link: [[uri]]
-    s#\[\[(https?://\S+?)\]\]#hide("<a href=\"out?$1\">$1</a>")#ge;
+    s#\[\[(\S+?)\]\]#hide(href_link($1,$1))#ge;
 
     # generic href link: [[url lots of link text]]
-    s#\[\[(https?://\S+?)\s+(.+?)\]\]#hide("<a href=\"out?$1\">$2</a>")#ge;
-
-    # Local links
-    # unnamed href link: [[uri]]
-    s#\[\[(\S+?)\]\]#hide("<a href=\"$1\">$1</a>")#ge;
-
-    # generic href link: [[url lots of link text]]
-    s#\[\[(\S+?)\s+(.+?)\]\]#hide("<a href=\"$1\">$2</a>")#ge;
+    s#\[\[(\S+?)\s+(.+?)\]\]#hide(href_link($1,$2))#ge;
 
     # ISBN ...
     # RFC ...
@@ -690,7 +717,6 @@ sub render_body {
     # XXX if we do inline on a per-para basis, we can "catch" dangling
     # markup that spans para boundaries. I wonder if everything shouldn't
     # be wrapped in the foreach by para.
-#    inline_markup();
 
     # we're going to do "paragraph" markup delimited with multiple newlines
     foreach (split /\n{2,}/, $_) {
@@ -759,12 +785,6 @@ sub make_edit_page {
     <input type="text" name="comment" value="" size="75" />
   </p>
   <p>
-    If you've made only small changes - like to punctuation or spelling -
-    and don't want a new entry in RecentChanges - press Tweak.
-    Otherwise, to save changes and log RecentChanges, press Save.
-  </p>
-  <p>
-    <input type="submit" name="submit"  value="Tweak" />
     <input type="submit" name="submit"  value="Save" />
     <input type="reset"                 value="Revert" />
     <input type="submit" name="submit"  value="Cancel" />
@@ -794,7 +814,7 @@ sub make_backup_page {
 
 sub run_svn {
     my @svn = ("$svn", @_);
-    if ($subversion eq "yes") {
+    if ($use_subversion) {
         system(@svn) == 0 or die "can't run @svn: $!";
     }
 }
@@ -819,8 +839,10 @@ to merge your changes.
         return -1;      # we failed to save, so don't do a "show"
     }
 
-    # check if user wants to delete the page
-    if ($form{'edittext'} =~ m/chainsaw kitty/i) {
+    # check if user wants to delete the page - edittext has to consist
+    # solely of the words "chainsaw kitty"
+
+    if ($form{'edittext'} =~ m/^chainsaw kitty$/i) {
         run_svn("rm", "-q", "$pagedir/$page");
         run_svn("ci", "-q", "-m", "wiki: deleted $page", "$pagedir/");
         $page = $defaultpage;        # gotta go somewhere!
@@ -866,12 +888,9 @@ to merge your changes.
     my $ip = $ENV{'REMOTE_ADDR'};
     my $changed = "$page ... $stamp ... $ip";
 
-    # tweak will save edit but not affect RecentChanges
-    if ($form{'submit'} =~ m/save/i) {
-        # prefix existing contents of RecentChanges with newest entry.
-        my $contents = $changed . "\n\n" . page_text("RecentChanges");
-        write_file("$pagedir/RecentChanges", $contents);
-    }
+    # prefix existing contents of RecentChanges with newest entry.
+    my $contents = $changed . "\n\n" . page_text("RecentChanges");
+    write_file("$pagedir/RecentChanges", $contents);
 
     # update modtime property
     run_svn("ps", "-q", "modtime", "$new_modtime", "$pagedir/$page");
@@ -1005,7 +1024,6 @@ sub print_debug_values {
     }
     print STDERR "\n:: VARIABLES ::\n";
     print STDERR "script = $script\n";
-#    print STDERR "base = $base\n";
     print STDERR "page = $page\n";
     print STDERR "action = $action\n";
 }

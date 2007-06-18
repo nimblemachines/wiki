@@ -1,0 +1,4 @@
+# $Id$
+
+User-agent: *
+Disallow: /

@@ -2,8 +2,26 @@
 
 $| = 1;         # flush after each print
 
+### Set defaults ###
+$pagedir = "$ENV{'DOCUMENT_ROOT'}/pages";
+$archivedir = "$pagedir/archive";
+$use_subversion = 0;  # default to off
+$svn = "/usr/local/bin/svn";
+
 ### Read in configuration variables ###
 do "config.pl";
+
+### Read in site-custom configuration variables ###
+do "$ENV{'DOCUMENT_ROOT'}/config.pl";
+
+if ($ENV{'READONLY'}) {
+    $editable = 0;
+    $use_subversion = 0;   # force off for readonly
+} else {
+    $editable = 1;
+    $wikiname = "Edit $wikiname";      # remind us
+    # don't force use of subversion either way
+}
 
 $content = "";
 $http_status = "200 Groovy";        # default is everything Ok
@@ -131,6 +149,17 @@ sub generate_xhtml {
 
     $heading = scriptlink("search", $page, "$title") unless $heading;
 
+    # if not using a default icon, rewrite URI to get site's image dir
+    if ($iconimgsrc !~ m/^_images/) {
+        $iconimgsrc = "static/$iconimgsrc";
+    }
+
+    # if "local" style is set, create another <link> for it
+    $localstyle = "";
+    if ($style) {
+        $localstyle = "\n<link rel=\"stylesheet\" href=\"static/$style\" type=\"text/css\" />";
+    }
+
     my $home_link = "";
     # only display icon if we're *not* editing
     if ($action ne "edit") {
@@ -138,6 +167,10 @@ sub generate_xhtml {
             "<img id=\"icon\" src=\"$pathprefix/$iconimgsrc\" alt=\"$iconimgalt\" />");
     }
 
+    # force to no for editable version
+    if ($editable) {
+        $robots = "no";
+    }
     $metas{'robots'} = "${robots}index,${robots}follow";
 
     my $meta_elements = join "\n",
@@ -157,7 +190,7 @@ Status: $http_status
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 $meta_elements
-<link rel="stylesheet" href="$pathprefix/$style" type="text/css" />
+<link rel="stylesheet" href="style/screen" type="text/css" />$localstyle
 <title>$wikiname :: $title</title>
 </head>
 <body>

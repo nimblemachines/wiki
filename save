@@ -7,7 +7,7 @@ do "edit-common.pl";
 
 sub run_svn {
     my @svn = ("$svn", @_);
-    if ($subversion eq "yes") {
+    if ($use_subversion) {
         system(@svn) == 0 or die "can't run @svn: $!";
     }
 }
@@ -41,8 +41,9 @@ to merge your changes.
         return -1;      # we failed to save, so don't do a "show"
     }
 
-    # check if user wants to delete the page
-    if ($form{'edittext'} =~ m/chainsaw kitty/i) {
+    # check if user wants to delete the page - edittext has to consist
+    # solely of the words "chainsaw kitty"
+    if ($form{'edittext'} =~ m/^chainsaw kitty$/i) {
         run_svn("rm", "-q", "$pagedir/$page");
         run_svn("ci", "-q", "-m", "wiki: deleted $page", "$pagedir/");
         $page = $defaultpage;        # gotta go somewhere!
@@ -88,12 +89,9 @@ to merge your changes.
     my $ip = $ENV{'REMOTE_ADDR'};
     my $changed = "$page ... $stamp ... $ip";
 
-    # tweak will save edit but not affect RecentChanges
-    if ($form{'submit'} =~ m/save/i) {
-        # prefix existing contents of RecentChanges with newest entry.
-        my $contents = $changed . "\n\n" . page_text("RecentChanges");
-        write_file("$pagedir/RecentChanges", $contents);
-    }
+    # prefix existing contents of RecentChanges with newest entry.
+    my $contents = $changed . "\n\n" . page_text("RecentChanges");
+    write_file("$pagedir/RecentChanges", $contents);
 
     # update modtime property
     run_svn("ps", "-q", "modtime", "$new_modtime", "$pagedir/$page");
