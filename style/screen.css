@@ -143,6 +143,21 @@ a.missing {
 /*  color: #cc00cc; */
 }
 
+div.missingpages h2 {
+  margin-bottom: 0;
+/*  border: 1px solid green; */
+}
+
+div.missingpages ul {
+  margin-top: 0;
+/*  list-style-image: none;  /* no ugly bullets */
+/*  border: 1px solid red; */
+}
+
+div.missingpages li {
+  display: block;  /* trying to turn off the bullet above doesn't work! */
+}
+
 blockquote {
   margin: 15px 30px 0 10px;
   padding-left: 20px;

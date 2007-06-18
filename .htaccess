@@ -27,7 +27,7 @@ Options ExecCGI FollowSymLinks
   SetHandler cgi-script
 </Files>
 
-<Files out>
+<Files missing>
   SetHandler cgi-script
 </Files>
 

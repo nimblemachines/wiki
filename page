@@ -4,11 +4,6 @@
 
 #use strict;
 
-$wikiword = "I|A|[A-Z][a-z]+";
-$wikilink = "\\b(?:$wikiword){2,}\\b";
-$interprefix = "[A-Za-z.]+";
-$interquery = "[A-Za-z0-9+_]+";
-
 ### Read in common code ###
 do "common.pl";
 
@@ -154,7 +149,7 @@ sub hide {
 }
 
 sub convert_wiki_links {
-    s/($wikilink)/make_wiki_link($1)/geo;
+    s/\b($wikilink)\b/make_wiki_link($1)/geo;
 }
 
 sub convert_interwiki_links {

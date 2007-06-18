@@ -2,6 +2,11 @@
 
 $| = 1;         # flush after each print
 
+$wikiword = "I|A|[A-Z][a-z]+";
+$wikilink = "(?:$wikiword){2,}";
+$interprefix = "[A-Za-z.]+";
+$interquery = "[A-Za-z0-9+_]+";
+
 ### Set defaults ###
 $pagedir = "$ENV{'DOCUMENT_ROOT'}/pages";
 $archivedir = "$pagedir/archive";
@@ -154,6 +159,8 @@ sub generate_xhtml {
         $iconimgsrc = "static/$iconimgsrc";
     }
 
+    $defaultstyle = "<link rel=\"stylesheet\" href=\"$pathprefix/style/screen\" type=\"text/css\" />";
+
     # if "local" style is set, create another <link> for it
     $localstyle = "";
     if ($style) {
@@ -190,7 +197,7 @@ Status: $http_status
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 $meta_elements
-<link rel="stylesheet" href="style/screen" type="text/css" />$localstyle
+$defaultstyle$localstyle
 <title>$wikiname :: $title</title>
 </head>
 <body>
