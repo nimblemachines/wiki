@@ -26,7 +26,6 @@ foreach my $source
          ($t =~ m/\b$wikilink\b/go));
 };
 
-
 closedir PAGES;
 
 @missing = ();
