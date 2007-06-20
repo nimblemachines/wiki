@@ -63,6 +63,16 @@ sub choke {
     exit;
 }
 
+sub escape_uri {
+    my ($uri) = @_;
+
+    # XXX is this actually kosher?
+    # escape a minimal set - probably more chars are needed here
+    $uri =~ s/([&=+?'"\000-\037\177])/"%" . unpack("H2", $1)/ge;  # bug'd
+    $uri =~ tr/ /+/;    # may have to be %20
+    $uri;
+}
+
 sub unescape_uri {
     my ($uri) = @_;
     return undef unless defined $uri;
