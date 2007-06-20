@@ -2,10 +2,11 @@
 
 User-agent: *
 Disallow: /static/
-Disallow: /wiki?edit=
-Disallow: /wiki?diff=
-Disallow: /wiki?search=
-Disallow: /wiki?name=
+Disallow: /edit/
+Disallow: /save/
+Disallow: /diff/
+Disallow: /search
+Disallow: /history/
 
 User-agent: BecomeBot
 Disallow: /
