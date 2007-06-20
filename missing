@@ -6,12 +6,7 @@
 
 do "common.pl";
 
-# In the following code I use "map" when I do not have to capture a default
-# ($_) variable value for use deeper in the nesting, and "foreach" when I
-# do have to capture a value.
-
 %missing = ();
-
 opendir PAGES, "$pagedir" or die "can't opendir $pagedir: $!";
 foreach my $source
     (grep { $_ !~ m/^\./ && -r "$pagedir/$_" && -f "$pagedir/$_" }
@@ -21,27 +16,31 @@ foreach my $source
         (grep { ! m/^(\s+|\+\+)/ } (split '\n', page_text($source)));
     $t =~ s/\[\[.*?\]\]//go;                     # no explicit links
     $t =~ s/\b$interprefix:$wikilink\b//go;      # no interwiki links
-    map { $missing{$_}{$source} = 1 }
+    foreach
         (grep { !(-r "$pagedir/$_" && -f "$pagedir/$_") }
-         ($t =~ m/\b$wikilink\b/go));
+         ($t =~ m/\b$wikilink\b/go))
+        { $missing{$_}{$source} = 1 };
 };
-
 closedir PAGES;
 
 @missing = ();
 foreach my $m (sort keys %missing) {
     @sources = ();
-    map { push @sources, scriptlink("page", $_, $_) }
-        (sort keys %{$missing{$m}});
+    foreach
+        (sort keys %{$missing{$m}})
+        { push @sources,
+              "  <li>" . hyper($_, script_href("page", $_)) . "</li>" };
 
     push @missing,
-        "<h2>" . scriptlinkclass("edit", $m, $m, "missing")
-        . "</h2>\n<ul>\n  <li>"
-        . (join "</li>\n  <li>", @sources) . "</li>\n</ul>\n";
+        "<h2>" . hyper($m, script_href("edit", $m), "missing")
+        . "</h2>\n<ul>\n"
+        . (join "\n", @sources) . "\n</ul>";
 }
 
-$content = "<div class=\"missingpages\">\n" . (join "\n", @missing) . "</div>";
-my $count = scalar(@missing);
+$content = "<div class=\"missingpages\">\n"
+    . (join "\n", @missing) . "\n</div>";
+
+my $count = @missing;
 
 findfooter();
 validator();

@@ -2,16 +2,15 @@
 
 # $Id$
 
-#use strict;
-
 ### Read in common code ###
 do "common.pl";
 
 sub escape_uri {
     my ($uri) = @_;
 
+    # XXX is this actually kosher?
     # escape a minimal set - probably more chars are needed here
-    $uri =~ s/([&=+?'"\000-\037\177])/"%" . unpack("H2", $1)/ge;
+    $uri =~ s/([&=+?'"\000-\037\177])/"%" . unpack("H2", $1)/ge;  # bug'd
     $uri =~ tr/ /+/;    # may have to be %20
     $uri;
 }
@@ -27,12 +26,7 @@ sub init_interwiki {
 }
 
 sub do_init {
-    # normal form of wiki URI is action/page, except for search, which is
-    # search?<type>=<searchtext>.
-    $page = substr($ENV{'PATH_INFO'}, 1);  # drop leading '/'
-    $page ||= $defaultpage;     # <script>/  -> <script>/DefaultPage
-
-    my $search_href = script_href("search", "");
+    my $search_href = script_href("search");
 
     $textsearchform = <<"";
 <form action="$search_href" method="get" enctype="application/x-www-form-urlencoded">
@@ -47,74 +41,18 @@ sub do_init {
     init_interwiki();
 }
 
-sub do_request {
-    do_init();
-#    print_debug_values();
-    do_show();
-}
-
-sub fancy_title {
-    my ($title) = @_;
-
-    # Separate wikiwords with spaces. I split this into *two* expressions
-    # because it wasn't working when I folded them together. My conjecture
-    # is that the one-letter REs (I and A) need to match both at the
-    # beginning and the end of a wikiword (since they are only one letter
-    # long); but the RE matching rules only lets them match once.
-    $title =~ s/([a-z])([A-Z])/$1 $2/g;    # end of one, start of another
-    $title =~ s/([IA])([A-Z])/$1 $2/g;     # special wikiwords I and A
-    $title
-}
-
-# This bit of code is ugly because it is being passed an array of references
-# to scalars that are to be modified. Hence the $$n everywhere.
-sub leading_zero {
-    my @nums = @_;
-    foreach my $n (@nums) {
-        $$n = "0$$n" if ($$n < 10);
-    }
-}
-
-sub pretty_time {
-    my ($time) = @_;
-    my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday) = localtime($time);
-    $year += 1900;
-    my $month = (qw(January February March April May June July
-                    August September October November December))[$mon];
-    $mon = $mon + 1;    # was indexed from 0
-    leading_zero \($mon, $mday, $hour, $min, $sec);
-    ($year, $mon, $month, $mday, $hour, $min, $sec);
-}
-
-sub stamp {
-    my ($time) = @_;
-    my ($year, $mon, $month, $mday, $hour, $min, $sec) = pretty_time($time);
-    "$year $month $mday $hour:$min";
-}
-
 sub iso_timestamp {
     my ($time) = @_;
     my ($year, $mon, $month, $mday, $hour, $min, $sec) = pretty_time($time);
     "$year-$mon-$mday" . "T" . "$hour:$min:$sec";
 }
 
-# If the file doesn't exist or isn't readable, use a modtime of 0.
-# We're long past 1970, so this should be ok. ;-)
-# If $subversion = "yes", get time by reading the svn property "modtime" on
-# the file; otherwise just get its modtime.
-sub page_modtime {
-    my ($p) = @_;
-    my $pp = "$pagedir/$p";
-    (-r "$pp" && -f "$pp")
-        ? ($use_subversion ? `$svn pg modtime $pp` : (stat($pp))[9])
-        : 0;
-}
-
 sub editfooter {
-    my $edittext = scriptlink("edit", $page, "Edit") . " this page";
+    my $edittext = hyper("Edit", script_href("edit", $page)) . " this page";
     my $modtime = page_modtime("$page");
     my $modtext  = ($modtime != 0)
-        ? " (last edited " .  scriptlink("diff", $page, stamp($modtime)) . ")"
+        ? " (last edited "
+          .  hyper(stamp($modtime), script_href("diff", $page)) . ")"
         : "";
 
     push @footerlines, "$edittext$modtext";
@@ -129,14 +67,11 @@ sub make_interwiki_link {
     my ($prefix, $query) = @_;
     my $interlink = $intermap{$prefix};
 
-    # can use _ or + to encode spaces into query
-    my $query_with_spaces = $query;
-    $query_with_spaces =~ tr/_/ /;
-    $query_with_spaces =~ tr/+/ /;
-    my $query_uri = escape_uri($query_with_spaces);
+    # the human-readable version of query
+    (my $link_text = $query) =~ tr/_+/  /;
 
     defined $interlink
-        ? "<a href=\"out?$interlink$query_uri\">$query_with_spaces</a>"
+        ? "<a href=\"$pathprefix/out/$interlink$query\">$link_text</a>"
         : "$prefix:$query";
 }
 
@@ -212,7 +147,10 @@ sub listend {
 }
 
 # Support for flickr badges.
-
+#
+# Markup is
+# "[flickr" [<num>] [ ":all" ] [ ":latest" ] [ <tags> ] "]"
+#
 # The flickr script generate images each inside a div with class
 # "flickr_badge_image".
 #
@@ -235,21 +173,22 @@ sub listend {
 #     tag=<tag>
 
 sub flickr_badge {
-    my ($count, $whose, $which, $tags) = @_;
+    my ($opts) = @_;
 
+    my ($count, $opt, $tags) = $opts =~ m/(\d*)([:\w]*)\s*([ \w'"]*)/; # '
     $count = 5 if not $count;
-    $which = "random" if not $which;
+    $which = ($opt =~ m/:latest/) ? "latest" : "random";
+    $whose = ($opt =~ m/:all/)    ? "all"    : "user";
 
     # init hash for query string
     my %q = (
              count => $count,
-             size  => 't',          # 's' for small squares; 'm' for biggies
+             size  => "t",          # "s" for small squares; "m" for biggies
              display => $which,
-             layout => 'x'          # this gives us div's rather than td's
+             layout => "x"          # this gives us div's rather than td's
              );
 
-    if ($whose eq '') {
-        $whose = 'user';
+    if ($whose eq "user") {
         $q{'user'} = "$flickr_user";
     }
 
@@ -257,24 +196,17 @@ sub flickr_badge {
     my @tags = split / +/, $tags;
 
     # ...then escape the rest for query string
-    foreach my $t (@tags) {
-        $t = escape_uri($t);
-    }
+    foreach (@tags) { $_ = escape_uri($_) }
 
     if (@tags) {
-        $q{'tag'} = join '+', @tags;
-        $whose .= '_tag';
+        $q{'tag'} = join "+", @tags;
+        $whose .= "_tag";
     }
 
     $q{'source'} = $whose;
 
-    my @pairs = ();
-    while (my ($k, $v) = each %q) {
-        push @pairs, "$k=$v";
-    }
-
     # Finally!
-    my $query = join "&amp;", @pairs;
+    my $query = join "&amp;", (map "$_=$q{$_}", (sort keys %q));
 
     return <<"";
 <div class="flickr_badge">
@@ -310,13 +242,14 @@ sub block_markup {
         s/^\[namesearch\]/$namesearchform/ ||
         s/^\[textsearch\]/$textsearchform/ ||
 
+        # comments, using Haskell notation: --
         # daf: mip pointed out that this breaks signatures (--DavidFrech)
         # at the starts of lines, so we need different markup.
-        # comments, using Haskell notation: --
+        # using ++ instead!
         s/^\+\+.*//s ||
 
         # generate a flickr badge, with user or public content
-        s/^\[flickr(([0-9]+))?(:(all))?(:(latest))?(\s+(.*))?\]/flickr_badge($2, $4, $6, $8)/e ||
+        s/^\[flickr(.*)\]/flickr_badge($1)/e ||
 
         # nothing else matches, make it a p
         s#^(.*)#<p$class>$1</p>#s;
@@ -339,18 +272,16 @@ sub obfuscate_mailto {
 
 sub img_link {
     my ($uri, $text) = @_;
-    if ($uri !~ m/^https?:/) {
-        $uri = "static/$uri";
-    }
+    $uri = "$pathprefix/static/$uri" if ($uri !~ m/^https?:/);
     "<img src=\"$uri\" alt=\"$text\" />";
 }
 
 sub href_link {
     my ($uri, $text) = @_;
-    if ($uri !~ m/^https?:/) {
-        $uri = "static/$uri";
+    if ($uri =~ m/^https?:/) {
+        $uri = "$pathprefix/out/$uri";
     } else {
-        $uri = "out?$uri";
+        $uri = "$pathprefix/static/$uri";
     }
     "<a href=\"$uri\">$text</a>";
 }
@@ -397,7 +328,7 @@ sub inline_markup {
         s#([a-zA-Z0-9.?!,;:_])"($|\s+|[])},.?!;:-]|</[a-z]+>)#$1&rdquo;$2#g;
         s#([a-zA-Z0-9.?!,;:_])'($|\s+|[])},.?!;:-]|</[a-z]+>)#$1&rsquo;$2#g;
 
-        s/([]a-zA-Z0-9])'([a-zA-Z0-9])/$1&rsquo;$2/g;  # acting as an apostrophe
+        s/([]a-zA-Z0-9])'([a-zA-Z0-9])/$1&rsquo;$2/g;  # ' acting as an apostrophe
     }
 
     # obfuscated mailto links: [[mailto:email link text]]
@@ -413,7 +344,7 @@ sub inline_markup {
 
     # flickr img link: [[uri.ext alt text]] where ext is img type
     s#\[\[img (http://static.flickr.com/([0-9]+)/([0-9]+)_([0-9a-f]+).jpg)\s+(.+?)\]\]#hide(
-        "<a href=\"out?http://www.flickr.com/photos/$flickr_name/$3/\">
+        "<a href=\"$pathprefix/out/http://www.flickr.com/photos/$flickr_name/$3/\">
   <img src=\"$1\" alt=\"$5\" /></a>")#ge;
 
     # inline img link: [[uri.ext alt text]] where ext is img type
@@ -482,7 +413,7 @@ sub do_show {
             $_ = "$page doesn't exist. Why not create it by editing the text of this page?\n";
         } else {
             $_ = "Sorry, that page doesn't exist.\n";
-            $http_status = "404 Not found";
+            $http_response_headers{'Status'} = "404 Not found";
         }
         $robots = "no";
     }
@@ -490,34 +421,5 @@ sub do_show {
     render_page($robots);
 }
 
-sub do_choke {
-    $_ = read_file("xyzzy");
-}
-
-sub print_debug_values {
-    print STDERR "\n\n======================== new CGI call =========================\n";
-    print STDERR ":: ENV ::\n";
-    foreach (sort keys %ENV) {
-        print STDERR "$_ = $ENV{$_}\n";
-    }
-    print STDERR "\n:: Query ::\n";
-    foreach (sort keys %query) {
-        print STDERR "$_ = $query{$_}\n";
-    }
-    print STDERR "\n:: Form ::\n";
-    foreach (sort keys %form) {
-        print STDERR "$_ = $form{$_}\n";
-    }
-    print STDERR "\n:: Intermap ::\n";
-    foreach (sort keys %intermap) {
-        print STDERR "$_ = $intermap{$_}\n";
-    }
-    print STDERR "\n:: VARIABLES ::\n";
-    print STDERR "script = $script\n";
-#    print STDERR "base = $base\n";
-    print STDERR "page = $page\n";
-    print STDERR "action = $action\n";
-}
-
-do_request();
-#do_choke();
+do_init();
+do_show();

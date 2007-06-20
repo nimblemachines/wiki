@@ -48,7 +48,7 @@ sub escape_uri {
     my ($uri) = @_;
 
     # escape a minimal set - probably more chars are needed here
-    $uri =~ s/([&=+?'"\000-\037\177])/"%" . unpack("H2", $1)/ge;
+    $uri =~ s/([&=+?'"\000-\037\177])/"%" . unpack("H2", $1)/ge;  # bug'd
     $uri =~ tr/ /+/;    # may have to be %20
     $uri;
 }
@@ -403,9 +403,8 @@ sub make_interwiki_link {
     my ($prefix, $query) = @_;
     my $interlink = $intermap{$prefix};
 
-    my $link_text = $query;    # the human-readable version of query
-    $link_text =~ tr/_/ /;
-    $link_text =~ tr/+/ /;
+    # the human-readable version of query
+    (my $link_text = $query) =~ tr/_+/  /;
 
     defined $interlink
         ? "<a href=\"out?$interlink$query\">$link_text</a>"

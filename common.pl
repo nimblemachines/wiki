@@ -1,6 +1,8 @@
 # $Id$
 
-$| = 1;         # flush after each print
+#use strict;
+
+$| = 1;   # flush after each print
 
 $wikiword = "I|A|[A-Z][a-z]+";
 $wikilink = "(?:$wikiword){2,}";
@@ -28,37 +30,36 @@ if ($ENV{'READONLY'}) {
     # don't force use of subversion either way
 }
 
+# normal form of wiki URI is action/page, except for search, which is
+# search?<type>=<searchtext>.
+$page = substr($ENV{'PATH_INFO'}, 1);  # drop leading '/'
+$page ||= $defaultpage;     # <script>/  -> <script>/DefaultPage
+
 $content = "";
-$http_status = "200 Groovy";        # default is everything Ok
+%http_response_headers = (
+    "Content-Type" => "text/html",
+    "Status"       => "200 Groovy"        # default is everything Ok
+);
 @footerlines = ();
 
 # everything but the script name
 my @scriptpath = split '/', $ENV{'SCRIPT_NAME'};
-pop @scriptpath;         # lose last bit of path, and trailing slash
-#$scriptpath[-1] = "";    # null the last element
+my $script = pop @scriptpath;
 $pathprefix = join '/', @scriptpath;
 
 sub choke {
     my ($errortext) = @_;
     my $subject = escape_uri($errortext);
-    print <<EOT;
-Content-type: text/html
-
-<html>
-  <head>
-    <title>$wikiname :: An error occurred</title>
-  </head>
-  <body>
-    <h1>Something went terribly wrong</h1>
+    $http_response_headers{'Status'} = "500 Bad news";
+    $content = <<"";
     <p>An error occurred processing your last request.</p>
     <p>The error message was <em>$errortext</em>.</p>
     <p>Please <a href="mailto:$webhamster?subject=$subject">contact</a> the
        ding-dong responsible for this site with details about what you
        were doing when this happened.</p>
     <p>Thank you.</p>
-  </body>
-</html>
-EOT
+
+    generate_xhtml("An error occurred", "Something went terribly wrong", "no");
     exit;
 }
 
@@ -85,7 +86,7 @@ sub read_file {
     my ($filename) = @_;
     my $contents = "";
 
-    open F, "< $filename" or choke "open $filename (for reading) failed: $!";
+    open F, "< $filename" or choke("open $filename (for reading) failed: $!");
     local $/;  # slurp mode
     $contents = <F>;
     close F;
@@ -99,41 +100,86 @@ sub page_text {
     (-r "$file" && -f "$file") ? read_file($file) : "";
 }
 
-sub make_href {
-    my ($uri) = @_;
-    if ($uri =~ m/^https?:/) {
-        return "$uri";
-    } else {
-        return "$pathprefix/$uri";
+# If the file doesn't exist or isn't readable, use a modtime of 0.
+# We're long past 1970, so this should be ok. ;-)
+# If $subversion = "yes", get time by reading the svn property "modtime" on
+# the file; otherwise just get its modtime.
+sub page_modtime {
+    my ($p) = @_;
+    my $pp = "$pagedir/$p";
+    (-r "$pp" && -f "$pp")
+        ? ($use_subversion ? `$svn pg modtime $pp` : (stat($pp))[9])
+        : 0;
+}
+
+# This bit of code is ugly because it is being passed an array of references
+# to scalars that are to be modified. Hence the $$n everywhere.
+sub leading_zero {
+    my @nums = @_;
+    foreach my $n (@nums) {
+        $$n = "0$$n" if ($$n < 10);
     }
 }
-        
-# XXX: do we still need to ever call this with action empty?
+
+sub pretty_time {
+    my ($time) = @_;
+    my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday) = localtime($time);
+    $year += 1900;
+    my $month = (qw(January February March April May June July
+                    August September October November December))[$mon];
+    $mon = $mon + 1;    # was indexed from 0
+    leading_zero \($mon, $mday, $hour, $min, $sec);
+    ($year, $mon, $month, $mday, $hour, $min, $sec);
+}
+
+sub stamp {
+    my ($time) = @_;
+    my ($year, $mon, $month, $mday, $hour, $min, $sec) = pretty_time($time);
+    "$year $month $mday $hour:$min";
+}
+
+# XXX should this be called make_path or abs_path or something? Now that's
+# all it does!
 sub script_href {
-    my ($action, $page) = @_;
-    my $href = "";
-    $href = "$action/$page" if $action;  # and nothing otherwise!
-    "${pathprefix}/${href}";
+    return join "/", ${pathprefix}, @_;
 }
 
-sub scriptlink {
-    my ($action, $page, $linktext) = @_;
-    my $href = script_href($action, $page);
-    "<a href=\"$href\">$linktext</a>";
-}
-
-sub scriptlinkclass {
-    my ($action, $page, $linktext, $class) = @_;
-    my $href = script_href($action, $page);
-    "<a class=\"$class\" href=\"$href\">$linktext</a>";
+# make a hyperlink
+# called with linktext, href, optional class
+sub hyper {
+    my ($linktext, $href, $class) = @_;
+    $class = " class=\"$class\"" if $class;
+    "<a href=\"$href\"$class>$linktext</a>";
 }
 
 sub make_wiki_link {
     my ($page) = @_;
     (-r "$pagedir/$page" && -f "$pagedir/$page")
-        ? scriptlink("page", $page, $page)
-        : ($editable ? scriptlinkclass("edit", $page, $page, "missing")
+        ?              hyper($page, script_href("page", $page))
+        : ($editable ? hyper($page, script_href("edit", $page), "missing")
                      : "$page");
+}
+
+sub fancy_title {
+    my ($title) = @_;
+
+    # Separate wikiwords with spaces. I split this into *two* expressions
+    # because it wasn't working when I folded them together. My conjecture
+    # is that the one-letter REs (I and A) need to match both at the
+    # beginning and the end of a wikiword (since they are only one letter
+    # long); but the RE matching rules only lets them match once.
+    $title =~ s/([a-z])([A-Z])/$1 $2/g;    # end of one, start of another
+    $title =~ s/([IA])([A-Z])/$1 $2/g;     # special wikiwords I and A
+    $title
+}
+
+# Since we use HERE documents in the following code to quote chunks of HTML
+# - esp chunks that contain lots of interpolated variables AND double
+# quotes - and since here docs have squirrelly annoying trailing newlines,
+# here is a bit of code to neatly slice off those newlines.
+sub clean {
+    my ($str) = @_;
+    return substr($str, 0, -1);
 }
 
 sub generate_xhtml {
@@ -152,43 +198,43 @@ sub generate_xhtml {
     # get stuck in circles or do damage to the wiki. Only "normal"
     # (do_show) pages should be indexed.
 
-    $heading = scriptlink("search", $page, "$title") unless $heading;
+    $heading = hyper("$title", script_href("search?text=$page"))
+        unless $heading;
+
+    @styles = ( "style/screen" );
+    # if "local" style is set, create another <link> for it
+    push @styles, "static/$style" if $style;
 
     # if not using a default icon, rewrite URI to get site's image dir
-    if ($iconimgsrc !~ m/^_images/) {
-        $iconimgsrc = "static/$iconimgsrc";
-    }
+    $iconimgsrc = "static/$iconimgsrc" unless $iconimgsrc =~ m/^_images/;
 
-    $defaultstyle = "<link rel=\"stylesheet\" href=\"$pathprefix/style/screen\" type=\"text/css\" />";
-
-    # if "local" style is set, create another <link> for it
-    $localstyle = "";
-    if ($style) {
-        $localstyle = "\n<link rel=\"stylesheet\" href=\"static/$style\" type=\"text/css\" />";
-    }
-
-    my $home_link = "";
     # only display icon if we're *not* editing
-    if ($action ne "edit") {
-        $home_link = scriptlink("page", $defaultpage,
-            "<img id=\"icon\" src=\"$pathprefix/$iconimgsrc\" alt=\"$iconimgalt\" />");
-    }
+    my $home_link = ($script eq "edit")
+        ? ""
+        : hyper(clean(<<"IMG"), script_href("page", $defaultpage));
+<img id="icon" src="$pathprefix/$iconimgsrc" alt="$iconimgalt" />
+IMG
 
-    # force to no for editable version
-    if ($editable) {
-        $robots = "no";
-    }
+    $robots = "no" if $editable;
     $metas{'robots'} = "${robots}index,${robots}follow";
 
-    my $meta_elements = join "\n",
-        map "<meta name=\"$_\" content=\"$metas{$_}\" />", keys %metas;
+    my $meta_elements = join "\n", (map clean(<<"META"), keys %metas);
+<meta name="$_" content="$metas{$_}" />
+META
+
+    # combine into html link elems
+    my $stylesheets = join "\n", (map clean(<<"LINK"), @styles);
+<link rel="stylesheet" href="$pathprefix/$_" type="text/css" />
+LINK
 
     # string together footer lines, separated by <br />
     my $footer = join "<br />\n", @footerlines;
 
+    my $http_response_headers = join "\n",
+        (map "$_: $http_response_headers{$_}", keys %http_response_headers);
+
     print <<EOT;
-Content-type: text/html
-Status: $http_status
+$http_response_headers
 
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE html 
@@ -197,25 +243,25 @@ Status: $http_status
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 $meta_elements
-$defaultstyle$localstyle
+$stylesheets
 <title>$wikiname :: $title</title>
 </head>
 <body>
 
 <div id="header">
-  $home_link
-  <h1>$heading</h1>
-  <hr />
+$home_link
+<h1>$heading</h1>
+<hr />
 </div>
 
 <div id="content">
-  $content
+$content
 </div>
 
 <div id="footer">
-  <hr />
+<hr />
 
-  $footer
+$footer
 </div>
 
 </body>
@@ -224,15 +270,15 @@ EOT
 }
 
 sub findfooter {
-    push @footerlines, scriptlink("page", "SearchPage", "Search")
+    push @footerlines, hyper("Search", script_href("page", "SearchPage"))
         . " for page titles or text, browse "
-        . scriptlink("page", "RecentChanges", "RecentChanges")
-        . ", or return to " . scriptlink("page", $defaultpage, $defaultpage);
-
+        . hyper("RecentChanges", script_href("page", "RecentChanges"))
+        . ", or return to "
+        . hyper($defaultpage, script_href("page", $defaultpage));
 }
 
 sub validator {
-    push @footerlines, << "";
+    push @footerlines, <<"";
 <p>
   <a href="http://validator.w3.org/check/referer">
     <img src="${pathprefix}/_images/valid-xhtml10-blue" alt="Valid XHTML 1.0 Strict!" />
@@ -242,4 +288,14 @@ sub validator {
   </a>
 </p>
 
+}
+
+# Wired in that we redirect to rendering $page, and use a 303. Should this
+# be parameterizable?
+sub redirect {
+    my $href = script_href("page", $page);
+    $content = hyper($page, $href);
+    $http_response_headers{'Status'} = "303 See other";
+    $http_response_headers{'Location'} = $href;
+    generate_xhtml("Redirect", "Redirect", "no");
 }

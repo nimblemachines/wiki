@@ -15,24 +15,23 @@ sub filter_pages {
 
 sub do_text_search {
     my @matches = filter_pages($pagedir, sub { page_text($_) =~ m/$page/i });
-    gen_search_page("Pages matching $page",
-                    "Pages matching <em>$page</em>", @matches);
+    gen_search_page("Pages mentioning $page",
+                    "Pages mentioning <em>$page</em>", @matches);
 }
 
 sub do_name_search {
     my @matches = filter_pages($pagedir, sub { m/$page/i });
-    gen_search_page("Page names matching $page",
-                    "Page names matching <em>$page</em>", @matches);
+    gen_search_page("Page names containing $page",
+                    "Page names containing <em>$page</em>", @matches);
 }
 
 sub gen_search_page {
     my ($title, $heading, @matches) = @_;
-    my $text = "";
-    foreach my $m (sort @matches) {
-        $text .= "<li>" . make_wiki_link($m) . "</li>\n";
-    }
-    if ($text) {
-        $content  = "<ul>\n$text</ul>\n";
+    if (@matches) {
+        $content  = "<ul>\n"
+            .  (join "\n", (map { "  <li>" . make_wiki_link($_) . "</li>" }
+                                (sort @matches)))
+            . "\n</ul>\n";
     } else {
         $content  = "<p>No matches found.</p>\n";
     }

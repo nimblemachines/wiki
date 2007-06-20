@@ -3,14 +3,14 @@
 sub make_edit_page {
     my $text = page_text($page);
     my $mod = page_modtime($page);
-    my $action_href = script_href("show", $page);
+    my $action_href = script_href("save", $page);
 
     $content .= <<"" unless $text;
   <p>
     $page doesn't exist. Why not create it by entering some text below?
   </p>
 
-    $content .= <<"";
+    $content .= <<"";   # bug'd
 <form action="$action_href" method="post" enctype="application/x-www-form-urlencoded">
   <p>
     <textarea name="edittext" rows="25" cols="75">$text</textarea>

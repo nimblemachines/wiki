@@ -12,6 +12,15 @@ sub run_svn {
     }
 }
 
+sub write_file {
+    my ($filename, $contents) = @_;
+
+#    print STDERR "writing file $filename = $contents\n";
+    open F, "> $filename" or choke("open $filename (for writing) failed: $!");
+    print F $contents;
+    close F;
+}
+
 sub make_backup_page {
     my ($page, $modstring) = @_;
     my $file = "$pagedir/$page";
@@ -38,7 +47,7 @@ to merge your changes.
 </p>
 
         make_edit_page($edit);
-        return -1;      # we failed to save, so don't do a "show"
+        return "collided";      # we failed to save, so don't do a "show"
     }
 
     # check if user wants to delete the page - edittext has to consist
@@ -47,10 +56,10 @@ to merge your changes.
         run_svn("rm", "-q", "$pagedir/$page");
         run_svn("ci", "-q", "-m", "wiki: deleted $page", "$pagedir/");
         $page = $defaultpage;        # gotta go somewhere!
-        return 0;
+        return "ok";
     }
         
-    make_backup_page("$page", iso_timestamp("$mod_current"));
+#    make_backup_page("$page", iso_timestamp("$mod_current"));
 
     # convert time stamps - now honors <pre>
     my $stamp = stamp(time());
@@ -102,11 +111,28 @@ to merge your changes.
     # check in change to svn repo
     run_svn("ci", "-q", "-m", "wiki: $changed\ncomment: $form{'comment'}", "$pagedir/");
 
-    return 0;
+    return "ok";
 }
 
-$method = $ENV{'REQUEST_METHOD'};
-if ($method =~ m/post/i){ 
-    read(STDIN, my $form, $ENV{'CONTENT_LENGTH'});
-    %form = parse_http_data($form);
+# logic
+# GET save/<page>  redirect to show/<page>
+# POST save/<page>
+#    if Submit pushed, then
+#        try to save; if successful, redirect to show/<page>;
+#                     otherwise, collision, so stay at save/<page> and re-edit.
+#    else Cancel must have been pushed, so
+#        redirect to show/<page>
+#
+sub do_request {
+    my $method = $ENV{'REQUEST_METHOD'};
+    if ($method =~ m/post/i){ 
+        read(STDIN, my $form, $ENV{'CONTENT_LENGTH'});
+        %form = parse_http_data($form);
+
+        $form{'submit'} =~ m/save/i
+            && (do_save() eq "collided") && return;   # skip redirection
+    }
+    redirect();
 }
+
+do_request()
