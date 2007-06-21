@@ -378,11 +378,8 @@ sub render_body {
 sub render_page {
     my ($robots) = @_;
     render_body();
-    if ($editable) {
-        editfooter();
-    } else {
-        commentfooter();
-    }
+    editfooter() if $editable;
+    commentfooter() unless $editable;
     findfooter();
     validator();
     generate_xhtml(fancy_title($page), "", $robots);

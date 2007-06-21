@@ -28,12 +28,12 @@ sub do_name_search {
 sub gen_search_page {
     my ($title, $heading, @matches) = @_;
     if (@matches) {
-        $content  = "<ul>\n"
-            .  (join "\n", (map { "  <li>" . make_wiki_link($_) . "</li>" }
-                                (sort @matches)))
-            . "\n</ul>\n";
+        $content  = "<ul>\n  <li>"
+            .  (join "</li>\n  <li>",
+                (map make_wiki_link($_), (sort @matches)))
+            . "</li>\n</ul>";
     } else {
-        $content  = "<p>No matches found.</p>\n";
+        $content  = "<p>No matches found.</p>";
     }
     findfooter();
     validator();

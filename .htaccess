@@ -7,7 +7,7 @@ Options ExecCGI FollowSymLinks
   SetHandler cgi-script
 </Files>
 
-<Files page>
+<Files show>
   SetHandler cgi-script
 </Files>
 

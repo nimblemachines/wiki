@@ -29,7 +29,7 @@ foreach my $m (sort keys %missing) {
     foreach
         (sort keys %{$missing{$m}})
         { push @sources,
-              "  <li>" . hyper($_, script_href("page", $_)) . "</li>" };
+              "  <li>" . hyper($_, script_href("show", $_)) . "</li>" };
 
     push @missing,
         "<h2>" . hyper($m, script_href("edit", $m), "missing")

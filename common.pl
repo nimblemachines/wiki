@@ -83,13 +83,7 @@ sub unescape_uri {
 
 sub parse_http_data {
     my ($data) = @_;
-    my @pairs;
-    foreach (split( /&/, $data)) {
-	my ($key, $value) = split(/=/, $_, 2);
-	push @pairs, unescape_uri($key), unescape_uri($value);
-#	push @pairs, unescape_uri($key), $value;
-    }
-    @pairs;
+    return map unescape_uri($_), (map split(/=/, $_, 2), split(/&/, $data));
 }
 
 sub read_file {
@@ -165,7 +159,7 @@ sub hyper {
 sub make_wiki_link {
     my ($page) = @_;
     (-r "$pagedir/$page" && -f "$pagedir/$page")
-        ?              hyper($page, script_href("page", $page))
+        ?              hyper($page, script_href("show", $page))
         : ($editable ? hyper($page, script_href("edit", $page), "missing")
                      : "$page");
 }
@@ -221,7 +215,7 @@ sub generate_xhtml {
     # only display icon if we're *not* editing
     my $home_link = ($script eq "edit")
         ? ""
-        : hyper(clean(<<"IMG"), script_href("page", $defaultpage));
+        : hyper(clean(<<"IMG"), script_href("show", $defaultpage));
 <img id="icon" src="$pathprefix/$iconimgsrc" alt="$iconimgalt" />
 IMG
 
@@ -248,8 +242,8 @@ $http_response_headers
 
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE html 
-          PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 $meta_elements
@@ -270,7 +264,6 @@ $content
 
 <div id="footer">
 <hr />
-
 $footer
 </div>
 
@@ -280,15 +273,15 @@ EOT
 }
 
 sub findfooter {
-    push @footerlines, hyper("Search", script_href("page", "SearchPage"))
+    push @footerlines, hyper("Search", script_href("show", "SearchPage"))
         . " for page titles or text, browse "
-        . hyper("RecentChanges", script_href("page", "RecentChanges"))
+        . hyper("RecentChanges", script_href("show", "RecentChanges"))
         . ", or return to "
-        . hyper($defaultpage, script_href("page", $defaultpage));
+        . hyper($defaultpage, script_href("show", $defaultpage));
 }
 
 sub validator {
-    push @footerlines, <<"";
+    push @footerlines, clean(<<"VALID");
 <p>
   <a href="http://validator.w3.org/check/referer">
     <img src="${pathprefix}/_images/valid-xhtml10-blue" alt="Valid XHTML 1.0 Strict!" />
@@ -297,13 +290,13 @@ sub validator {
     <img src="${pathprefix}/_images/valid-css-blue" alt="Valid CSS!" />
   </a>
 </p>
-
+VALID
 }
 
 # Wired in that we redirect to rendering $page, and use a 303. Should this
 # be parameterizable?
 sub redirect {
-    my $href = script_href("page", $page);
+    my $href = script_href("show", $page);
     $content = hyper($page, $href);
     $http_response_headers{'Status'} = "303 See other";
     $http_response_headers{'Location'} = $href;
