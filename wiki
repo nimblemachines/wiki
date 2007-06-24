@@ -13,7 +13,7 @@ $| = 1;         # flush after each print
 $wikiword = "I|A|[A-Z][a-z]+";
 $wikilink = "\\b(?:$wikiword){2,}\\b";
 $interprefix = "[A-Za-z.]+";
-$interquery = "[A-Za-z0-9+_]+";
+$interquery = "[A-Za-z0-9+_()]+";
 
 $pagedir = "$ENV{'DOCUMENT_ROOT'}/pages";
 $archivedir = "$pagedir/archive";
