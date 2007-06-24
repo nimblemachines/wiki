@@ -628,7 +628,7 @@ sub href_link {
 
 sub manpage {
     my ($man, $section) = @_;
-    return href_link("http://www.freebsd.org/cgi/man.cgi?query=$man&sektion=$section", "<code class="man">$man($section)</code>");
+    return href_link("http://www.freebsd.org/cgi/man.cgi?query=$man&sektion=$section", "<code class=\"man\">$man($section)</code>");
 }
 
 sub inline_markup {
@@ -695,7 +695,7 @@ sub inline_markup {
     # link to man page - this can't be done with intermap because it needs
     # to pull the section number out of parens and substitute it into the
     # URI.
-    s{\bman:([-\w]+)\((\d+)\)\b}{hide(manpage($1, $2))}ge;
+    s{\bman:([\w-]+)\((\d+)\)}{hide(manpage($1, $2))}ge;
 
     # inline img link: [[uri.ext alt text]] where ext is img type
     s#\[\[img (\S+\.(?:jpg|jpeg|gif|png))\s+(.+?)\]\]#hide(img_link($1,$2))#ge;
