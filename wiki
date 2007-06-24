@@ -626,6 +626,11 @@ sub href_link {
     "<a href=\"$uri\">$text</a>";
 }
 
+sub manpage {
+    my ($man, $section) = @_;
+    return href_link("http://www.freebsd.org/cgi/man.cgi?query=$man&sektion=$section", "<code class="man">$man($section)</code>");
+}
+
 sub inline_markup {
     # obscure something so Google won't properly index it - like "Eric Raymond"
     # should this be "bracketing" markup instead? Matches only between "word"
@@ -686,6 +691,11 @@ sub inline_markup {
     s#\[\[img (http://static.flickr.com/([0-9]+)/([0-9]+)_([0-9a-f]+).jpg)\s+(.+?)\]\]#hide(
         "<a href=\"out/http://www.flickr.com/photos/$flickr_name/$3/\">
   <img src=\"$1\" alt=\"$5\" /></a>")#ge;
+
+    # link to man page - this can't be done with intermap because it needs
+    # to pull the section number out of parens and substitute it into the
+    # URI.
+    s{\bman:([-\w]+)\((\d+)\)\b}{hide(manpage($1, $2))}ge;
 
     # inline img link: [[uri.ext alt text]] where ext is img type
     s#\[\[img (\S+\.(?:jpg|jpeg|gif|png))\s+(.+?)\]\]#hide(img_link($1,$2))#ge;
