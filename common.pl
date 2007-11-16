@@ -7,7 +7,7 @@ $| = 1;   # flush after each print
 $wikiword = "I|A|[A-Z][a-z]+";
 $wikilink = "(?:$wikiword){2,}";
 $interprefix = "[A-Za-z.]+";
-$interquery = "[A-Za-z0-9+_]+";
+$interquery = "[A-Za-z0-9+_()]+";
 
 ### Set defaults ###
 $pagedir = "$ENV{'DOCUMENT_ROOT'}/pages";

@@ -197,6 +197,12 @@ div.flickr_badge {
   text-align: left;
 }
 
+/* man page links */
+code.man {
+  font-family: serif;
+  font-style: italic;
+}
+
 /* Forth markup!! (Sorry, Michael!) */
 code.forth, div.voiceforth, div.voiceforth pre {
   font-family: monospace;
