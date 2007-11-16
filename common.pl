@@ -281,6 +281,7 @@ sub findfooter {
 }
 
 sub validator {
+    return unless $editable;
     push @footerlines, clean(<<"VALID");
 <p>
   <a href="http://validator.w3.org/check/referer">
