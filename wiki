@@ -1,4 +1,4 @@
-#!/usr/bin/env perl -w
+#!/usr/local/bin/perl -w
 
 # $Id$
 
@@ -249,12 +249,13 @@ sub generate_xhtml {
         $localstyle = "\n<link rel=\"stylesheet\" href=\"static/$style\" type=\"text/css\" />";
     }
 
-    my $home_link = "";
-    # only display icon if we're *not* editing
-    if ($action ne "edit") {
-        $home_link = scriptlink("show", $defaultpage,
+    # Only display icon if we're *not* editing. There is a subtlety:
+    # since a save may fail (due to collision) we could be editing even
+    # though our URI says "show".
+    my $home_link = ($action =~ m/edit|show/)
+        ? ""
+	: scriptlink("show", $defaultpage,
             "<img id=\"icon\" src=\"$iconimgsrc\" alt=\"$iconimgalt\" />");
-    }
 
     # force to no for editable version
     if ($editable) {
