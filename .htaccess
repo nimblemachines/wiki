@@ -1,60 +1,10 @@
 # $Id$
 
-DirectoryIndex wiki
-Options ExecCGI FollowSymLinks
-
-<Files wiki>
-  SetHandler cgi-script
-</Files>
-
-<Files show>
-  SetHandler cgi-script
-</Files>
-
-<Files search>
-  SetHandler cgi-script
-</Files>
-
-<Files edit>
-  SetHandler cgi-script
-</Files>
-
-<Files save>
-  SetHandler cgi-script
-</Files>
-
-<Files diff>
-  SetHandler cgi-script
-</Files>
-
-<Files missing>
-  SetHandler cgi-script
-</Files>
-
-# These two are for testing and learning how CGI works.
-<Files env>
-  SetHandler cgi-script
-</Files>
-
-<Files post>
-  SetHandler cgi-script
-</Files>
-
 # The necessity of putting these here makes me wonder about the prudence of
 # putting this kind of "meta" information in the web URI space. It seems
 # like it should be "off to the side" somehow.
 
 <Files config.pl>
-  Order allow,deny
-  Deny from all
-</Files>
-
-<Files common.pl>
-  Order allow,deny
-  Deny from all
-</Files>
-
-<Files edit-common.pl>
   Order allow,deny
   Deny from all
 </Files>
