@@ -116,6 +116,16 @@ sub page_modtime {
         : 0;
 }
 
+# common to search & diff
+sub filter_pages {
+    my ($dir, $pred) = @_;
+    opendir PAGES, "$dir" or die "can't opendir $dir: $!";
+    my @matches = grep { ! m/^\./ && -r "$dir/$_" && -f "$dir/$_"
+                         && &$pred() } readdir PAGES;
+    closedir PAGES;
+    return @matches;
+}
+
 # This bit of code is ugly because it is being passed an array of references
 # to scalars that are to be modified. Hence the $$n everywhere.
 sub leading_zero {

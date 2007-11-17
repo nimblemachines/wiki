@@ -2,7 +2,11 @@
 
 # $Id$
 
+### Read in common code ###
 do "common.pl";
+
+### Get rendering code ###
+do "render.pl";
 
 sub do_diff {
     # get a time stamp for the earlier version of the page
@@ -30,7 +34,7 @@ sub do_diff {
 
     my $cmd = "diff -U 99999 $oldpage $pagedir/$page";
     my $contents = "";
-    open DIFF, "-|", $cmd or choke "cannot compare $page with $oldpage: $!";
+    open DIFF, "-|", $cmd or choke("cannot compare $page with $oldpage: $!");
 
     # ignore first few lines until line starts with @@
     while (<DIFF>) {
@@ -66,3 +70,6 @@ sub do_diff {
     $_ = $contents;
     render_page("no");
 }
+
+do_diff();
+
