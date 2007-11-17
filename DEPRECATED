@@ -1,0 +1,6 @@
+This "version" of the wiki code - with a monolithic wiki script - is now
+officially deprecated.
+
+Use the wiki/branches/modular code instead. I should make it the new trunk
+in svn...
+
