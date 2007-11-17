@@ -212,8 +212,10 @@ sub generate_xhtml {
     # if not using a default icon, rewrite URI to get site's image dir
     $iconimgsrc = "static/$iconimgsrc" unless $iconimgsrc =~ m/^_images/;
 
-    # only display icon if we're *not* editing
-    my $home_link = ($script eq "edit")
+    # Only display icon if we're *not* editing. There is a subtlety:
+    # since a save may fail (due to collision) we could be editing even
+    # though our URI says "save".
+    my $home_link = ($script =~ m/edit|save/)
         ? ""
         : hyper(clean(<<"IMG"), script_href("show", $defaultpage));
 <img id="icon" src="$pathprefix/$iconimgsrc" alt="$iconimgalt" />
