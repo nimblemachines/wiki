@@ -1,26 +1,5 @@
 # $Id$
 
-DirectoryIndex wiki
-Options ExecCGI FollowSymLinks
-
-<Files wiki>
-  SetHandler cgi-script
-</Files>
-
-# These two are for testing and learning how CGI works.
-<Files env>
-  SetHandler cgi-script
-</Files>
-
-<Files post>
-  SetHandler cgi-script
-</Files>
-
-# So we can access "out" (a php file) w/out its extension.
-<Files out>
-  ForceType application/x-httpd-php
-</Files>
-
 # The necessity of putting these here makes me wonder about the prudence of
 # putting this kind of "meta" information in the web URI space. It seems
 # like it should be "off to the side" somehow.
