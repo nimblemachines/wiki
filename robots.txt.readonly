@@ -1,7 +1,6 @@
 # $Id$
 
 User-agent: *
-Disallow: /static/
 Disallow: /edit/
 Disallow: /save/
 Disallow: /diff/
