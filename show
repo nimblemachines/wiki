@@ -31,4 +31,5 @@ sub do_show {
     render_page($robots);
 }
 
+redirect_to_canonical_uri();
 do_show();

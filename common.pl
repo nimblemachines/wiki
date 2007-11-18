@@ -37,27 +37,34 @@ $content = "";
 );
 @footerlines = ();
 
+# URIs have following form:
+# /action/page
+# /query?string
+# actions: show, edit, diff, save, maybe linksto
+# queries: search
+
 # everything but the script name
 my @scriptpath = split '/', $ENV{'SCRIPT_NAME'};
 my $script = pop @scriptpath;
 $pathprefix = join '/', @scriptpath;
 
-# normal form of wiki URI is action/page, except for search, which is
-# search?<type>=<searchtext>.
+# can we do the same thing with pathinfo?
+# not exactly - working on the other end of the array
+my (undef, $reqpage, $pathjunk) = split '/', $ENV{'PATH_INFO'};
 
-# We canonicalize the requested URI, and, if changed, we redirect to the
-# canonic URI.
-
-# extract requested page from PATH_INFO, keeping trailing junk too
-my ($reqpage, $pathjunk) = $ENV{'PATH_INFO'} =~ m#^/([^/]+)(.*)#;
 # if no page specified, default its value
 $page = $reqpage || $defaultpage;
 
-# if we didn't request a valid page OR if there was junk *after* the page name,
-# redirect to the canonical URI
-if (not $reqpage or $pathjunk) {
-    redirect("temporary");
-    exit();
+# If we didn't request a valid page OR if there was junk *after* the page name,
+# redirect to the canonical URI. But don't do this automatically - it breaks
+# search, for instance. Only /show will call this. redirect is wired to doing
+# a "show" anyway, so if /edit called it, it would be redirected oddly...
+
+sub redirect_to_canonical_uri {
+    if (not $reqpage or defined($pathjunk)) {
+        redirect("temporary");
+        exit();
+    }
 }
 
 sub choke {
