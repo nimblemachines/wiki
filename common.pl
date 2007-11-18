@@ -30,11 +30,6 @@ if ($ENV{'READONLY'}) {
     # don't force use of subversion either way
 }
 
-# normal form of wiki URI is action/page, except for search, which is
-# search?<type>=<searchtext>.
-$page = substr($ENV{'PATH_INFO'}, 1);  # drop leading '/'
-$page ||= $defaultpage;     # <script>/  -> <script>/DefaultPage
-
 $content = "";
 %http_response_headers = (
     "Content-Type" => "text/html",
@@ -46,6 +41,24 @@ $content = "";
 my @scriptpath = split '/', $ENV{'SCRIPT_NAME'};
 my $script = pop @scriptpath;
 $pathprefix = join '/', @scriptpath;
+
+# normal form of wiki URI is action/page, except for search, which is
+# search?<type>=<searchtext>.
+
+# We canonicalize the requested URI, and, if changed, we redirect to the
+# canonic URI.
+
+# extract requested page from PATH_INFO, keeping trailing junk too
+my ($reqpage, $pathjunk) = $ENV{'PATH_INFO'} =~ m#^/([^/]+)(.*)#;
+# if no page specified, default its value
+$page = $reqpage || $defaultpage;
+
+# if we didn't request a valid page OR if there was junk *after* the page name,
+# redirect to the canonical URI
+if (not $reqpage or $pathjunk) {
+    redirect("temporary");
+    exit();
+}
 
 sub choke {
     my ($errortext) = @_;
@@ -306,12 +319,16 @@ sub validator {
 VALID
 }
 
-# Wired in that we redirect to rendering $page, and use a 303. Should this
-# be parameterizable?
+# Wired in that we redirect to rendering $page ("show").
 sub redirect {
+    my %redirections = (
+	permanent => "301 Permanent",
+	temporary => "302 Found",
+	post      => "303 See other"
+    );
     my $href = script_href("show", $page);
     $content = hyper($page, $href);
-    $http_response_headers{'Status'} = "303 See other";
+    $http_response_headers{'Status'} = $redirections{$_[0]};
     $http_response_headers{'Location'} = $href;
     generate_xhtml("Redirect", "Redirect", "no");
 }

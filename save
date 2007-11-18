@@ -132,7 +132,7 @@ sub do_request {
         $form{'submit'} =~ m/save/i
             && (do_save() eq "collided") && return;   # skip redirection
     }
-    redirect();
+    redirect("post");
 }
 
 do_request()
