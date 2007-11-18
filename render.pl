@@ -1,5 +1,3 @@
-#!/usr/bin/perl -w
-
 # $Id$
 
 sub escape_html {
