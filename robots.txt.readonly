@@ -6,6 +6,11 @@ Disallow: /save/
 Disallow: /diff/
 Disallow: /search
 Disallow: /history/
+# these are for old URIs, but the search engines are still trying them:
+Disallow: /wiki?edit=
+Disallow: /wiki?diff=
+Disallow: /wiki?search=
+Disallow: /wiki?name=
 
 User-agent: BecomeBot
 Disallow: /
