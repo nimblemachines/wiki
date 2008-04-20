@@ -30,3 +30,7 @@ $flickr_name = "nimblemachines";
 
 # really run subversion commands; default to no
 $use_subversion = 0;
+
+# here on Arch Linux svn is in /usr/bin:
+$svn = "/usr/bin/svn";
+
