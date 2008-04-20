@@ -255,15 +255,19 @@ sub obfuscate_mailto {
     "<a href=\"mailto:$email?subject=$page\">$link</a>";
 }
 
+# HTTP scheme pattern; promise to Perl that we won't change this, so it can
+# be compiled once (the 'o' modifier).
+my $scheme_re = qr#^[[:alpha:]+]+://#o;
+
 sub img_link {
     my ($uri, $text) = @_;
-    $uri = "$pathprefix/static/$uri" if ($uri !~ m/^https?:/);
+    $uri = "$pathprefix/static/$uri" if ($uri !~ $scheme_re);
     "<img src=\"$uri\" alt=\"$text\" />";
 }
 
 sub href_link {
     my ($uri, $text) = @_;
-    if ($uri =~ m/^https?:/) {
+    if ($uri =~ $scheme_re) {
         $uri = "$pathprefix/out/$uri";
     } else {
         $uri = "$pathprefix/static/$uri";
