@@ -182,7 +182,7 @@ sub script_href {
 # called with linktext, href, optional class
 sub hyper {
     my ($linktext, $href, $class) = @_;
-    $class = " class=\"$class\"" if $class;
+    $class = $class ? " class=\"$class\"" : "";
     "<a href=\"$href\"$class>$linktext</a>";
 }
 
