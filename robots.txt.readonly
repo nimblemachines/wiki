@@ -17,3 +17,12 @@ Disallow: /
 
 User-agent: Girafabot
 Disallow: /
+
+User-agent: psbot
+Disallow: /
+
+# msnbot is lame and is following my /search links, even though they are
+# disallowed above!
+User-agent: msnbot
+Disallow: /search?
+
