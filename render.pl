@@ -325,6 +325,12 @@ sub inline_markup {
         s/([]a-zA-Z0-9])'([a-zA-Z0-9])/$1&rsquo;$2/g;  # ' acting as an apostrophe
     }
 
+    # Making a "code in a repo somewhere" abstraction so I don't have to keep
+    # editing pages when I move my code.
+
+    s#\bBrowse:(\w+)(/\w*)?#http://github.com/nimblemachines/$1/tree/master$2#g;
+    s#\bClone:(\w+)#git://github.com/nimblemachines/$1.git#g;
+
     # obfuscated mailto links: [[mailto:email link text]]
     # link text is required, since what would we put there other than the
     # unescaped mailto address, thereby making the whole thing moot?
