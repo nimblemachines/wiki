@@ -1,5 +1,3 @@
-# $Id$
-
 #use strict;
 
 $| = 1;   # flush after each print
@@ -9,12 +7,6 @@ $wikilink = "(?:$wikiword){2,}";
 $interprefix = "[A-Za-z.]+";
 $interquery = "[A-Za-z0-9+_()]+";
 
-### Set defaults ###
-$pagedir = "$ENV{'DOCUMENT_ROOT'}/pages";
-$archivedir = "$pagedir/archive";
-$use_subversion = 0;  # default to off
-$svn = "/usr/local/bin/svn";  # default to BSD-like path
-
 ### Read in site configuration variables ###
 do "config.pl";
 
@@ -23,11 +15,9 @@ do "$ENV{'DOCUMENT_ROOT'}/config.pl";
 
 if ($ENV{'READONLY'}) {
     $editable = 0;
-    $use_subversion = 0;   # force off for readonly
 } else {
     $editable = 1;
     $wikiname = "Edit $wikiname";      # remind us
-    # don't force use of subversion either way
 }
 
 $content = "";
@@ -118,32 +108,13 @@ sub read_file {
     $contents;
 }
 
-sub page_text {
-    my ($page) = @_;
-    my $file  = "$pagedir/$page";
-    (-r "$file" && -f "$file") ? read_file($file) : "";
-}
+sub write_file {
+    my ($filename, $contents) = @_;
 
-# If the file doesn't exist or isn't readable, use a modtime of 0.
-# We're long past 1970, so this should be ok. ;-)
-# If $subversion = "yes", get time by reading the svn property "modtime" on
-# the file; otherwise just get its modtime.
-sub page_modtime {
-    my ($p) = @_;
-    my $pp = "$pagedir/$p";
-    (-r "$pp" && -f "$pp")
-        ? ($use_subversion ? `$svn pg modtime $pp` : (stat($pp))[9])
-        : 0;
-}
-
-# common to search & diff
-sub filter_pages {
-    my ($dir, $pred) = @_;
-    opendir PAGES, "$dir" or die "can't opendir $dir: $!";
-    my @matches = grep { ! m/^\./ && -r "$dir/$_" && -f "$dir/$_"
-                         && &$pred() } readdir PAGES;
-    closedir PAGES;
-    return @matches;
+#    print STDERR "writing file $filename = $contents\n";
+    open F, "> $filename" or choke("open $filename (for writing) failed: $!");
+    print F $contents;
+    close F;
 }
 
 # This bit of code is ugly because it is being passed an array of references
