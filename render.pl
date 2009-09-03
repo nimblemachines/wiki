@@ -56,7 +56,7 @@ sub make_interwiki_link {
     (my $link_text = $query) =~ tr/_+/  /;
 
     defined $interlink
-        ? "<a href=\"$pathprefix/out/$interlink$query\">$link_text</a>"
+        ? "<a href=\"$interlink$query\">$link_text</a>"
         : "$prefix:$query";
 }
 
@@ -261,16 +261,16 @@ my $scheme_re = qr#^[[:alpha:]+]+://#o;
 
 sub img_link {
     my ($uri, $text) = @_;
-    $uri = "$pathprefix/static/$uri" if ($uri !~ $scheme_re);
+    $uri = "static/$uri" if ($uri !~ $scheme_re);
     "<img src=\"$uri\" alt=\"$text\" />";
 }
 
 sub href_link {
     my ($uri, $text) = @_;
     if ($uri =~ $scheme_re) {
-        $uri = "$pathprefix/out/$uri";
+        $uri = "$uri";
     } else {
-        $uri = "$pathprefix/static/$uri";
+        $uri = "static/$uri";
     }
     "<a href=\"$uri\">$text</a>";
 }
@@ -281,18 +281,8 @@ sub manpage {
 }
 
 sub inline_markup {
-    # obscure something so Google won't properly index it - like "Eric Raymond"
-    # should this be "bracketing" markup instead? Matches only between "word"
-    # characters (\w).
-    s#(\w)\.\.(\w)#$1<span class="empty"></span>$2#gs;
-
-    s#'{3}(.+?)'{3}#<strong>$1</strong>#gs;
-    s#'{2}(.+?)'{2}#<em>$1</em>#gs;
-    # XXX: code, cite, kbd, ???
-
-    # forth word
-    s#fw\(\(\s*(.+?)\s*\)\)#<code class="forth">$1</code>#gs;
-
+    # moved these here, above any markup that adds " chars, since under some
+    # conditions they were getting converted to entities.
     # Quote character entities so that the browser doesn't "helpfully"
     # convert them. Use !!name!! or ??name??.
     s#[!\?]{2}(.+?)[!\?]{2}#&$1;#gs;
@@ -325,6 +315,18 @@ sub inline_markup {
         s/([]a-zA-Z0-9])'([a-zA-Z0-9])/$1&rsquo;$2/g;  # ' acting as an apostrophe
     }
 
+    # obscure something so Google won't properly index it - like "Eric Raymond"
+    # should this be "bracketing" markup instead? Matches only between "word"
+    # characters (\w).
+    s#(\w)\.\.(\w)#$1<span class="empty"></span>$2#gs;
+
+    s#'{3}(.+?)'{3}#<strong>$1</strong>#gs;
+    s#'{2}(.+?)'{2}#<em>$1</em>#gs;
+    # XXX: code, cite, kbd, ???
+
+    # forth word
+    s#fw\(\(\s*(.+?)\s*\)\)#<code class="forth">$1</code>#gs;
+
     # Making a "code in a repo somewhere" abstraction so I don't have to keep
     # editing pages when I move my code.
 
@@ -344,7 +346,7 @@ sub inline_markup {
 
     # flickr img link: [[uri.ext alt text]] where ext is img type
     s#\[\[img (http://static.flickr.com/([0-9]+)/([0-9]+)_([0-9a-f]+).jpg)\s+(.+?)\]\]#hide(
-        "<a href=\"$pathprefix/out/http://www.flickr.com/photos/$flickr_name/$3/\">
+        "<a href=\"http://www.flickr.com/photos/$flickr_name/$3/\">
   <img src=\"$1\" alt=\"$5\" /></a>")#ge;
 
     # link to man page - this can't be done with intermap because it needs

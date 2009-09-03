@@ -175,7 +175,7 @@ sub stamp {
 # XXX should this be called make_path or abs_path or something? Now that's
 # all it does!
 sub script_href {
-    return join "/", ${pathprefix}, @_;
+    return join "/", pop(@_);
 }
 
 # make a hyperlink
