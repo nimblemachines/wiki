@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-do "common.pl";
+do "../common.pl";
 
 sub do_text_search {
     my @matches = filter_pages($pagedir, sub { page_text($_) =~ m/$page/i });

@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
-do "common.pl";
-do "edit-common.pl";
+do "../common.pl";
+do "../edit-common.pl";
 
 sub run_svn {
     my @svn = ("$svn", @_);
