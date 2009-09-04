@@ -1,7 +1,5 @@
 #!/usr/bin/perl
 
-# $Id$
-
 # print out the CGI environment
 
 # date headers look like this:

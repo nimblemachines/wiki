@@ -1,4 +1,3 @@
-# $Id$
 # Refuse direct access to pages; only thru the CGI/rendering interface
 
 <Files *>

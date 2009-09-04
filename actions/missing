@@ -1,7 +1,5 @@
 #!/usr/bin/perl -w
 
-# $Id$
-
 # Return a page of links to pages that are referenced but don't exist.
 
 do "common.pl";

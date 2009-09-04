@@ -1,7 +1,5 @@
 #!/usr/bin/perl -w
 
-# $Id$
-
 do "common.pl";
 do "edit-common.pl";
 

@@ -1,9 +1,5 @@
-#
-# $Id$
-#
 # This file is for local (site) configuration of the wiki script.
 # PLEASE change these values from their defaults!
-#
 
 ### Set up the config variables ###
 $webhamster = 'webhamster@example.com';

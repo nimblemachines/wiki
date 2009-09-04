@@ -1,7 +1,5 @@
 #!/usr/bin/perl -w
 
-# $Id$
-
 do "common.pl";
 
 sub do_text_search {

@@ -1,5 +1,3 @@
-$Id$
-
 Edit config.pl so that it makes sense for your wiki site.
 
 If you want to use this wiki with web-writable pages, then you need to (as

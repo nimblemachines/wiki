@@ -1,5 +1,3 @@
-# $Id$
-
 #use strict;
 
 $| = 1;   # flush after each print

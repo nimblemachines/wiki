@@ -1,5 +1,3 @@
-# $Id$
-
 sub escape_html {
     s/&/&amp;/g;
     s/</&lt;/g;
