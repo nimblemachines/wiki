@@ -3,10 +3,10 @@
 # $Id$
 
 ### Read in common code ###
-do "common.pl";
+do "../common.pl";
 
 ### Get rendering code ###
-do "render.pl";
+do "../render.pl";
 
 # do_xxx needs to do something like this:
 # $content = ...

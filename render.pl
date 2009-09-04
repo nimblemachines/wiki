@@ -261,7 +261,7 @@ my $scheme_re = qr#^[[:alpha:]+]+://#o;
 
 sub img_link {
     my ($uri, $text) = @_;
-    $uri = "$pathprefix/static/$uri" if ($uri !~ $scheme_re);
+    $uri = "$pathprefix/$uri" if ($uri !~ $scheme_re);
     "<img src=\"$uri\" alt=\"$text\" />";
 }
 
@@ -270,7 +270,7 @@ sub href_link {
     if ($uri =~ $scheme_re) {
         $uri = "$pathprefix/out/$uri";
     } else {
-        $uri = "$pathprefix/static/$uri";
+        $uri = "$pathprefix/$uri";
     }
     "<a href=\"$uri\">$text</a>";
 }

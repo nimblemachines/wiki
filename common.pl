@@ -237,10 +237,10 @@ sub generate_xhtml {
 
     @styles = ( "style/screen" );
     # if "local" style is set, create another <link> for it
-    push @styles, "static/$style" if $style;
+    push @styles, "$style" if $style;
 
     # if not using a default icon, rewrite URI to get site's image dir
-    $iconimgsrc = "static/$iconimgsrc" unless $iconimgsrc =~ m/^_images/;
+    $iconimgsrc = "$iconimgsrc" unless $iconimgsrc =~ m/^_image/;
 
     # Only display icon if we're *not* editing. There is a subtlety:
     # since a save may fail (due to collision) we could be editing even
@@ -317,10 +317,10 @@ sub validator {
     push @footerlines, clean(<<"VALID");
 <p>
   <a href="http://validator.w3.org/check/referer">
-    <img src="${pathprefix}/_images/valid-xhtml10-blue" alt="Valid XHTML 1.0 Strict!" />
+    <img src="${pathprefix}/_image/valid-xhtml10-blue" alt="Valid XHTML 1.0 Strict!" />
   </a>
   <a href="http://jigsaw.w3.org/css-validator/check/referer">
-    <img src="${pathprefix}/_images/valid-css-blue" alt="Valid CSS!" />
+    <img src="${pathprefix}/_image/valid-css-blue" alt="Valid CSS!" />
   </a>
 </p>
 VALID
