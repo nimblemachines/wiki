@@ -78,7 +78,7 @@ sub escape_uri {
 
     # XXX is this actually kosher?
     # escape a minimal set - probably more chars are needed here
-    $uri =~ s/([&=+?'"\000-\037\177])/"%" . unpack("H2", $1)/ge;  # bug'd
+    $uri =~ s/([&=+?'"\000-\037\177])/"%" . unpack("H2", $1)/ge;
     $uri =~ tr/ /+/;    # may have to be %20
     $uri;
 }
@@ -159,7 +159,8 @@ sub hyper {
 
 sub make_wiki_link {
     my ($page) = @_;
-    (-r "$pagedir/$page" && -f "$pagedir/$page")
+    page_linkedfrom($page);     # record that we link to this page
+    ((page_exists($page))[0])
         ?              hyper($page, script_href("show", $page))
         : ($editable ? hyper($page, script_href("edit", $page), "missing")
                      : "$page");

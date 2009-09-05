@@ -15,10 +15,19 @@ sub run_svn {
     system(@svn) == 0 or die "can't run @svn: $!";
 }
 
+# Convert a page name (in CamelCase) to a directory name, with underscores
+# separating the wiki words - so CamelCase becomes Camel_Case.
+sub nicer_name {
+    my ($name) = @_;
+    my $nicer = fancy_title($name);
+    $nicer =~ tr/ /_/;   # replace space with _
+    return "$nicer";
+}
+
 sub get_old_page {
     my ($pagename) = @_;
     my %page = (
-        name        => "$pagename",
+        name        => nicer_name("$pagename"),
         exists      => 0,
         text        => "",
         modtime     => 0,
@@ -33,7 +42,6 @@ sub get_old_page {
     }
     return %page;
 }
-
 
 sub doit {
     opendir PAGES, "$oldpagedir" or die "can't opendir $oldpagedir: $!";

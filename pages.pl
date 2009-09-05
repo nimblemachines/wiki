@@ -19,13 +19,9 @@
 ### Set defaults ###
 $pagedir = "$ENV{'DOCUMENT_ROOT'}/pages";
 
-# Convert a page name (in CamelCase) to a directory name, with underscores
-# separating the wiki words - so CamelCase becomes Camel_Case.
 sub page_to_dir {
     my ($name) = @_;
-    my $dir = fancy_title($name);
-    $dir =~ tr/ /_/;   # replace space with _
-    return "$pagedir/$dir";
+    return "$pagedir/$name";
 }
 
 # Nice to be able to ask if a page exists - eg when making a link - without
@@ -74,14 +70,39 @@ sub get_page {
     return %page;
 }
 
-sub put_page {
+# Unlike get_page, if you get_page_attrib() on an attribute that isn't
+# defined, you'll get one in the hash, with a value of "". get_page()
+# doesn't populate the hash at all unless the attribute exists and is
+# non-empty.
+sub get_page_attrib {
+    my ($name, $attrib) = @_;
+    my %page = (
+        name        => "$name",
+        exists      => 0
+    );
+    my ($exists, $dir) = page_exists($name);
+    $page{'exists'} = 1 if $exists;
+    $page{$attrib} = (-r "$dir/$attrib" && -f "$dir/$attrib" && -s "$dir/$attrib")
+        ? read_file("$dir/$attrib") : "";
+    return %page;
+}
+
+sub put_page_attribs {
     my (%page) = @_;
     my $dir = page_to_dir($page{'name'});
-    #print "put_page $dir\n";
+
     mkdir "$dir" unless (-d "$dir");
     foreach my $key (keys %page) {
         write_file("$dir/$key", $page{$key}) unless $key =~ m/name|exists/;
     }
+}
+
+sub put_page {
+    my (%page) = @_;
+    my $dir = page_to_dir($page{'name'});
+
+    put_page_attribs(%page);
+
     # now delete files that don't have corresponding keys in %page
     opendir ATTRIBS, "$dir" or die "can't opendir $dir: $!";
     foreach my $attrib (grep { ! m/^\./ && -r "$dir/$_" && -f "$dir/$_" }
@@ -89,6 +110,17 @@ sub put_page {
         unlink("$dir/$attrib") unless defined $page{$attrib};
     }
     closedir ATTRIBS;
+}
+
+# Record that the "calling" page links to a particular page. It's a no-op
+# right now. Put into "called" page's "linkedfrom" metadata.
+sub linksto_page {
+    my ($name) = @_;
+    my %p = get_page_attrib($name, 'linkedfrom');
+    #$p{'linkedfrom'} = XXX
+    # XXX Turn into a list, add the calling page, turn back into a string
+    #my $lf = join "\n", ("$page", (split /\n/, XXXXX
+    put_page_attribs(%p);
 }
 
 # common to search & diff
