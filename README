@@ -1,46 +1,104 @@
-Edit config.pl so that it makes sense for your wiki site.
+I've put this code online in the hope that it might be useful or
+interesting; however, it's quirky and idiosyncratic and rather narrowly
+focussed on my needs, so the likelihood that anyone else will have any use
+for it is rather small. ;-)
 
-If you want to use this wiki with web-writable pages, then you need to (as
-root!)
+However, if you want to play around, it's not that difficult. It requires
+some oddball Apache config, though.
 
-  chown -R www pages
+Initially I wanted to be able to drop this code into a directory, edit the
+.htaccess file, and be good to go - WordPress style. Later I wanted to host
+a few sites on the same machine that shared a copy of the wiki code, so I
+reworked the code to do that. I doubt you can really use it the other way
+any more without a lot of work.
 
-assuming www is the user that the server runs as.
+To get you started, I'll quote an example Apache Vhosts config file that I
+use (these are automatically generated, and if the script weren't a ghastly
+ugly Bourne shell script I would publish it). I'm using /home/www as an
+example root; everything - code, data (files, images, pages), logs is based
+there. The wiki code is checked out into scripts/wiki/.
 
-If you want a readonly "wiki", you'll want to do two things:
+--------------------------------------------------------------------------
+# This file is automagically generated. DO NOT EDIT!!
+<VirtualHost *>
+  DocumentRoot /home/www/data/example.com
+  CustomLog    /home/www/logs/www.example.com/access_log combined
+  ErrorLog     /home/www/logs/wwwdev.example.com/error_log
+  ServerName   www.example.com
+  ServerAdmin  webhamster@www.example.com
 
-  * have the pages/ tree owned by any user other than www;
-  * change $editscript (in config.pl) to "never"
+  RedirectMatch	^/$		/show
+  RedirectMatch	^/out/(.*)	$1
+  Alias		/robots.txt	/home/www/scripts/wiki/robots.txt.readwrite
+  Alias		/image/		/home/www/data/example.com/images/
+  Alias		/file/		/home/www/data/example.com/files/
+  Alias		/_image/	/home/www/scripts/wiki/_images/
+  Alias		/style/		/home/www/scripts/wiki/styles/
+  ScriptAlias	/		/home/www/scripts/wiki/actions/
+</VirtualHost>
+--------------------------------------------------------------------------
 
-The only URIs that fire up the CGI script are / (invokes the
-DirectoryIndex, which invokes "wiki") and /wiki. Since "never" matches
-neither, no pages will be editable.
+This config assumes a writable wiki. That robots.txt file prevents
+spiders from indexing the site.
 
-It's also possible to do this (in .htaccess):
+For a readonly version (I had a readonly mirror of my site that was public,
+and I edited the writable version), change the robots.txt Alias to
 
----------------------------------------------------------
-DirectoryIndex browse
-Options ExecCGI FollowSymLinks
+  Alias		/robots.txt	/home/www/scripts/wiki/robots.txt.readonly
 
-<Files wiki>
-  SetHandler cgi-script
-  AuthType Basic
-  AuthName "My private wiki"
-  AuthUserFile /some/path/to/passwd/file
+and add the following line
 
-# this is optional:
-  Require user foobar
-</Files>
+  SetEnv	READONLY	1
 
-<Files browse>
-  SetHandler cgi-script
-</Files>
----------------------------------------------------------
+Some highlights of the directory structure:
 
-Assuming $editscript is set to "wiki", this will allow only authenticated
-users to write the wiki (via wiki?page); for most users it will be
-readonly (thru the "browse" script), and now DirectoryIndex points to
-browse. browse is, of course, symlinked to the wiki script.
+scripts/wiki/config.pl
+   is a shared, site-wide configuration
 
+data/example.com/config.pl
+   can be used to override the above settings
 
+data/example.com/pages/
+   contains the wiki pages
+
+Assuming the web server is running as user www, group www, you'll need to
+do something like this to make your pages editable by the server, and still
+writable by you - for doing random things from the command line or
+whatever.
+
+  # chgrp -R www pages/
+  # chmod -R g+w pages/
+
+data/example.com/files/
+data/example.com/images/
+   contain static files and images, resp.
+   To link to an image, use a URL like "image/<name>"; for files, "file/<name>"
+
+Here is an example of what data/example.com/config.pl might look like:
+--------------------------------------------------------------------------
+$webhamster = 'webhamster@example.com';
+$wikiname = "My totally stellar wiki";
+$defaultpage = "WelcomeHome";
+$iconimgsrc = "image/spiffy.png";
+$iconimgalt = "My totally spiffy icon";
+
+## typographic style
+$convert_endash = 1;
+$convert_emdash = 0;   # I don't like em-dashes. ;-)
+$convert_quotes = 1;
+
+$flickr_user = "<your flickr user number>";
+$flickr_name = "<your flickr name>";
+
+%metas = (
+    keywords => "stellar, awesome, everybody to the limit, wiki";
+    description => "A wiki about something I care about.";
+    copyright => "This should be some kind of Creative Commons license. ;-)";
+);
+--------------------------------------------------------------------------
+
+I don't have a glossary of the markup. I probably should. I'm sure you can
+figure it out from reading render.pl. ;-)
+
+And do I need those silly .htaccess files any more?
 
