@@ -14,7 +14,7 @@ $use_subversion = 0;  # default to off
 $svn = "/usr/local/bin/svn";  # default to BSD-like path
 
 ### Read in site configuration variables ###
-do "config.pl";
+do "../config.pl";
 
 ### Read in per-domain configuration variables ###
 do "$ENV{'DOCUMENT_ROOT'}/config.pl";

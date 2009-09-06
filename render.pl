@@ -4,7 +4,7 @@ sub escape_html {
 }
 
 sub init_interwiki {
-    my $file = "intermap";
+    my $file = "../intermap";
     %intermap = (-r "$file" && -f "$file") ? split /\s+/, read_file($file) : ();
 }
 
