@@ -44,7 +44,23 @@ $content = "";
 # everything but the script name
 my @scriptpath = split '/', $ENV{'SCRIPT_NAME'};
 my $script = pop @scriptpath;
-$pathprefix = join '/', @scriptpath;
+
+# With "UseCanonicalName On" in the server config, SERVER_NAME gets set to
+# ServerName in VHost configuration, regardless of the Host header
+# specified in the HTTP request. If the user request refers to a
+# ServerAlias, HTTP_HOST will differ from SERVER_NAME. If that's true, make
+# a pathprefix that "canonicalises" all script_hrefs by making them
+# absolute URIs referring to the SERVER_NAME, so the first link that the
+# user follows will be to the canonical name.
+#
+# If HTTP_HOST and SERVER_NAME are the same, just use "root local"
+# script_hrefs, like "/show/PageName".
+
+$canonicalise = ($ENV{'HTTP_HOST'} ne $ENV{'SERVER_NAME'})
+                    ? "http://$ENV{'SERVER_NAME'}"
+                    : "";
+
+$pathprefix = $canonicalise . join '/', @scriptpath;
 
 # can we do the same thing with pathinfo?
 # not exactly - working on the other end of the array
