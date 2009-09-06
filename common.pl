@@ -41,7 +41,8 @@ $content = "";
 # actions: show, edit, diff, save, maybe linksto
 # queries: search
 
-# everything but the script name
+# SCRIPT_NAME starts with a /
+# last part of path is script we are running
 my @scriptpath = split '/', $ENV{'SCRIPT_NAME'};
 my $script = pop @scriptpath;
 
@@ -57,13 +58,14 @@ my $script = pop @scriptpath;
 # script_hrefs, like "/show/PageName".
 
 $canonicalise = ($ENV{'HTTP_HOST'} ne $ENV{'SERVER_NAME'})
-                    ? "http://$ENV{'SERVER_NAME'}"
-                    : "";
+    ? "http://$ENV{'SERVER_NAME'}"
+    : "";
 
 $pathprefix = $canonicalise . join '/', @scriptpath;
 
-# can we do the same thing with pathinfo?
-# not exactly - working on the other end of the array
+# PATH_INFO starts with a / followed by pagename. If there is another /
+# then $pathjunk will get defined, and we'll redirect; see below.
+
 my (undef, $reqpage, $pathjunk) = split '/', $ENV{'PATH_INFO'};
 
 # if no page specified, default its value
