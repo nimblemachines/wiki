@@ -67,6 +67,7 @@ div#content {
 }
 
 div#footer {
+  clear: right;  /* so it can't run into icon */
 /*  border: solid teal 1px; */
 /*  background: #cceeee; */
 /*  font-size: 80%; */
