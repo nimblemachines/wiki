@@ -19,7 +19,7 @@ do "../config.pl";
 ### Read in per-domain configuration variables ###
 do "$ENV{'DOCUMENT_ROOT'}/config.pl";
 
-if ($ENV{'READONLY'}) {
+if ($ENV{'SITEMODE'} eq "readonly") {
     $editable = 0;
     $use_subversion = 0;   # force off for readonly
 } else {
@@ -251,7 +251,7 @@ sub generate_xhtml {
     $heading = hyper("$title", script_href("search?text=$page"))
         unless $heading;
 
-    @styles = ( "style/screen" );
+    @styles = ( "_style/screen" );
     # if "local" style is set, create another <link> for it
     push @styles, "$style" if $style;
 
