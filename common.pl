@@ -6,6 +6,10 @@ $wikiword = "I|A|[A-Z][a-z]+";
 $wikilink = "(?:$wikiword){2,}";
 $interprefix = "[A-Za-z.]+";
 $interquery = "[A-Za-z0-9+_()]+";
+# HTTP scheme pattern; promise to Perl that we won't change this, so it can
+# be compiled once (the 'o' modifier).
+$http_scheme = qr#^[[:alpha:]+]+://#o;
+
 
 ### Set defaults ###
 $pagedir = "$ENV{'DOCUMENT_ROOT'}/pages";
@@ -188,6 +192,22 @@ sub stamp {
     "$year $month $mday $hour:$min";
 }
 
+# We want the hrefs we generate - in links and such - to be "rooted" rather
+# than relative. This doesn't mean that we have put a full scheme,
+# hostname, and path in there, though. But for local - or what I like to
+# call "root relative" URIs - those that refer back to resources on the
+# same host - we prepend a path prefix, that, in the common case, is simply
+# a slash.
+#
+# If the URI is already an absolute URI, we leave it alone. It's already
+# rooted.
+
+sub rooted_href {
+    my ($uri) = @_;
+    $uri = "$pathprefix/$uri" unless ($uri =~ $http_scheme);
+    return "$uri";
+}
+
 # XXX should this be called make_path or abs_path or something? Now that's
 # all it does!
 sub script_href {
@@ -251,12 +271,11 @@ sub generate_xhtml {
     $heading = hyper("$title", script_href("search?text=$page"))
         unless $heading;
 
-    @styles = ( "_style/screen" );
-    # if "local" style is set, create another <link> for it
-    push @styles, "$style" if $style;
+    # push default style onto front of @styles
+    unshift @styles, "_style/screen";
 
-    # if not using a default icon, rewrite URI to get site's image dir
-    $iconimgsrc = "$iconimgsrc" unless $iconimgsrc =~ m/^_image/;
+    # prefix with $pathprefix unless already an absolute URI
+    $iconimgsrc = rooted_href($iconimgsrc);
 
     # Only display icon if we're *not* editing. There is a subtlety:
     # since a save may fail (due to collision) we could be editing even
@@ -264,7 +283,7 @@ sub generate_xhtml {
     my $home_link = ($script =~ m/edit|save/)
         ? ""
         : hyper(clean(<<"IMG"), script_href("show", $defaultpage));
-<img id="icon" src="$pathprefix/$iconimgsrc" alt="$iconimgalt" />
+<img id="icon" src="$iconimgsrc" alt="$iconimgalt" />
 IMG
 
     $robots = "no" if $editable;
@@ -275,8 +294,8 @@ IMG
 META
 
     # combine into html link elems
-    my $stylesheets = join "\n", (map clean(<<"LINK"), @styles);
-<link rel="stylesheet" href="$pathprefix/$_" type="text/css" />
+    my $stylesheets = join "\n", (map clean(<<"LINK"), (map rooted_href($_), @styles));
+<link rel="stylesheet" href="$_" type="text/css" />
 LINK
 
     # string together footer lines, separated by <br />

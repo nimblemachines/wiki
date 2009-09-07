@@ -42,7 +42,7 @@ sub editfooter {
 }
  
 sub commentfooter {
-    push @footerlines, obfuscate_mailto("$webhamster", "Comment")
+    push @footerlines, obfuscated_mailto_link("$webhamster", "Comment")
         . " on this page";
 }
 
@@ -247,35 +247,30 @@ sub show_uris {
     s/(.)""/$1/g;
 }
 
-sub obfuscate_mailto {
-    my ($email, $link) = @_;
+sub obfuscated_mailto_link {
+    my ($email, $linktext) = @_;
     $email =~ s/(.)/"%" . unpack("H2", $1)/ge;
-    "<a href=\"mailto:$email?subject=$page\">$link</a>";
+    "<a href=\"mailto:$email?subject=$page\">$linktext</a>";
 }
-
-# HTTP scheme pattern; promise to Perl that we won't change this, so it can
-# be compiled once (the 'o' modifier).
-my $scheme_re = qr#^[[:alpha:]+]+://#o;
 
 sub img_link {
-    my ($uri, $text) = @_;
-    $uri = "$pathprefix/$uri" if ($uri !~ $scheme_re);
-    "<img src=\"$uri\" alt=\"$text\" />";
+    my ($uri, $linktext) = @_;
+    $uri = rooted_href($uri);
+    "<img src=\"$uri\" alt=\"$linktext\" />";
 }
 
-sub href_link {
-    my ($uri, $text) = @_;
-    if ($uri =~ $scheme_re) {
-        $uri = "$pathprefix/out/$uri";
-    } else {
-        $uri = "$pathprefix/$uri";
-    }
-    "<a href=\"$uri\">$text</a>";
+# Make an anchor, given a URI and link text. If the URI matches the
+# $http_scheme RE, prefix it with "out/" so we can log when it is followed.
+# Then, add $pathprefix and create the a element.
+sub a_link {
+    my ($uri, $linktext) = @_;
+    $uri = "out/$uri" if ($uri =~ $http_scheme);
+    "<a href=\"$pathprefix/$uri\">$linktext</a>";
 }
 
 sub manpage {
     my ($man, $section) = @_;
-    return href_link("http://www.freebsd.org/cgi/man.cgi?query=$man&sektion=$section", "<code class=\"man\">$man($section)</code>");
+    return a_link("http://www.freebsd.org/cgi/man.cgi?query=$man&sektion=$section", "<code class=\"man\">$man($section)</code>");
 }
 
 sub inline_markup {
@@ -332,7 +327,7 @@ sub inline_markup {
     # obfuscated mailto links: [[mailto:email link text]]
     # link text is required, since what would we put there other than the
     # unescaped mailto address, thereby making the whole thing moot?
-    s#\[\[mailto:(\S+)\s+(.+)\]\]#hide(obfuscate_mailto($1, $2))#ge;
+    s#\[\[mailto:(\S+)\s+(.+)\]\]#hide(obfuscated_mailto_link($1, $2))#ge;
 
     # Since Flickr claims that we're in violation of their Terms of Service
     # unless we link images to their flickr page, I've made some special
@@ -354,10 +349,10 @@ sub inline_markup {
     s#\[\[img (\S+\.(?:jpg|jpeg|gif|png))\s+(.+?)\]\]#hide(img_link($1,$2))#ge;
 
     # unnamed href link: [[uri]]
-    s#\[\[(\S+?)\]\]#hide(href_link($1,$1))#ge;
+    s#\[\[(\S+?)\]\]#hide(a_link($1,$1))#ge;
 
     # generic href link: [[url lots of link text]]
-    s#\[\[(\S+?)\s+(.+?)\]\]#hide(href_link($1,$2))#ge;
+    s#\[\[(\S+?)\s+(.+?)\]\]#hide(a_link($1,$2))#ge;
 
     # ISBN ...
     # RFC ...
