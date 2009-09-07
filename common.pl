@@ -18,12 +18,10 @@ $http_scheme = qr#^[[:alpha:]+]+://#o;
 
 ### Set defaults ###
 $pagedir = "$ENV{'DOCUMENT_ROOT'}/pages";
+$webhamster = "$ENV{'SERVER_ADMIN'}";
 $archivedir = "$pagedir/archive";
 $use_subversion = 0;  # default to off
 $svn = "/usr/local/bin/svn";  # default to BSD-like path
-
-### Read in site configuration variables ###
-do "../config.pl";
 
 ### Read in per-domain configuration variables ###
 do "$ENV{'DOCUMENT_ROOT'}/config.pl";
@@ -280,7 +278,7 @@ sub generate_xhtml {
     unshift @styles, "_style/screen";
 
     # prefix with $pathprefix unless already an absolute URI
-    $iconimgsrc = rooted_href($iconimgsrc);
+    $iconsrc = rooted_href($iconsrc);
 
     # Only display icon if we're *not* editing. There is a subtlety:
     # since a save may fail (due to collision) we could be editing even
@@ -288,7 +286,7 @@ sub generate_xhtml {
     my $home_link = ($script =~ m/edit|save/)
         ? ""
         : hyper(clean(<<"IMG"), script_href("show", $defaultpage));
-<img id="icon" src="$iconimgsrc" alt="$iconimgalt" />
+<img id="icon" src="$iconsrc" alt="$iconalt" />
 IMG
 
     $robots = "no" if $editable;
