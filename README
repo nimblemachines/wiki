@@ -18,23 +18,38 @@ ugly Bourne shell script I would publish it). I'm using /home/www as an
 example root; everything - code, data (files, images, pages), logs is based
 there. The wiki code is checked out into scripts/wiki/.
 
+Update!! A vastly improved version of the previously ghastly ugly shell script
+is available at
+
+  http://github.com/nimblemachines/wiki-apache-tools/tree
+
+Here, for good measure, is a snippet of config that it produced:
 --------------------------------------------------------------------------
 # This file is automagically generated. DO NOT EDIT!!
 <VirtualHost *>
   DocumentRoot /home/www/data/example.com
-  CustomLog    /home/www/logs/www.example.com/access_log combined
-  ErrorLog     /home/www/logs/wwwdev.example.com/error_log
-  ServerName   www.example.com
-  ServerAdmin  webhamster@www.example.com
+  CustomLog    /home/www/logs/edit.example.com/access_log combined
+  ErrorLog     /home/www/logs/edit.example.com/error_log
+  UseCanonicalName On
+  ServerName   edit.example.com
+  ServerAdmin  webhamster@example.com
+  ServerAlias  wiki.example.com
 
-  RedirectMatch	^/$		/show
+  <DirectoryMatch ^/home/www/data/example.com/(files|images|styles)>
+    Options MultiViews FollowSymLinks
+    AllowOverride Indexes
+    Order Allow,Deny
+    Allow from all
+  </DirectoryMatch>
+
+  RedirectMatch	^/$		http://edit.example.com/show
   RedirectMatch	^/out/(.*)	$1
+
   Alias		/robots.txt	/home/www/scripts/wiki/robots.txt.readwrite
-  Alias		/image/		/home/www/data/example.com/images/
-  Alias		/file/		/home/www/data/example.com/files/
-  Alias		/_image/	/home/www/scripts/wiki/_images/
-  Alias		/style/		/home/www/scripts/wiki/styles/
+  AliasMatch	^/(file|image|style)/(.*)	/home/www/data/example.com/$1s/$2
+  AliasMatch	^/_(image|style)/(.*)		/home/www/scripts/wiki/$1s/$2
   ScriptAlias	/		/home/www/scripts/wiki/actions/
+  SetEnv	SITEMODE	readwrite
 </VirtualHost>
 --------------------------------------------------------------------------
 
@@ -46,17 +61,15 @@ and I edited the writable version), change the robots.txt Alias to
 
   Alias		/robots.txt	/home/www/scripts/wiki/robots.txt.readonly
 
-and add the following line
-
-  SetEnv	READONLY	1
+and change SITEMODE to readonly.
 
 Some highlights of the directory structure:
 
-scripts/wiki/config.pl
-   is a shared, site-wide configuration
+logs/example.com/
+   contains the access and error logs
 
 data/example.com/config.pl
-   can be used to override the above settings
+   sets configuration variables
 
 data/example.com/pages/
    contains the wiki pages
@@ -71,16 +84,26 @@ whatever.
 
 data/example.com/files/
 data/example.com/images/
-   contain static files and images, resp.
-   To link to an image, use a URL like "image/<name>"; for files, "file/<name>"
+data/example.com/styles/
+   contain site-specific static files, images, and styles, resp.
+   To link use a URL like image/<name>, file/<name>, or style/<name>
+
+scripts/wiki/actions
+   The CGI scripts to show, edit, save, etc.
+
+scripts/wiki/images/
+scripts/wiki/styles/
+   contain installation-wide static images and styles, resp.
+   To link use a URL like _image/<name> or _style/<name>
+   (NOTE the leading underscore.)
 
 Here is an example of what data/example.com/config.pl might look like:
 --------------------------------------------------------------------------
-$webhamster = 'webhamster@example.com';
 $wikiname = "My totally stellar wiki";
-$defaultpage = "WelcomeHome";
-$iconimgsrc = "image/spiffy.png";
-$iconimgalt = "My totally spiffy icon";
+$defaultpage = "WelcomeVisitors";
+$iconsrc = "image/spiffy.png";
+$iconalt = "My totally spiffy icon";
+@styles = ( "style/skate", "http://gruvalicious/com/style/external" );
 
 ## typographic style
 $convert_endash = 1;
@@ -99,6 +122,4 @@ $flickr_name = "<your flickr name>";
 
 I don't have a glossary of the markup. I probably should. I'm sure you can
 figure it out from reading render.pl. ;-)
-
-And do I need those silly .htaccess files any more?
 
