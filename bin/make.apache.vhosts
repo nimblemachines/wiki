@@ -228,6 +228,7 @@ www:www, do this:
 EOT
 }
 
+mkdir -p ${vhosts}
 rm -f ${vhosts}/*
 
 gen_server_config
