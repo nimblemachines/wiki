@@ -145,7 +145,7 @@ EOT
 
   Alias		/robots.txt	${wiki}/robots.txt.${sitemode}
   AliasMatch	^/(file|image|style)/(.*)	${docroot}/\$1s/\$2
-  AliasMatch	^/_(file|image|style)/(.*)	${wiki}/\$1s/\$2
+  AliasMatch	^/_(image|style)/(.*)		${wiki}/\$1s/\$2
   ScriptAlias	/		${wiki}/actions/
   SetEnv	SITEMODE	${sitemode}
 </VirtualHost>
