@@ -6,8 +6,13 @@ $wikiword = "I|A|[A-Z][a-z]+";
 $wikilink = "(?:$wikiword){2,}";
 $interprefix = "[A-Za-z.]+";
 $interquery = "[A-Za-z0-9+_()]+";
+
 # HTTP scheme pattern; promise to Perl that we won't change this, so it can
-# be compiled once (the 'o' modifier).
+# be compiled once (the 'o' modifier). And, by the way, those + characters
+# do two different things: one is inside a character class (alpha or +);
+# the other says "we want one or more". So $http_scheme can match "http://"
+# but also "svn+ssh://" (for those of you unlucky enough to still be using
+# Subversion ;-).
 $http_scheme = qr#^[[:alpha:]+]+://#o;
 
 
