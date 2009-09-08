@@ -2,6 +2,12 @@
 
 $| = 1;   # flush after each print
 
+# get the version
+do "../version.pl";
+
+# get the "pages" abstraction code
+do "../pages.pl";
+
 $wikiword = "I|A|[A-Z][a-z]+";
 $wikilink = "(?:$wikiword){2,}";
 $interprefix = "[A-Za-z.]+";
@@ -15,22 +21,17 @@ $interquery = "[A-Za-z0-9+_()]+";
 # Subversion ;-).
 $http_scheme = qr#^[[:alpha:]+]+://#o;
 
-
 ### Set defaults ###
-$pagedir = "$ENV{'DOCUMENT_ROOT'}/pages";
 $webhamster = "$ENV{'SERVER_ADMIN'}";
-$archivedir = "$pagedir/archive";
-$use_subversion = 0;  # default to off
-$svn = "/usr/local/bin/svn";  # default to BSD-like path
 
 ### Read in per-domain configuration variables ###
 do "$ENV{'DOCUMENT_ROOT'}/config.pl";
 
-if ($ENV{'SITEMODE'} eq "readonly") {
-    $editable = 0;
-} else {
+if ($ENV{'SITEMODE'} eq "readwrite") {
     $editable = 1;
     $wikiname = "Edit $wikiname";      # remind us
+} else {
+    $editable = 0;
 }
 
 $content = "";
@@ -206,24 +207,44 @@ sub hyper {
 
 sub make_wiki_link {
     my ($page) = @_;
-    page_linkedfrom($page);     # record that we link to this page
-    ((page_exists($page))[0])
+    #page_linkedfrom($page);     # record that we link to this page
+    page_exists($page)
         ?              hyper($page, script_href("show", $page))
         : ($editable ? hyper($page, script_href("edit", $page), "missing")
                      : "$page");
 }
 
-sub fancy_title {
-    my ($title) = @_;
+# Convert "CamelCase" to "Camel Case", to make nice page titles. We first
+# covert to our new-style page name (Camel_Case); and then, by replacing
+# underscores with spaces, to a nice page title.
 
+sub fancy_title {
+    my ($name) = @_;
+    $name = uncamelcase($name);
+    $name =~ tr/_/ /;
+    $name
+}
+
+# Convert a page name (in CamelCase) to a new-style name, with underscores
+# separating the wiki words - so CamelCase becomes Camel_Case.
+
+sub uncamelcase {
+    my ($name) = @_;
     # Separate wikiwords with spaces. I split this into *two* expressions
     # because it wasn't working when I folded them together. My conjecture
     # is that the one-letter REs (I and A) need to match both at the
     # beginning and the end of a wikiword (since they are only one letter
     # long); but the RE matching rules only lets them match once.
-    $title =~ s/([a-z])([A-Z])/$1 $2/g;    # end of one, start of another
-    $title =~ s/([IA])([A-Z])/$1 $2/g;     # special wikiwords I and A
-    $title
+    $name =~ s/([a-z])([A-Z])/$1_$2/g;    # end of one, start of another
+    $name =~ s/([IA])([A-Z])/$1_$2/g;     # special wikiwords I and A
+    return "$name";
+}
+
+# going the other way is easy...
+sub camelcase {
+    my ($name) = @_;
+    $name =~ s/_//g;
+    return "$name";
 }
 
 # Since we use HERE documents in the following code to quote chunks of HTML
@@ -333,6 +354,9 @@ sub findfooter {
 sub validator {
     return unless $editable;
     push @footerlines, clean(<<"VALID");
+<p>
+wiki commit $current_version_sha1
+</p>
 <p>
   <a href="http://validator.w3.org/check/referer">
     <img src="${pathprefix}/_image/valid-xhtml10-blue" alt="Valid XHTML 1.0 Strict!" />

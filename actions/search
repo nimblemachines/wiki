@@ -3,13 +3,13 @@
 do "../common.pl";
 
 sub do_text_search {
-    my @matches = filter_pages($pagedir, sub { page_text($_) =~ m/$page/i });
+    my @matches = filter_pages(sub { page_text($_) =~ m/$page/i });
     gen_search_page("Pages mentioning $page",
                     "Pages mentioning <em>$page</em>", @matches);
 }
 
 sub do_name_search {
-    my @matches = filter_pages($pagedir, sub { m/$page/i });
+    my @matches = filter_pages(sub { m/$page/i });
     gen_search_page("Page names containing $page",
                     "Page names containing <em>$page</em>", @matches);
 }
