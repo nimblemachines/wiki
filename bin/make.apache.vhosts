@@ -32,8 +32,10 @@ gen_server_config () {
     Deny from all
 </Directory>
 
-# Allow access to actions/ images/ styles/
-<DirectoryMatch ^${wiki}/(actions|images|styles)>
+# Allow access to actions/ files/ images/ styles/
+# robots.txt.* are now in files/
+
+<DirectoryMatch ^${wiki}/(actions|files|images|styles)>
     Options MultiViews
     Order allow,deny
     Allow from all
@@ -143,7 +145,7 @@ EOT
   RedirectMatch	^/$		http://$sub.$dom/show
   RedirectMatch	^/out/(.*)	\$1
 
-  Alias		/robots.txt	${wiki}/robots.txt.${sitemode}
+  Alias		/robots.txt	${wiki}/files/robots.txt.${sitemode}
   AliasMatch	^/(file|image|style)/(.*)	${docroot}/\$1s/\$2
   AliasMatch	^/_(image|style)/(.*)		${wiki}/\$1s/\$2
   ScriptAlias	/		${wiki}/actions/
