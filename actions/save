@@ -3,28 +3,14 @@
 do "../common.pl";
 do "../edit-common.pl";
 
-sub run_svn {
-    my @svn = ("$svn", @_);
-    if ($use_subversion) {
-        system(@svn) == 0 or die "can't run @svn: $!";
-    }
-}
-
-sub write_file {
-    my ($filename, $contents) = @_;
-
-#    print STDERR "writing file $filename = $contents\n";
-    open F, "> $filename" or choke("open $filename (for writing) failed: $!");
-    print F $contents;
-    close F;
-}
-
+# Could use an attrib for this?
+# backup-<modtime> or something?
 sub make_backup_page {
     my ($page, $modstring) = @_;
     my $file = "$pagedir/$page";
     if (-r "$file" && -f "$file") {
         my $backup_file = "$archivedir/$page." . $modstring;
-        write_file($backup_file, page_text($page));
+        write_file($backup_file, page_attrib($page, 'markup'));
     }
 }
 
@@ -32,7 +18,7 @@ sub do_save {
     my $edit = $form{'edittext'};
     $edit =~ s/\r//g;   # CRLF -> LF
 
-    my $mod_current = page_modtime("$page");
+    my $mod_current = page_attrib("$page", 'modtime');
 
     # we have to check for edit collisions
     if ($mod_current != $form{'modtime'}) {
@@ -51,8 +37,7 @@ to merge your changes.
     # check if user wants to delete the page - edittext has to consist
     # solely of the words "chainsaw kitty"
     if ($form{'edittext'} =~ m/^chainsaw kitty$/i) {
-        run_svn("rm", "-q", "$pagedir/$page");
-        run_svn("ci", "-q", "-m", "wiki: deleted $page", "$pagedir/");
+        delete_page(uncamelcase($page));
         $page = $defaultpage;        # gotta go somewhere!
         return "ok";
     }
@@ -60,7 +45,15 @@ to merge your changes.
 #    make_backup_page("$page", iso_timestamp("$mod_current"));
 
     # convert time stamps - now honors <pre>
-    my $stamp = stamp(time());
+    my $now = time();               # current (file write) time
+    my $stamp = stamp($now);
+
+# XXX: remove 2nd \n after I fix ul code!!
+# XXX: and add back in the '* ' at the start of the line!!
+#    my $text = "* $page (modified $stamp from $ip)\n\n";
+
+    my $ip = $ENV{'REMOTE_ADDR'};
+    my $whatchanged = "$page ... $stamp ... $ip";
 
     # XXX: change this when splitting method changes in rendering code
     # we're going to do "paragraph" markup delimited with multiple newlines
@@ -74,40 +67,27 @@ to merge your changes.
         $para =~ s/\[now\]/$stamp/ge unless $para =~ m/^\s+/;
     }
 
-    # if this is a new page, do an "svn add"; but not until the page exists!
-    my $svnadd = (-f "$pagedir/$page") ? 0 : -1;
+    my %newpage = ();      # should this be the cached page?
+    $newpage{'name'} = uncamelcase($page);
+    $newpage{'modtime'} = $now;
+    $newpage{'editcomment'} = "";       # this should delete it
+    $newpage{'tags'} = $form{'tags'};
 
-    # capture current (file write) time so "svn ps modtime" is accurate
-    my $new_modtime = time();
+    # join paras together separated by \n\n
+    $newpage{'markup'} = join "\n\n", @paras;
 
-    # joins bits together separated by \n\n
-    write_file("$pagedir/$page", (join "\n\n", @paras));
-
-    # now we can do the actual svn add
-    if ($svnadd) {
-        run_svn("add", "-q", "$pagedir/$page");
-    }
-
-# XXX: remove 2nd \n after I fix ul code!!
-# XXX: and add back in the '* ' at the start of the line!!
-#    my $text = "* $page (modified $stamp from $ip)\n\n";
-
-    # moved this out here so svn ci can use it too.
-    my $ip = $ENV{'REMOTE_ADDR'};
-    my $changed = "$page ... $stamp ... $ip";
+    # save it! but don't clobber existing attribs that we aren't explicitly
+    # writing.
+    put_page_attribs(%newpage);
 
     # prefix existing contents of RecentChanges with newest entry.
-    my $contents = $changed . "\n\n" . page_text("RecentChanges");
-    write_file("$pagedir/RecentChanges", $contents);
+    my %recentchanges = get_page("Recent_Changes");     # uncamelcased !!
+    $recentchanges{'markup'} = $changed . "\n\n" . $recentchanges{'markup'};
+    put_page_attribs(%recentchanges);               # no need to put_page
 
-    # update modtime property
-    run_svn("ps", "-q", "modtime", "$new_modtime", "$pagedir/$page");
-
-    # update editcomment property
-    run_svn("ps", "-q", "editcomment", "$form{'comment'}", "$pagedir/$page");
-
-    # check in change to svn repo
-    run_svn("ci", "-q", "-m", "wiki: $changed\ncomment: $form{'comment'}", "$pagedir/");
+    # check in change to git repo
+    # put_page and put_page_attribs do "git add"
+    #git("commit", "-m", "wiki: $changed");
 
     return "ok";
 }

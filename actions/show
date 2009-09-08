@@ -12,7 +12,7 @@ do "../render.pl";
 # generate_xhtml($title, $page_heading);
 sub do_show {
     my $robots = "";
-    $_ = page_text($page);
+    $_ = page_attrib($page, 'markup');
 
     # if not editable and non-existent, return a 404 Not found error page.
     # This is mostly so spiders know that the page really doesn't exist.

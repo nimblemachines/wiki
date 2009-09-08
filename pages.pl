@@ -27,14 +27,9 @@ $pagedir = "$ENV{'DOCUMENT_ROOT'}/newpages";
 # Once I officially deprecate CamelCase (coming soon!) this ugliness can go
 # away.
 
-sub page_text {
-    my ($name) = @_;
-    return cached_page_attrib(uncamelcase($name), 'markup');
-}
-
-sub page_modtime {
-    my ($name) = @_;
-    return int(cached_page_attrib(uncamelcase($name), 'modtime'));
+sub page_attrib {
+    my ($name, $attrib) = @_;
+    return cached_page_attrib(uncamelcase($name), $attrib);
 }
 
 sub page_exists {
@@ -173,15 +168,20 @@ sub get_page_attrib {
 
 # put_page_attribs is used to _replace_ or _add_ page attributes, unlike
 # put_page, which deletes from the filesystem any attributes which aren't
-# in the hash.
+# in the hash. However, put_page_attribs _does_ delete files for attributes
+# that have keys but no value, or that are the empty string.
 
 sub put_page_attribs {
     my (%page) = @_;
     my $dir = page_to_dir($page{'name'});
 
     mkdir "$dir" unless (-d "$dir");
-    foreach my $key (keys %page) {
-        write_file("$dir/$key", $page{$key}) unless $key =~ m/name|exists/;
+    foreach my $key (grep { ! m/name|exists/ } (keys %page)) {
+        if (!defined $page{$key} || $page{$key} eq "") {
+            unlink("$dir/$key");
+        } else {
+            write_file("$dir/$key", $page{$key});
+        }
     }
 }
 

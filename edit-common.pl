@@ -1,6 +1,7 @@
 sub make_edit_page {
-    my $text = page_text($page);
-    my $mod = page_modtime($page);
+    my $text = page_attrib($page, 'markup');
+    my $mod = page_attrib($page, 'modtime');
+    my $tags = page_attrib($page, 'tags');
     my $action_href = script_href("save", $page);
 
     $content .= <<"" unless $text;
@@ -14,8 +15,8 @@ sub make_edit_page {
     <textarea name="edittext" rows="25" cols="75">$text</textarea>
   </p>
   <p>
-    What did you change? Your comments will be added to Subversion:<br />
-    <input type="text" name="comment" value="" size="75" />
+    Enter tags, separated by commas:<br />
+    <input type="text" name="tags" value="$tags" size="75" />
   </p>
   <p>
     <input type="submit" name="submit"  value="Save" />
