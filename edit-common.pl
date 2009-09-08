@@ -1,5 +1,3 @@
-# $Id$
-
 sub make_edit_page {
     my $text = page_text($page);
     my $mod = page_modtime($page);

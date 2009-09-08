@@ -1,48 +1,125 @@
-$Id$
+I've put this code online in the hope that it might be useful or
+interesting; however, it's quirky and idiosyncratic and rather narrowly
+focussed on my needs, so the likelihood that anyone else will have any use
+for it is rather small. ;-)
 
-Edit config.pl so that it makes sense for your wiki site.
+However, if you want to play around, it's not that difficult. It requires
+some oddball Apache config, though.
 
-If you want to use this wiki with web-writable pages, then you need to (as
-root!)
+Initially I wanted to be able to drop this code into a directory, edit the
+.htaccess file, and be good to go - WordPress style. Later I wanted to host
+a few sites on the same machine that shared a copy of the wiki code, so I
+reworked the code to do that. I doubt you can really use it the other way
+any more without a lot of work.
 
-  chown -R www pages
+To get you started, I'll quote an example Apache Vhosts config file that I
+use (these are automatically generated, and if the script weren't a ghastly
+ugly Bourne shell script I would publish it). I'm using /home/www as an
+example root; everything - code, data (files, images, pages), logs is based
+there. The wiki code is checked out into scripts/wiki/.
 
-assuming www is the user that the server runs as.
+Update!! A vastly improved version of the previously ghastly ugly shell script
+is available at
 
-If you want a readonly "wiki", you'll want to do two things:
+  http://github.com/nimblemachines/wiki-apache-tools/tree
 
-  * have the pages/ tree owned by any user other than www;
-  * change $editscript (in config.pl) to "never"
+Here, for good measure, is a snippet of config that it produced:
+--------------------------------------------------------------------------
+# This file is automagically generated. DO NOT EDIT!!
+<VirtualHost *>
+  DocumentRoot /home/www/data/example.com
+  CustomLog    /home/www/logs/edit.example.com/access_log combined
+  ErrorLog     /home/www/logs/edit.example.com/error_log
+  UseCanonicalName On
+  ServerName   edit.example.com
+  ServerAdmin  webhamster@example.com
+  ServerAlias  wiki.example.com
 
-The only URIs that fire up the CGI script are / (invokes the
-DirectoryIndex, which invokes "wiki") and /wiki. Since "never" matches
-neither, no pages will be editable.
+  <DirectoryMatch ^/home/www/data/example.com/(files|images|styles)>
+    Options MultiViews FollowSymLinks
+    AllowOverride Indexes
+    Order Allow,Deny
+    Allow from all
+  </DirectoryMatch>
 
-It's also possible to do this (in .htaccess):
+  RedirectMatch	^/$		http://edit.example.com/show
+  RedirectMatch	^/out/(.*)	$1
 
----------------------------------------------------------
-DirectoryIndex browse
-Options ExecCGI FollowSymLinks
+  Alias		/robots.txt	/home/www/scripts/wiki/robots.txt.readwrite
+  AliasMatch	^/(file|image|style)/(.*)	/home/www/data/example.com/$1s/$2
+  AliasMatch	^/_(image|style)/(.*)		/home/www/scripts/wiki/$1s/$2
+  ScriptAlias	/		/home/www/scripts/wiki/actions/
+  SetEnv	SITEMODE	readwrite
+</VirtualHost>
+--------------------------------------------------------------------------
 
-<Files wiki>
-  SetHandler cgi-script
-  AuthType Basic
-  AuthName "My private wiki"
-  AuthUserFile /some/path/to/passwd/file
+This config assumes a writable wiki. That robots.txt file prevents
+spiders from indexing the site.
 
-# this is optional:
-  Require user foobar
-</Files>
+For a readonly version (I had a readonly mirror of my site that was public,
+and I edited the writable version), change the robots.txt Alias to
 
-<Files browse>
-  SetHandler cgi-script
-</Files>
----------------------------------------------------------
+  Alias		/robots.txt	/home/www/scripts/wiki/robots.txt.readonly
 
-Assuming $editscript is set to "wiki", this will allow only authenticated
-users to write the wiki (via wiki?page); for most users it will be
-readonly (thru the "browse" script), and now DirectoryIndex points to
-browse. browse is, of course, symlinked to the wiki script.
+and change SITEMODE to readonly.
 
+Some highlights of the directory structure:
 
+logs/example.com/
+   contains the access and error logs
+
+data/example.com/config.pl
+   sets configuration variables
+
+data/example.com/pages/
+   contains the wiki pages
+
+Assuming the web server is running as user www, group www, you'll need to
+do something like this to make your pages editable by the server, and still
+writable by you - for doing random things from the command line or
+whatever.
+
+  # chgrp -R www pages/
+  # chmod -R g+w pages/
+
+data/example.com/files/
+data/example.com/images/
+data/example.com/styles/
+   contain site-specific static files, images, and styles, resp.
+   To link use a URL like image/<name>, file/<name>, or style/<name>
+
+scripts/wiki/actions
+   The CGI scripts to show, edit, save, etc.
+
+scripts/wiki/images/
+scripts/wiki/styles/
+   contain installation-wide static images and styles, resp.
+   To link use a URL like _image/<name> or _style/<name>
+   (NOTE the leading underscore.)
+
+Here is an example of what data/example.com/config.pl might look like:
+--------------------------------------------------------------------------
+$wikiname = "My totally stellar wiki";
+$defaultpage = "WelcomeVisitors";
+$iconsrc = "image/spiffy.png";
+$iconalt = "My totally spiffy icon";
+@styles = ( "style/skate", "http://gruvalicious/com/style/external" );
+
+## typographic style
+$convert_endash = 1;
+$convert_emdash = 0;   # I don't like em-dashes. ;-)
+$convert_quotes = 1;
+
+$flickr_user = "<your flickr user number>";
+$flickr_name = "<your flickr name>";
+
+%metas = (
+    keywords => "stellar, awesome, everybody to the limit, wiki";
+    description => "A wiki about something I care about.";
+    copyright => "This should be some kind of Creative Commons license. ;-)";
+);
+--------------------------------------------------------------------------
+
+I don't have a glossary of the markup. I probably should. I'm sure you can
+figure it out from reading render.pl. ;-)
 

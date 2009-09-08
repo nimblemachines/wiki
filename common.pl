@@ -7,13 +7,26 @@ $wikilink = "(?:$wikiword){2,}";
 $interprefix = "[A-Za-z.]+";
 $interquery = "[A-Za-z0-9+_()]+";
 
-### Read in site configuration variables ###
-do "config.pl";
+# HTTP scheme pattern; promise to Perl that we won't change this, so it can
+# be compiled once (the 'o' modifier). And, by the way, those + characters
+# do two different things: one is inside a character class (alpha or +);
+# the other says "we want one or more". So $http_scheme can match "http://"
+# but also "svn+ssh://" (for those of you unlucky enough to still be using
+# Subversion ;-).
+$http_scheme = qr#^[[:alpha:]+]+://#o;
+
+
+### Set defaults ###
+$pagedir = "$ENV{'DOCUMENT_ROOT'}/pages";
+$webhamster = "$ENV{'SERVER_ADMIN'}";
+$archivedir = "$pagedir/archive";
+$use_subversion = 0;  # default to off
+$svn = "/usr/local/bin/svn";  # default to BSD-like path
 
 ### Read in per-domain configuration variables ###
 do "$ENV{'DOCUMENT_ROOT'}/config.pl";
 
-if ($ENV{'READONLY'}) {
+if ($ENV{'SITEMODE'} eq "readonly") {
     $editable = 0;
 } else {
     $editable = 1;
@@ -33,13 +46,31 @@ $content = "";
 # actions: show, edit, diff, save, maybe linksto
 # queries: search
 
-# everything but the script name
+# SCRIPT_NAME starts with a /
+# last part of path is script we are running
 my @scriptpath = split '/', $ENV{'SCRIPT_NAME'};
 my $script = pop @scriptpath;
-$pathprefix = join '/', @scriptpath;
 
-# can we do the same thing with pathinfo?
-# not exactly - working on the other end of the array
+# With "UseCanonicalName On" in the server config, SERVER_NAME gets set to
+# ServerName in VHost configuration, regardless of the Host header
+# specified in the HTTP request. If the user request refers to a
+# ServerAlias, HTTP_HOST will differ from SERVER_NAME. If that's true, make
+# a pathprefix that "canonicalises" all script_hrefs by making them
+# absolute URIs referring to the SERVER_NAME, so the first link that the
+# user follows will be to the canonical name.
+#
+# If HTTP_HOST and SERVER_NAME are the same, just use "root local"
+# script_hrefs, like "/show/PageName".
+
+$canonicalise = ($ENV{'HTTP_HOST'} ne $ENV{'SERVER_NAME'})
+    ? "http://$ENV{'SERVER_NAME'}"
+    : "";
+
+$pathprefix = $canonicalise . join '/', @scriptpath;
+
+# PATH_INFO starts with a / followed by pagename. If there is another /
+# then $pathjunk will get defined, and we'll redirect; see below.
+
 my (undef, $reqpage, $pathjunk) = split '/', $ENV{'PATH_INFO'};
 
 # if no page specified, default its value
@@ -143,6 +174,22 @@ sub stamp {
     "$year $month $mday $hour:$min";
 }
 
+# We want the hrefs we generate - in links and such - to be "rooted" rather
+# than relative. This doesn't mean that we have put a full scheme,
+# hostname, and path in there, though. But for local - or what I like to
+# call "root relative" URIs - those that refer back to resources on the
+# same host - we prepend a path prefix, that, in the common case, is simply
+# a slash.
+#
+# If the URI is already an absolute URI, we leave it alone. It's already
+# rooted.
+
+sub rooted_href {
+    my ($uri) = @_;
+    $uri = "$pathprefix/$uri" unless ($uri =~ $http_scheme);
+    return "$uri";
+}
+
 # XXX should this be called make_path or abs_path or something? Now that's
 # all it does!
 sub script_href {
@@ -207,12 +254,11 @@ sub generate_xhtml {
     $heading = hyper("$title", script_href("search?text=$page"))
         unless $heading;
 
-    @styles = ( "style/screen" );
-    # if "local" style is set, create another <link> for it
-    push @styles, "static/$style" if $style;
+    # push default style onto front of @styles
+    unshift @styles, "_style/screen";
 
-    # if not using a default icon, rewrite URI to get site's image dir
-    $iconimgsrc = "static/$iconimgsrc" unless $iconimgsrc =~ m/^_images/;
+    # prefix with $pathprefix unless already an absolute URI
+    $iconsrc = rooted_href($iconsrc);
 
     # Only display icon if we're *not* editing. There is a subtlety:
     # since a save may fail (due to collision) we could be editing even
@@ -220,7 +266,7 @@ sub generate_xhtml {
     my $home_link = ($script =~ m/edit|save/)
         ? ""
         : hyper(clean(<<"IMG"), script_href("show", $defaultpage));
-<img id="icon" src="$pathprefix/$iconimgsrc" alt="$iconimgalt" />
+<img id="icon" src="$iconsrc" alt="$iconalt" />
 IMG
 
     $robots = "no" if $editable;
@@ -231,8 +277,8 @@ IMG
 META
 
     # combine into html link elems
-    my $stylesheets = join "\n", (map clean(<<"LINK"), @styles);
-<link rel="stylesheet" href="$pathprefix/$_" type="text/css" />
+    my $stylesheets = join "\n", (map clean(<<"LINK"), (map rooted_href($_), @styles));
+<link rel="stylesheet" href="$_" type="text/css" />
 LINK
 
     # string together footer lines, separated by <br />
@@ -289,10 +335,10 @@ sub validator {
     push @footerlines, clean(<<"VALID");
 <p>
   <a href="http://validator.w3.org/check/referer">
-    <img src="${pathprefix}/_images/valid-xhtml10-blue" alt="Valid XHTML 1.0 Strict!" />
+    <img src="${pathprefix}/_image/valid-xhtml10-blue" alt="Valid XHTML 1.0 Strict!" />
   </a>
   <a href="http://jigsaw.w3.org/css-validator/check/referer">
-    <img src="${pathprefix}/_images/valid-css-blue" alt="Valid CSS!" />
+    <img src="${pathprefix}/_image/valid-css-blue" alt="Valid CSS!" />
   </a>
 </p>
 VALID

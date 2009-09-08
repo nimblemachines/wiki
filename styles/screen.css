@@ -1,11 +1,9 @@
 /*
- * $Id$
- *
- * Style sheet for nimblemachines.com wiki
+ * Basic style sheet for wiki sites
  */
 
 body {
-  margin: 40px 3pc 1pc 5pc;  /* top should be -icon top for icon flush */
+  margin: 3pc 3pc 1pc 5pc;
   width: 37pc;
 /*  border: blue solid 1px; */
 }
@@ -19,8 +17,8 @@ div#footer a img {
 }
 
 img#icon {
-  border: solid black 1px;
-  margin:  -30px -60px 1pc 1pc;  /* current icon is 240px w * 180 px h */
+  /* border: solid black 1px; */
+  margin:  0 0 0 0;
   padding: 0;
   float: right;
 }
@@ -69,6 +67,7 @@ div#content {
 }
 
 div#footer {
+  clear: right;  /* so it can't run into icon */
 /*  border: solid teal 1px; */
 /*  background: #cceeee; */
 /*  font-size: 80%; */

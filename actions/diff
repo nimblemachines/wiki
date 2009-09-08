@@ -1,7 +1,5 @@
 #!/usr/bin/perl -w
 
-# $Id$
-
 ### Read in common code ###
 do "common.pl";
 
