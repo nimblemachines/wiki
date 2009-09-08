@@ -38,7 +38,10 @@ to merge your changes.
     # solely of the words "chainsaw kitty"
     if ($form{'edittext'} =~ m/^chainsaw kitty$/i) {
         delete_page(uncamelcase($page));
-        $page = $defaultpage;        # gotta go somewhere!
+        # if the page DeletedPage exists, show it; otherwise show homepage
+        $page = page_exists("DeletedPage")
+            ? "DeletedPage"     # notify user
+            : $defaultpage;     # gotta go somewhere!
         return "ok";
     }
         
