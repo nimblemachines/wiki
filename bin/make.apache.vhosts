@@ -60,12 +60,12 @@ gen_domain_vhost () {
     docroot=${www_root}/data/$dom
     logroot=${www_root}/logs/$sub.$dom
     mkdir -p ${logroot} ${docroot}
-    admin="webhamster"
-    [ -f $dir/admin ] && admin=$(cat $dir/admin)
+    admin="webhamster@$dom"
+    [ -f $dir/../admin ] && admin=$(eval echo $(cat $dir/../admin))
 
     # Set up whether site is readonly or readwrite. This affects which
-    # robots.txt file is served, and also whether an EnvVar (that the
-    # action scripts read) gets set or not.
+    # robots.txt file is served, and also how an EnvVar (that the action
+    # scripts read) gets set.
     sitemode="readwrite"
     [ -f $dir/readonly ] && sitemode="readonly"
 
@@ -78,7 +78,7 @@ gen_domain_vhost () {
   ErrorLog     ${logroot}/error_log
   UseCanonicalName On
   ServerName   $sub.$dom
-  ServerAdmin  ${admin}@$dom
+  ServerAdmin  ${admin}
 EOT
 
     # Generate server aliases
