@@ -2,7 +2,7 @@
 
 # Return a page of links to pages that are referenced but don't exist.
 
-do "../common.pl";
+do "../common.perl";
 
 %missing = ();
 opendir PAGES, "$pagedir" or die "can't opendir $pagedir: $!";

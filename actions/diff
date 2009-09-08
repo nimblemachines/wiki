@@ -1,10 +1,13 @@
 #!/usr/bin/perl -w
 
+### NOTE: This doesn't work! Sadly I'm still generating /diff/FooBar links,
+### but they don't work.
+
 ### Read in common code ###
-do "common.pl";
+do "../common.perl";
 
 ### Get rendering code ###
-do "render.pl";
+do "../render.perl";
 
 sub do_diff {
     # get a time stamp for the earlier version of the page

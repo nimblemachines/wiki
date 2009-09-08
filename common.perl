@@ -3,10 +3,10 @@
 $| = 1;   # flush after each print
 
 # get the version
-do "../version.pl";
+do "../version.perl";
 
 # get the "pages" abstraction code
-do "../pages.pl";
+do "../pages.perl";
 
 $wikiword = "I|A|[A-Z][a-z]+";
 $wikilink = "(?:$wikiword){2,}";
@@ -25,7 +25,7 @@ $http_scheme = qr#^[[:alpha:]+]+://#o;
 $webhamster = "$ENV{'SERVER_ADMIN'}";
 
 ### Read in per-domain configuration variables ###
-do "$ENV{'DOCUMENT_ROOT'}/config.pl";
+do "$ENV{'DOCUMENT_ROOT'}/config.perl";
 
 if ($ENV{'SITEMODE'} eq "readwrite") {
     $editable = 1;

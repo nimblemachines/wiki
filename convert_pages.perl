@@ -1,8 +1,8 @@
 # a script to convert existing pages to a new format, where each page is a
 # directory, and each file under that directory is an attribute.
 
-do 'common.pl';
-do 'pages.pl';
+do 'common.perl';
+do 'pages.perl';
 
 # override env var, just to make things easier
 # this is the _dest_ directory; we'll be using put_page to write the new

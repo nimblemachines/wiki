@@ -1,10 +1,10 @@
 #!/usr/bin/perl -w
 
 ### Read in common code ###
-do "../common.pl";
+do "../common.perl";
 
 ### Get rendering code ###
-do "../render.pl";
+do "../render.perl";
 
 # do_xxx needs to do something like this:
 # $content = ...
