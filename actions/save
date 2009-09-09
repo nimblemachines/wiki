@@ -38,6 +38,7 @@ to merge your changes.
     # solely of the words "chainsaw kitty"
     if ($form{'edittext'} =~ m/^chainsaw kitty$/i) {
         delete_page(uncamelcase($page));
+        git('commit', '-m', "deleted $page");
         # if the page DeletedPage exists, show it; otherwise show homepage
         $page = page_exists("DeletedPage")
             ? "DeletedPage"     # notify user
@@ -90,7 +91,7 @@ to merge your changes.
 
     # check in change to git repo
     # put_page and put_page_attribs do "git add"
-    #git("commit", "-m", "wiki: $whatchanged");
+    git("commit", "-m", "\"wiki: $whatchanged\"");
 
     return "ok";
 }

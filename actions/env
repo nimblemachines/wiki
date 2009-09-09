@@ -1,5 +1,10 @@
 #!/usr/bin/perl
 
+# load these to get the effects (like pages.perl setting some envvars and
+# the umask).
+do '../common.perl';
+do '../pages.perl';
+
 # print out the CGI environment
 
 # date headers look like this:
@@ -69,6 +74,8 @@ foreach $key (sort keys %ENV) {
 }
 print "PWD = " . `pwd`;
 print "ID = " . `id`;
+$umask = umask();
+printf "umask = %.4o\n", $umask;
 print "Last-Modified: $rfc1123_time\n";
 print "$pretty_time\n";
 print "If-Modified-Since: $if_mod_time (parsed)\n";

@@ -17,7 +17,30 @@
 # future.
 
 ### Set defaults ###
-$pagedir = "$ENV{'DOCUMENT_ROOT'}/newpages";
+$docroot = $ENV{'DOCUMENT_ROOT'};
+#$docroot = "/Users/david/nimblemachines_newpages";
+
+# Using Git via GIT_DIR and GIT_WORK_TREE is a bit subtle. It turns that
+# "git add" and "git rm" work best with paths _relative to the
+# GIT_WORK_TREE (which is our $docroot). So we need two ways to get to the
+# pages: absolute (for normal file operations) and relative (for Git). So
+# we define relative and absolute paths to pages:
+$relpages = "newpages";
+$abspages = "$docroot/$relpages";
+
+# In the bulk of the code below, I try to be careful about distinguishing
+# absolute and relative paths. When I'm calculating a path to use several
+# times, I'll usually call it $abs.
+
+### Set envvars so Git can find its way around.
+# XXX should be in $docroot/config.perl?
+$git = "/Users/david/bin/git";
+$ENV{'GIT_DIR'} = "$docroot/.git";
+$ENV{'GIT_WORK_TREE'} = "$docroot";
+
+# set a umask so that we have a hope of sharing with a command line user,
+# using group-writable bits.
+umask 0002;
 
 ##########################################################################
 
@@ -34,7 +57,7 @@ sub page_attrib {
 
 sub page_exists {
     my ($name) = @_;
-    return page_exists_dir(uncamelcase($name));
+    return page_exists_abs(uncamelcase($name));
 }
 
 ##########################################################################
@@ -52,9 +75,10 @@ sub cached_page_attrib {
     return $cached_page{$attrib};
 }
 
-sub page_to_dir {
+# Returns an absolute path to a particular page's directory.
+sub page_to_abs {
     my ($name) = @_;
-    return "$pagedir/$name";
+    return "$abspages/$name";
 }
 
 # When checking for existence we don't want to load in the page attribs.
@@ -95,16 +119,16 @@ sub page_to_dir {
 #@fancypants_supported_page_formats = ( "markup", "html", "text" );
 @supported_page_formats = ( "markup" );
 
-sub page_exists_dir {
+sub page_exists_abs {
     my ($name) = @_;
-    my $dir = page_to_dir($name);
-    if (! -d $dir) {
+    my $abs = page_to_abs($name);
+    if (! -d $abs) {
         return 0;
     }
     foreach my $format (@supported_page_formats) {
-        my $try = "$dir/$format";
+        my $try = "$abs/$format";
         if (-r $try && -f $try && -s $try) {
-            return $dir;
+            return $abs;
         }
     }
     return 0;
@@ -112,15 +136,14 @@ sub page_exists_dir {
 
 # Similarly, a way to make a page no longer exist - delete it! Rather than
 # try to delete its attribute files and then its (now empty) directory, we
-# simply delete its anything that could contain its text - all formats.
+# simply delete anything that could contain its text - all formats.
 
 sub delete_page {
     my ($name) = @_;
-    my $dir = page_to_dir($name);
 
-    if (-d $dir) {
+    if (-d page_to_abs($name)) {
         foreach my $format (@supported_page_formats) {
-            unlink "$dir/$format";
+            git_unlink ("$name/$format");
         }
     }
 }
@@ -133,15 +156,15 @@ sub get_page {
         text    => "",
         modtime => 0,
     );
-    my $dir = page_exists_dir($name);
-    if ($dir) {
+    my $abs = page_exists_abs($name);
+    if ($abs) {
         $page{'exists'} = 1;
         # read each file into an attribute (key)
-        opendir ATTRIBS, "$dir" or die "can't opendir $dir: $!";
-        foreach my $attrib (grep { ! m/^\./ && -r "$dir/$_" && -f "$dir/$_"
-                                            && -s "$dir/$_" }
+        opendir ATTRIBS, "$abs" or die "can't opendir $abs: $!";
+        foreach my $attrib (grep { ! m/^\./ && -r "$abs/$_" && -f "$abs/$_"
+                                            && -s "$abs/$_" }
                             readdir ATTRIBS) {
-            $page{$attrib} = read_file("$dir/$attrib");
+            $page{$attrib} = read_file("$abs/$attrib");
         }
         closedir ATTRIBS;
     }
@@ -153,16 +176,18 @@ sub get_page {
 # doesn't populate the hash at all unless the attribute exists and is
 # non-empty.
 
+# Also note: this returns a hash (a new page), rather than the attribute.
+
 sub get_page_attrib {
     my ($name, $attrib) = @_;
     my %page = (
         name    => "$name",
         exists  => 0
     );
-    my $dir = page_exists_dir($name);
-    $page{'exists'} = 1 if $dir;
-    $page{$attrib} = (-r "$dir/$attrib" && -f "$dir/$attrib" && -s "$dir/$attrib")
-        ? read_file("$dir/$attrib") : "";
+    my $abs = page_exists_abs($name);
+    $page{'exists'} = 1 if $abs;
+    $page{$attrib} = (-r "$abs/$attrib" && -f "$abs/$attrib" && -s "$abs/$attrib")
+        ? read_file("$abs/$attrib") : "";
     return %page;
 }
 
@@ -173,29 +198,31 @@ sub get_page_attrib {
 
 sub put_page_attribs {
     my (%page) = @_;
-    my $dir = page_to_dir($page{'name'});
+    my $name = $page{'name'};
+    my $abs = page_to_abs($name);
 
-    mkdir "$dir" unless (-d "$dir");
+    mkdir "$abs" unless (-d "$abs");
     foreach my $key (grep { ! m/name|exists/ } (keys %page)) {
         if (!defined $page{$key} || $page{$key} eq "") {
-            unlink("$dir/$key");
+            git_unlink("$name/$key");
         } else {
-            write_file("$dir/$key", $page{$key});
+            git_write_file("$name/$key", $page{$key});
         }
     }
 }
 
 sub put_page {
     my (%page) = @_;
-    my $dir = page_to_dir($page{'name'});
+    my $name = $page{'name'};
+    my $abs = page_to_abs($name);
 
     put_page_attribs(%page);
 
     # now delete files that don't have corresponding keys in %page
-    opendir ATTRIBS, "$dir" or die "can't opendir $dir: $!";
-    foreach my $attrib (grep { ! m/^\./ && -r "$dir/$_" && -f "$dir/$_" }
+    opendir ATTRIBS, "$abs" or die "can't opendir $abs: $!";
+    foreach my $attrib (grep { ! m/^\./ && -r "$abs/$_" && -f "$abs/$_" }
                         readdir ATTRIBS) {
-        unlink("$dir/$attrib") unless defined $page{$attrib};
+        git_unlink("$name/$attrib") unless defined $page{$attrib};
     }
     closedir ATTRIBS;
 }
@@ -213,15 +240,40 @@ sub linksto_page {
 
 # NOTE: be careful to turn the page (directory) _back_ into CamelCase
 # before returning them. Also be careful to use an existence test that
-# doesn't expect a CamelCase name (so we call page_exists_dir instead of
+# doesn't expect a CamelCase name (so we call page_exists_abs instead of
 # page_exists).
 
 sub filter_pages {
     my ($pred) = @_;
-    opendir PAGES, "$pagedir" or die "can't opendir $pagedir: $!";
-    my @matches = map camelcase($_), grep { ! m/^\./ && -d "$pagedir/$_"
-        && page_exists_dir($_) && &$pred() } readdir PAGES;
+    opendir PAGES, "$abspages" or die "can't opendir $abspages: $!";
+    my @matches = map camelcase($_), grep { ! m/^\./ && -d "$abspages/$_"
+        && page_exists_abs($_) && &$pred() } readdir PAGES;
     closedir PAGES;
     return @matches;
+}
+
+# Git utility functions. These must be passed a _relative path_ (w.r.t.
+# $docroot) to the file in question. For some reason absolute paths fail.
+# So $path_to_attrib will have the form Page_Name/attribute. We form the
+# relpath by prepending $relpages.
+
+sub git_unlink {
+    my ($path_to_attrib) = @_;
+    my $abs = "$abspages/$path_to_attrib";
+    if (-f $abs) {
+        unlink($abs);
+        git('rm', "$relpages/$path_to_attrib");
+    }
+}
+
+sub git_write_file {
+    my ($path_to_attrib, $contents) = @_;
+    write_file("$abspages/$path_to_attrib", $contents);
+    git('add', "$relpages/$path_to_attrib");
+}
+
+sub git {
+    my $gitoutput = `$git @_`;
+    #append_file("somewhere/git.log", $gitoutput);
 }
 
