@@ -1,7 +1,5 @@
 sub make_edit_page {
-    my $text = page_attrib($page, 'markup');
-    my $mod = page_attrib($page, 'modtime');
-    my $tags = page_attrib($page, 'tags');
+    my ($text, $mod, $tags) = @_;
     my $action_href = script_href("save", $page);
 
     $content .= <<"" unless $text;
@@ -9,7 +7,7 @@ sub make_edit_page {
     $page doesn't exist. Why not create it by entering some text below?
   </p>
 
-    $content .= <<"";   # bug'd
+    $content .= <<"";
 <form action="$action_href" method="post" enctype="application/x-www-form-urlencoded">
   <p>
     <textarea name="edittext" rows="25" cols="75">$text</textarea>

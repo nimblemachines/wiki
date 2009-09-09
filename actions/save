@@ -39,7 +39,7 @@ you open an edit window on the current version of the page, you'll be able
 to merge your changes.
 </p>
 
-        make_edit_page($edit);
+        make_edit_page($edit, $mod_current, $form{'tags'});
         return "collided";      # we failed to save, so don't do a "show"
     }
 

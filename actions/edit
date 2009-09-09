@@ -3,4 +3,9 @@
 do "../common.perl";
 do "../edit-common.perl";
 
-make_edit_page();
+make_edit_page(
+    page_attrib($page, 'markup'),
+    page_attrib($page, 'modtime'),
+    page_attrib($page, 'tags')
+);
+
