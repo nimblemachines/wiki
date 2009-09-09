@@ -3,7 +3,7 @@
 do "../common.perl";
 
 sub do_text_search {
-    my @matches = filter_pages(sub { page_text($_) =~ m/$page/i });
+    my @matches = filter_pages(sub { page_attrib($_, 'markup') =~ m/$page/i });
     gen_search_page("Pages mentioning $page",
                     "Pages mentioning <em>$page</em>", @matches);
 }
