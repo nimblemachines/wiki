@@ -1,0 +1,25 @@
+Congratulations!
+
+Your new wiki is now running. You'll want to do several things to customise it. By editing the file ''config.perl'' (in the site's document root, ${docroot}) you can change settings from their defaults. Some things you might want to change:
+
+* the default page, from this page to something more appropriate
+
+* the name of the wiki
+
+* the site's icon (remember to change the icon's "alt" text as well, which is required by the XHTML that this wiki generates)
+
+* the flickr user number and name, if you want to use the flickr badge feature
+
+You can also add or change styles and meta elements.
+
+To add or change a style, put a stylesheet file into ${docroot}/styles/. Then add it to the @styles list. The link should read "style/<filename>". Note the singular.
+
+To add or change meta elements, simply edit the keys and values in the @metas hash. Note that you should quote any key names that include non-letters (a Perl quirk).
+
+You don't need to restart anything for the changes to appear. Simply reload a page, or click on the icon image to go to the new default (home) page.
+
+You can link to images and files in ${docroot} as well. Put images into ${docroot}/images/, and files into ${docroot}/files/. (Easy, right?) When you make a link, use "file/<name>" or "image/<name>". Again, note the singular. You don't need to specify the file extension, as Apache has a feature called content-negotiation that is turned on by default in these directories (and ${docroot}/styles/ as well).
+
+You'll probably want to read the MarkupHelp, and it's a long-standing wiki tradition to play in the SandBox.
+
+Enjoy!

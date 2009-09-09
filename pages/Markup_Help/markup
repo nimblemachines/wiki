@@ -1,0 +1,130 @@
+The markup is shown in two ways: first as typed in, then as rendered.
+
+----
+
+= Headings and rules
+
+ = heading 1
+
+= heading 1
+
+ == heading 2
+
+== heading 2
+
+ === heading 3
+
+=== heading 3
+
+ ==== heading 4
+
+==== heading 4
+
+ ----
+
+creates a horizontal rule:
+
+----
+
+= Lists
+
+Currently nested lists are not allowed. And for (silly) implementation reasons blank lines are required between list items.
+
+ * a list
+
+ * of things
+
+* a list
+
+* of things
+
+ # an ordered list
+
+ # of things
+
+# an ordered list
+
+# of things
+
+----
+
+= Inline markup
+
+ ''italic text'' '''bold''' '''''both'''''
+
+''italic text'' '''bold''' '''''both'''''
+
+ ''A sentence
+ that crosses
+ multiple lines
+ in the markup
+ but should 
+ '''all''' be italic
+ except for one bold and italic
+ word.''
+
+''A sentence
+that crosses
+multiple lines
+in the markup
+but should 
+'''all''' be italic
+except for one bold and italic
+word.''
+
+----
+
+= Making links
+
+ [[http://freebsd.org]]
+
+creates an unnamed URI link: [[http://freebsd.org]]
+
+ [[http://freebsd.org Some kind of operating system.]]
+
+creates a named URI link: [[http://freebsd.org Some kind of operating system.]]
+
+ CamelCase words
+
+create CamelCase links.
+
+ Wiki:PairProgramming
+
+creates an interwiki link: Wiki:PairProgramming.
+
+ Wikipedia:How_to_edit_a_page
+
+is another interwiki link: Wikipedia:How_to_edit_a_page.
+
+----
+
+= Preformatted (verbatim) text
+
+ This should be <pre>, without any CamelCase links, ''italic'' text,
+ or any of that '''nonsense'''.
+
+  [now] now remains unchanged in preformatted text!
+
+----
+
+= For advanced users
+
+ [now]
+
+creates a time stamp ("2005 January 27 18:53") at edit save time. '''Note:''' this is prevented from happening in preformatted text, so it won't interfere with program code.
+
+ [namesearch]
+
+creates a search box:
+
+[namesearch]
+
+to search for strings matching page names. Try it! Type something and press return.
+
+ [textsearch]
+
+creates a search box:
+
+[textsearch]
+
+to search for strings in the text of the pages. Try it! Type something and press return.
