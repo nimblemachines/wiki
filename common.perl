@@ -23,6 +23,7 @@ $http_scheme = qr#^[[:alpha:]+]+://#o;
 
 ### Set defaults ###
 $webhamster = "$ENV{'SERVER_ADMIN'}";
+$defaultpage = "WelcomePage" unless $defaultpage;   # in case no config.perl
 
 ### Read in per-domain configuration variables ###
 do "$ENV{'DOCUMENT_ROOT'}/config.perl";
