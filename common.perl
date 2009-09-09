@@ -215,7 +215,7 @@ sub make_wiki_link {
 }
 
 # Convert "CamelCase" to "Camel Case", to make nice page titles. We first
-# covert to our new-style page name (Camel_Case); and then, by replacing
+# convert to our new-style page name (Camel_Case); and then, by replacing
 # underscores with spaces, to a nice page title.
 
 sub fancy_title {
