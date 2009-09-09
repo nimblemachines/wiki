@@ -14,6 +14,15 @@ sub make_backup_page {
     }
 }
 
+sub add_to_recent_changes {
+    my ($msg) = @_;
+
+    # prefix existing contents of RecentChanges with newest entry.
+    my %recentchanges = get_page("Recent_Changes");     # uncamelcased !!
+    $recentchanges{'markup'} = $msg . "\n\n" . $recentchanges{'markup'};
+    put_page_attribs(%recentchanges);           # no need to put_page
+}
+
 sub do_save {
     my $edit = $form{'edittext'};
     $edit =~ s/\r//g;   # CRLF -> LF
@@ -34,11 +43,23 @@ to merge your changes.
         return "collided";      # we failed to save, so don't do a "show"
     }
 
+    # make a note of what changed, when, and by whom
+    # whether we're saving or deleting the page
+    # and modify RecentChanges in both cases!
+ 
+    my $now = time();               # current (file write) time
+    my $stamp = stamp($now);
+
+    my $ip = $ENV{'REMOTE_ADDR'};
+    my $whatchanged = "$page ... $stamp ... $ip";
+
     # check if user wants to delete the page - edittext has to consist
     # solely of the words "chainsaw kitty"
     if ($form{'edittext'} =~ m/^chainsaw kitty$/i) {
         delete_page(uncamelcase($page));
-        git('commit', '-m', "deleted $page");
+        # RecentChanges shows deletion
+        add_to_recent_changes("deleted $whatchanged");
+        git('commit', '-m', "\"deleted $page\"");
         # if the page DeletedPage exists, show it; otherwise show homepage
         $page = page_exists("DeletedPage")
             ? "DeletedPage"     # notify user
@@ -48,16 +69,9 @@ to merge your changes.
         
 #    make_backup_page("$page", iso_timestamp("$mod_current"));
 
-    # convert time stamps - now honors <pre>
-    my $now = time();               # current (file write) time
-    my $stamp = stamp($now);
-
-# XXX: remove 2nd \n after I fix ul code!!
-# XXX: and add back in the '* ' at the start of the line!!
-#    my $text = "* $page (modified $stamp from $ip)\n\n";
-
-    my $ip = $ENV{'REMOTE_ADDR'};
-    my $whatchanged = "$page ... $stamp ... $ip";
+    # XXX: remove 2nd \n after I fix ul code!!
+    # XXX: and add back in the '* ' at the start of the line!!
+    #my $text = "* $page (modified $stamp from $ip)\n\n";
 
     # XXX: change this when splitting method changes in rendering code
     # we're going to do "paragraph" markup delimited with multiple newlines
@@ -66,6 +80,7 @@ to merge your changes.
     # chunks (paras) are separated by exactly two \n's, and the whole thing,
     # when written out to disk, is followed by a single \n.
 
+    # convert time stamps - now honors <pre>
     my @paras =  split /\n{2,}/, $edit;
     foreach my $para (@paras) {
         $para =~ s/\[now\]/$stamp/ge unless $para =~ m/^\s+/;
@@ -84,14 +99,12 @@ to merge your changes.
     # writing.
     put_page_attribs(%newpage);
 
-    # prefix existing contents of RecentChanges with newest entry.
-    my %recentchanges = get_page("Recent_Changes");     # uncamelcased !!
-    $recentchanges{'markup'} = $whatchanged . "\n\n" . $recentchanges{'markup'};
-    put_page_attribs(%recentchanges);               # no need to put_page
+    # Add edit to RecentChanges
+    add_to_recent_changes($whatchanged);
 
     # check in change to git repo
     # put_page and put_page_attribs do "git add"
-    git("commit", "-m", "\"wiki: $whatchanged\"");
+    git("commit", "-m", "\"edited $whatchanged\"");
 
     return "ok";
 }
