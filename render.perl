@@ -323,9 +323,9 @@ sub inline_markup {
     #   Browse:repo(/path)?          master branch; path is optional
     #   Browse:repo:branch(/path)?    other branch; path is optional
 
-    s#\bBrowse:([\w-]+):([\w-]+)(/[\w-]*)?#http://github.com/nimblemachines/$1/tree/$2$3#g;
-    s#\bBrowse:([\w-]+)(/[\w-]*)?#http://github.com/nimblemachines/$1/tree/master$2#g;
-    s#\bClone:([\w-]+)#git://github.com/nimblemachines/$1.git#g;
+    s#\bBrowse:([\w-]+):([\w-]+)(/[\w-]*)?#http://github.com/$github_user/$1/tree/$2$3#g;
+    s#\bBrowse:([\w-]+)(/[\w-]*)?#http://github.com/$github_user/$1/tree/master$2#g;
+    s#\bClone:([\w-]+)#git://github.com/$github_user/$1.git#g;
 
     # obfuscated mailto links: [[mailto:email link text]]
     # link text is required, since what would we put there other than the
