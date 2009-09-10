@@ -8,10 +8,10 @@ do "../version.perl";
 # get the "pages" abstraction code
 do "../pages.perl";
 
-$wikiword = "I|A|[A-Z][a-z]+";
+$wikiword = "I|A|[[:upper:]][[:lower:]]+";
 $wikilink = "(?:$wikiword){2,}";
-$interprefix = "[A-Za-z.]+";
-$interquery = "[A-Za-z0-9+_()]+";
+$interprefix = "[[:upper:]][[:alpha:].]+";
+$interquery = "[[:alnum:]+_()#%-]*[[:alnum:]+_(#%-]+";  # can't end with ")"
 
 # HTTP scheme pattern; promise to Perl that we won't change this, so it can
 # be compiled once (the 'o' modifier). And, by the way, those + characters
