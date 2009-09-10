@@ -32,7 +32,7 @@ sub iso_timestamp {
 
 sub editfooter {
     my $edittext = hyper("Edit", script_href("edit", $page)) . " this page";
-    my $modtime = page_attrib("$page", 'modtime');
+    my $modtime = page_property("$page", 'modtime');
     my $modtext  = ($modtime != 0)
         ? " (last edited "
           .  hyper(stamp($modtime), script_href("diff", $page)) . ")"

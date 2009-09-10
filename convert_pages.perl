@@ -1,5 +1,5 @@
 # a script to convert existing pages to a new format, where each page is a
-# directory, and each file under that directory is an attribute.
+# directory, and each file under that directory is a property.
 
 do 'common.perl';
 do 'pages.perl';
