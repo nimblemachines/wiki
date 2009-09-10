@@ -2,9 +2,6 @@
 
 $| = 1;   # flush after each print
 
-# get the "pages" abstraction code
-do "../pages.perl";
-
 $wikiword = "I|A|[[:upper:]][[:lower:]]+";
 $wikilink = "(?:$wikiword){2,}";
 $interprefix = "[[:upper:]][[:alpha:].]+";
@@ -25,9 +22,21 @@ $defaultpage = "WelcomePage" unless $defaultpage;   # in case no config.perl
 ### Read in per-domain configuration variables ###
 do "$ENV{'DOCUMENT_ROOT'}/config.perl";
 
-# get the current Git commit, so we know what we're running
+# Get the current Git commit; this will be the version of the wiki code
+# what we're running.
 # $git is set in config.perl, above.
-$current_commit = `$git rev-parse HEAD`;
+# NOTE: this runs inside the wiki repo, so should get the HEAD of the wiki
+# code repo. After loading pages.perl, all Git commands refer to the
+# docroot!
+chomp($wiki_commit = `$git rev-parse HEAD`);
+
+# Get the "pages" abstraction code
+# This sets GIT_DIR and GIT_WORK_TREE to refer to $docroot/.git and
+# $docroot, resp.
+do "../pages.perl";
+
+# just for grins, get the HEAD commit of the page repo as well
+chomp($pages_commit = `$git rev-parse HEAD`);
 
 if ($ENV{'SITEMODE'} eq "readwrite") {
     $editable = 1;
@@ -356,9 +365,10 @@ sub findfooter {
 sub validator {
     return unless $editable;
     push @footerlines, clean(<<"VALID");
-<p>
-wiki commit $current_commit
-</p>
+<pre>
+ wiki commit $wiki_commit
+pages commit $pages_commit
+</pre>
 <p>
   <a href="http://validator.w3.org/check/referer">
     <img src="${pathprefix}/_image/valid-xhtml10-blue" alt="Valid XHTML 1.0 Strict!" />
