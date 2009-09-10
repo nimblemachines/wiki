@@ -15,7 +15,7 @@ conf=${www_root}/wiki.conf
 vhosts=${www_root}/vhosts
 
 # common wiki code
-wiki=${www_root}/wiki
+wiki=$(pwd)/wiki
 
 # name of pages/ directory?
 pages=${www_root}/data/\*/newpages
@@ -259,6 +259,6 @@ mkdir -p ${vhosts}
 rm -f ${vhosts}/*
 
 gen_server_config
-(cd db; gen_domains)
+(cd domains; gen_domains)
 welcome_msg
 
