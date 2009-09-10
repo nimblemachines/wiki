@@ -268,6 +268,10 @@ sub git_unlink {
 
 sub git_write_file {
     my ($path_to_attrib, $contents) = @_;
+    # To avoid permissions/ownership problems, unlink before writing new
+    # file. Whether we own the file or not, we should have write permission
+    # on the enclosing directory ($abspages).
+    unlink("$abspages/$path_to_attrib");
     write_file("$abspages/$path_to_attrib", $contents);
     git('add', "$relpages/$path_to_attrib");
 }
