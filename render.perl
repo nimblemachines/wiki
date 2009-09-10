@@ -321,8 +321,8 @@ sub inline_markup {
     # Making a "code in a repo somewhere" abstraction so I don't have to keep
     # editing pages when I move my code.
 
-    s#\bBrowse:(\w+)(/\w*)?#http://github.com/nimblemachines/$1/tree/master$2#g;
-    s#\bClone:(\w+)#git://github.com/nimblemachines/$1.git#g;
+    s#\bBrowse:([\w-]+)(/[\w-]*)?#http://github.com/nimblemachines/$1/tree/master$2#g;
+    s#\bClone:([\w-]+)#git://github.com/nimblemachines/$1.git#g;
 
     # obfuscated mailto links: [[mailto:email link text]]
     # link text is required, since what would we put there other than the
