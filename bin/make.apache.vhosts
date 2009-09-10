@@ -6,7 +6,7 @@
 ### need to change, assuming that everything hangs off this root.
 
 # apache vhost domains root
-www_root=/home/www
+www_root=$WEBHOME
 
 # main server config to make this all work
 conf=${www_root}/wiki.conf
