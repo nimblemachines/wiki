@@ -201,6 +201,9 @@ populate_docroot () {
     copyright   => "All content on $dom is copyrighted. All rights are reserved."
 );
 
+## Where is Git?
+\$git = "/usr/local/bin/git";
+
 ## typographic style
 \$convert_endash = 1;
 \$convert_emdash = 0;        # I think it's ugly; you're free to disagree. ;-)
