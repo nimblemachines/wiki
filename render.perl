@@ -319,8 +319,11 @@ sub inline_markup {
     }
 
     # Making a "code in a repo somewhere" abstraction so I don't have to keep
-    # editing pages when I move my code.
+    # editing pages when I move my code. There are two forms for Browse:
+    #   Browse:repo(/path)?          master branch; path is optional
+    #   Browse:repo:branch(/path)?    other branch; path is optional
 
+    s#\bBrowse:([\w-]+):([\w-]+)(/[\w-]*)?#http://github.com/nimblemachines/$1/tree/$2$3#g;
     s#\bBrowse:([\w-]+)(/[\w-]*)?#http://github.com/nimblemachines/$1/tree/master$2#g;
     s#\bClone:([\w-]+)#git://github.com/nimblemachines/$1.git#g;
 
