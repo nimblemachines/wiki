@@ -59,9 +59,8 @@ EOT
 }
 
 gen_domain_vhost () {
-    docroot=${www_root}/data/$dom
     logroot=${www_root}/logs/$sub.$dom
-    mkdir -p ${logroot} ${docroot}
+    mkdir -p ${logroot}
     admin="webhamster@$dom"
     [ -f $dir/../admin ] && admin=$(eval echo $(cat $dir/../admin))
 
@@ -155,20 +154,37 @@ EOT
     ) > ${vhosts}/$sub.$dom
 }
 
-gen_site_template () {
-    for d in files images styles newpages ; do
+populate_docroot () {
+    mkdir -p ${docroot}
+
+    # Initialise a Git repo for docroot
+    [ ! -d ${docroot}/.git ] && GIT_DIR=${docroot}/.git GIT_WORK_TREE=${docroot} git init
+
+    pagesdir="newpages"
+    for d in files images styles $pagesdir ; do
         mkdir -p ${docroot}/$d
     done
+    # copy "seed" pages over, expanding shell vars in markup
+    now=$(date +%s)
+    for page in ${wiki}/pages/*; do
+        name=$(basename $page)
+        newpage=${docroot}/$pagesdir/$name
+        mkdir -p $newpage
+        if [ ! -f $newpage/markup ]; then
+            sed -e "s#\${docroot}#$docroot#g" < $page/markup > $newpage/markup
+            echo "$now" > $newpage/modtime
+        fi
+    done
 
-    # generate a config.pl if there isn't already one
-    conffile=${docroot}/config.pl
+    # generate a config.perl if there isn't already one
+    conffile=${docroot}/config.perl
     [ ! -f ${conffile} ] && cat <<EOT > ${conffile}
 # This file is for local (site) configuration of the wiki script.
 # PLEASE change these values from their defaults!
 
 ## The basics
 \$wikiname = "My wiki";
-\$defaultpage = "WelcomeVisitors";
+\$defaultpage = "InstalledSuccessfully";
 \$iconsrc = "_image/lambda";
 \$iconalt = "We love functional programming!";
 
@@ -196,11 +212,12 @@ subdomain () {
     dir=$1
     echo Generating $sub.$dom from $dir
     gen_domain_vhost
-    gen_site_template
 }
 
 gen_domains () {
     for dom in *; do
+        docroot=${www_root}/data/$dom
+        populate_docroot
         cd $dom
         for sub in *; do
             [ -d $sub ] && (cd .. && subdomain $dom/$sub)
