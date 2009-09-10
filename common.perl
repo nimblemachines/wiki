@@ -2,9 +2,6 @@
 
 $| = 1;   # flush after each print
 
-# get the version
-do "../version.perl";
-
 # get the "pages" abstraction code
 do "../pages.perl";
 
@@ -27,6 +24,10 @@ $defaultpage = "WelcomePage" unless $defaultpage;   # in case no config.perl
 
 ### Read in per-domain configuration variables ###
 do "$ENV{'DOCUMENT_ROOT'}/config.perl";
+
+# get the current Git commit, so we know what we're running
+# $git is set in config.perl, above.
+$current_commit = `$git rev-parse HEAD`;
 
 if ($ENV{'SITEMODE'} eq "readwrite") {
     $editable = 1;
@@ -356,7 +357,7 @@ sub validator {
     return unless $editable;
     push @footerlines, clean(<<"VALID");
 <p>
-wiki commit $current_version_sha1
+wiki commit $current_commit
 </p>
 <p>
   <a href="http://validator.w3.org/check/referer">

@@ -33,8 +33,6 @@ $abspages = "$docroot/$relpages";
 # times, I'll usually call it $abs.
 
 ### Set envvars so Git can find its way around.
-# XXX should be in $docroot/config.perl?
-$git = "/Users/david/bin/git";
 $ENV{'GIT_DIR'} = "$docroot/.git";
 $ENV{'GIT_WORK_TREE'} = "$docroot";
 
@@ -269,6 +267,15 @@ sub git_unlink {
 
 sub git_write_file {
     my ($path_to_property, $contents) = @_;
+    # More permissions stuff. Sharing this way is hard! When we add a page,
+    # say via Git (by merging changes from the "live" site into our
+    # conversion repo) the pagename directory (ie, that contains the
+    # properties) is owned by me. But it's sitting in a directory that the
+    # web server has write permission to. So, just as we unlink before
+    # writing a _file_, how about we try to _chown_ before writing to a
+    # directory?
+    #chown();
+
     # To avoid permissions/ownership problems, unlink before writing new
     # file. Whether we own the file or not, we should have write permission
     # on the enclosing directory ($abspages).
