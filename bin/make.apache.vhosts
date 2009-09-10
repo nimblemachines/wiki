@@ -165,16 +165,21 @@ populate_docroot () {
         mkdir -p ${docroot}/$d
     done
     # copy "seed" pages over, expanding shell vars in markup
-    now=$(date +%s)
-    for page in ${wiki}/pages/*; do
-        name=$(basename $page)
-        newpage=${docroot}/$pagesdir/$name
-        mkdir -p $newpage
-        if [ ! -f $newpage/markup ]; then
-            sed -e "s#\${docroot}#$docroot#g" < $page/markup > $newpage/markup
-            echo "$now" > $newpage/modtime
-        fi
-    done
+    if [ -d ${wiki}/pages ]; then
+    echo "Copying seed pages from ${wiki}."
+        now=$(date +%s)
+        for page in ${wiki}/pages/*; do
+            name=$(basename $page)
+            newpage=${docroot}/$pagesdir/$name
+            mkdir -p $newpage
+            if [ ! -f $newpage/markup ]; then
+                sed -e "s#\${docroot}#$docroot#g" < $page/markup > $newpage/markup
+                echo "$now" > $newpage/modtime
+            fi
+        done
+    else
+        echo "Can't copy seed pages. ${wiki} not found."
+    fi
 
     # generate a config.perl if there isn't already one
     conffile=${docroot}/config.perl
