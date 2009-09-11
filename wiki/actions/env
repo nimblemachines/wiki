@@ -1,72 +1,15 @@
 #!/usr/bin/perl
 
+# This is an _incredibly_ useful script for figuring out what's going on,
+# how CGI works, etc. You can tack on query strings, paths - whatever you
+# want - to the end of the URI and see how it affects the enviroment.
+
 # load these to get the effects (like pages.perl setting some envvars and
 # the umask).
 do '../common.perl';
-do '../pages.perl';
 
 # print out the CGI environment
 
-# date headers look like this:
-# Date: Sat, 23 Jun 2007 02:00:52 GMT
-
-my $now_utc = time();
-
-# used only by canon_time - should they be truly local instead of here?
-my @long_month  = qw(January February March April May June July
-                     August September October November December);
-my @short_month = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
-my @weekday     = qw(Sun Mon Tue Wed Thu Fri Sat);
-
-# Converts mon to (short and long) month strings, and wday to (short)
-# weekday name.
-sub canon_time {
-    # passed a subset of what localtime/gmtime return...
-    my ($sec, $min, $hour, $mday, $mon, $year, $wday) = @_;
-    # $mon = 0..11
-    # $wday = 0..6 (Sun..Sat)
-    $year += 1900;
-    return ($sec, $min, $hour, $mday, $mon, $year, $wday,
-            $short_month[$mon], $long_month[$mon], $weekday[$wday]);
-}
-
-sub rfc1123_time {
-    my ($sec, $min, $hour, $mday, undef, $year, undef,
-        $short_month, undef, $weekday) = canon_time(@_);
-
-    return _rfc1123_time($sec, $min, $hour, $mday, $short_month, $year, $weekday);
-}
-
-# Expects true year (not delta since 1900), and weekday and short_month names.
-sub _rfc1123_time {
-    my ($sec, $min, $hour, $mday, $short_month, $year, $weekday) = @_;
-
-    return sprintf("$weekday, %02u $short_month $year %02u:%02u:%02u GMT",
-                   $mday, $hour, $min, $sec);
-}
-
-sub pretty_time {
-    my (undef, $min, $hour, $mday, undef, $year, undef,
-        undef, $long_month, undef) = canon_time(@_);
-
-    return sprintf("$year $long_month %02u %02u:%02u", $mday, $hour, $min);
-
-}
-
-### Caching!!
-{
-    my ($weekday, $mday, $short_month, $year, $hour, $min, $sec) =
-        ($ENV{'HTTP_IF_MODIFIED_SINCE'} =~
-         m/(...), (\d\d) (...) (\d\d\d\d) (\d\d):(\d\d):(\d\d)/);
-
-    $if_mod_time = _rfc1123_time($sec, $min, $hour, $mday, $short_month, $year, $weekday);
-}
-
-my $rfc1123_time = rfc1123_time(gmtime(time()));
-my $pretty_time  =  pretty_time(localtime(time()));
-
-#print "Status: 304 Still the same\n";
-print "Last-Modified: $rfc1123_time\n";
 print "Content-type: text/plain\n\n";
 
 foreach $key (sort keys %ENV) {
@@ -76,6 +19,4 @@ print "PWD = " . `pwd`;
 print "ID = " . `id`;
 $umask = umask();
 printf "umask = %.4o\n", $umask;
-print "Last-Modified: $rfc1123_time\n";
-print "$pretty_time\n";
-print "If-Modified-Since: $if_mod_time (parsed)\n";
+

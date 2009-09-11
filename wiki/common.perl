@@ -18,6 +18,7 @@ $http_scheme = qr#^[[:alpha:]+]+://#o;
 ### Set defaults ###
 $webhamster = "$ENV{'SERVER_ADMIN'}";
 $defaultpage = "WelcomePage" unless $defaultpage;   # in case no config.perl
+$caching = 0;       # turn this off for now
 
 ### Read in per-domain configuration variables ###
 do "$ENV{'DOCUMENT_ROOT'}/config.perl";
@@ -160,32 +161,6 @@ sub write_file {
     close F;
 }
 
-# This bit of code is ugly because it is being passed an array of references
-# to scalars that are to be modified. Hence the $$n everywhere.
-sub leading_zero {
-    my @nums = @_;
-    foreach my $n (@nums) {
-        $$n = "0$$n" if ($$n < 10);
-    }
-}
-
-sub pretty_time {
-    my ($time) = @_;
-    my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday) = localtime($time);
-    $year += 1900;
-    my $month = (qw(January February March April May June July
-                    August September October November December))[$mon];
-    $mon = $mon + 1;    # was indexed from 0
-    leading_zero \($mon, $mday, $hour, $min, $sec);
-    ($year, $mon, $month, $mday, $hour, $min, $sec);
-}
-
-sub stamp {
-    my ($time) = @_;
-    my ($year, $mon, $month, $mday, $hour, $min, $sec) = pretty_time($time);
-    "$year $month $mday $hour:$min";
-}
-
 # We want the hrefs we generate - in links and such - to be "rooted" rather
 # than relative. This doesn't mean that we have put a full scheme,
 # hostname, and path in there, though. But for local - or what I like to
@@ -219,7 +194,7 @@ sub hyper {
 sub make_wiki_link {
     my ($page) = @_;
     #page_linkedfrom($page);     # record that we link to this page
-    page_exists($page)
+    page_exists($page) || ($doing_caching && (not $readwrite))
         ?              hyper($page, script_href("show", $page))
         : ($editable ? hyper($page, script_href("edit", $page), "missing")
                      : "$page");
@@ -265,6 +240,14 @@ sub camelcase {
 sub clean {
     my ($str) = @_;
     return substr($str, 0, -1);
+}
+
+# Actually print them out, followed by a blank line.
+sub generate_http_headers {
+    foreach my $hdr (keys %http_response_headers) {
+        print "$hdr: $http_response_headers{$hdr}\n";
+    }
+    print "\n";
 }
 
 sub generate_xhtml {
@@ -316,12 +299,9 @@ LINK
     # string together footer lines, separated by <br />
     my $footer = join "<br />\n", @footerlines;
 
-    my $http_response_headers = join "\n",
-        (map "$_: $http_response_headers{$_}", keys %http_response_headers);
+    generate_http_headers();
 
     print <<EOT;
-$http_response_headers
-
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE html 
   PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"

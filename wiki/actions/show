@@ -6,6 +6,9 @@ do "../common.perl";
 ### Get rendering code ###
 do "../render.perl";
 
+### Get date code ###
+do "../dates.perl";
+
 # do_xxx needs to do something like this:
 # $content = ...
 # @footerlines  = ...
@@ -30,4 +33,42 @@ sub do_show {
 }
 
 redirect_to_canonical_uri();
+
+# We'll need page modtime, either to send a Last-Modified header, or to
+# determine if we send a 200 Ok or 304 Not modified status code.
+my $page_modtime = page_property($page, 'modtime');
+
+# If a conditional GET (with If-Modified-Since header, then do the math to
+# see if we have to generate the page or not.
+# But only do this for READONLY versions of the site. The reason has to do
+# with page links. For readwrite use we color links so the reader/writer
+# knows if a linked-to page exists or not before going there. We have to do
+# this dynamically, so any page caching will not work.
+#
+# But for READONLY versions, we can generate all page links as _real_
+# links; the reader or spider will have to follow the link in order to find
+# out that it's a dead end. This is suboptimal - esp for human readers -
+# and we can fix it once we have a linksto/linkedfrom map of the site.
+#
+# In the short term, should I leave this turned off?
+
+my $if_mod_since = $ENV{'HTTP_IF_MODIFIED_SINCE'};
+if ($doing_caching && (defined $if_mod_since) && (not $editable)) {
+    my ($if_mod_index, $if_mod_year) = index_from_rfc1123($if_mod_since);
+    my ($page_index, $page_year) = index_from_seconds($page_modtime);
+
+    if (($page_year < $if_mod_year) ||
+        (($page_year == $if_mod_year) && ($page_index <= $if_mod_index))) {
+        # No change - send 304 and _no_ body.
+        $http_response_headers{'Status'} = "304 Nothing new here";
+        generate_http_headers();
+        exit();
+    }
+}
+
+# Otherwise, we have an unconditional GET, or a conditional GET, but the
+# page is newer than If-Modified-Since; so, send it out, with a date header.
+
+$http_response_headers{'Last-Modified'} = rfc1123_from_seconds($page_modtime);
 do_show();
+

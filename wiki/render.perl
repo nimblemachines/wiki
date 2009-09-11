@@ -24,18 +24,13 @@ sub do_init {
     init_interwiki();
 }
 
-sub iso_timestamp {
-    my ($time) = @_;
-    my ($year, $mon, $month, $mday, $hour, $min, $sec) = pretty_time($time);
-    "$year-$mon-$mday" . "T" . "$hour:$min:$sec";
-}
-
 sub editfooter {
     my $edittext = hyper("Edit", script_href("edit", $page)) . " this page";
     my $modtime = page_property("$page", 'modtime');
     my $modtext  = ($modtime != 0)
         ? " (last edited "
-          .  hyper(stamp($modtime), script_href("diff", $page)) . ")"
+          .  hyper(friendly_date(localtime($modtime)),
+                  script_href("diff", $page)) . ")"
         : "";
 
     push @footerlines, "$edittext$modtext";
