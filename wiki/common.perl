@@ -278,9 +278,9 @@ sub generate_xhtml {
     # Only display icon if we're *not* editing. There is a subtlety:
     # since a save may fail (due to collision) we could be editing even
     # though our URI says "save".
-    my $home_link = ($script =~ m/edit|save/)
+    my $icon_link = ($script =~ m/edit|save/)
         ? ""
-        : hyper(clean(<<"IMG"), script_href("show", $defaultpage));
+        : (hyper(clean(<<"IMG"), (defined $iconhref) ? $iconhref : script_href("show", $defaultpage)));
 <img id="icon" src="$iconsrc" alt="$iconalt" />
 IMG
 
@@ -315,7 +315,7 @@ $stylesheets
 <body>
 
 <div id="header">
-$home_link
+$icon_link
 <h1>$heading</h1>
 <hr />
 </div>
