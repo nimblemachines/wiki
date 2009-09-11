@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 do "../common.perl";
+do "../dates.perl";
 do "../edit-common.perl";
 
 # Could use a property for this?
@@ -48,7 +49,7 @@ to merge your changes.
     # and modify RecentChanges in both cases!
  
     my $now = time();               # current (file write) time
-    my $stamp = friendly_date(localtime(($now));
+    my $stamp = friendly_date(localtime($now));
 
     my $ip = $ENV{'REMOTE_ADDR'};
     my $whatchanged = "$page ... $stamp ... $ip";
