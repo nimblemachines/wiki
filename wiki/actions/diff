@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 ### NOTE: This doesn't work! Sadly I'm still generating /diff/FooBar links,
 ### but they don't work.

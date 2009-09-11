@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 # Return a page of links to pages that are referenced but don't exist.
 
