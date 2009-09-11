@@ -20,6 +20,14 @@ $webhamster = "$ENV{'SERVER_ADMIN'}";
 $defaultpage = "WelcomePage" unless $defaultpage;   # in case no config.perl
 $caching = 0;       # turn this off for now
 
+# Set this _before_ loading config.perl so it can use $editable.
+if ($ENV{'SITEMODE'} eq "readwrite") {
+    $editable = 1;
+    $wikiname = "Edit $wikiname";      # remind us
+} else {
+    $editable = 0;
+}
+
 ### Read in per-domain configuration variables ###
 do "$ENV{'DOCUMENT_ROOT'}/config.perl";
 
@@ -38,13 +46,6 @@ do "../pages.perl";
 
 # just for grins, get the HEAD commit of the page repo as well
 chomp($pages_commit = `$git rev-parse HEAD`);
-
-if ($ENV{'SITEMODE'} eq "readwrite") {
-    $editable = 1;
-    $wikiname = "Edit $wikiname";      # remind us
-} else {
-    $editable = 0;
-}
 
 $content = "";
 %http_response_headers = (
@@ -278,9 +279,12 @@ sub generate_xhtml {
     # Only display icon if we're *not* editing. There is a subtlety:
     # since a save may fail (due to collision) we could be editing even
     # though our URI says "save".
+    
+    # if no icon page specified, default its value
+    my $iconpage = $iconpage || $defaultpage;
     my $icon_link = ($script =~ m/edit|save/)
         ? ""
-        : (hyper(clean(<<"IMG"), (defined $iconhref) ? $iconhref : script_href("show", $defaultpage)));
+        : (hyper(clean(<<"IMG"), script_href("show", $iconpage)));
 <img id="icon" src="$iconsrc" alt="$iconalt" />
 IMG
 
