@@ -69,6 +69,13 @@ if ($doing_caching && (defined $if_mod_since) && (not $editable)) {
 # Otherwise, we have an unconditional GET, or a conditional GET, but the
 # page is newer than If-Modified-Since; so, send it out, with a date header.
 
-$http_response_headers{'Last-Modified'} = rfc1123_from_seconds($page_modtime);
+# It seems that the Last-Modified header is causing trouble - sometimes I
+# don't get the most current version of a page without a refresh. So I'm
+# turning this off unless we're $caching, in which case all bets are off.
+
+if ($doing_caching) {
+    $http_response_headers{'Last-Modified'} = rfc1123_from_seconds($page_modtime);
+}
+
 do_show();
 
