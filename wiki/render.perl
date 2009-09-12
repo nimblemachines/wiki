@@ -298,6 +298,17 @@ sub inline_markup {
         s/([a-zA-Z!)"'])--([a-zA-Z("'])/$1&mdash;$2/g;
     }
 
+    # If we want lovely en-dashes and don't want ugly em-dashes, silently
+    # (and helpfully!) convert em- to en-dashes.
+    if ($convert_endash and not $convert_emdash) {
+        # convert ' -- ' to an en-dash, but keep the surrounding spaces
+        s/ -- / &ndash; /g;
+
+        # convert '--' to an en-dash, if surrounded by reasonable text
+        # .. and add in some space around it!
+        s/([a-zA-Z!)"'])--([a-zA-Z("'])/$1 &ndash; $2/g;
+    }
+
     if ($convert_quotes) {
         # convert " to ldquo or rdquo, ' to lsquo or rsquo
 
