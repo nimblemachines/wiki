@@ -265,7 +265,16 @@ sub a_link {
 
 sub manpage {
     my ($man, $section) = @_;
-    return a_link("http://www.freebsd.org/cgi/man.cgi?query=$man&sektion=$section", "<code class=\"man\">$man($section)</code>");
+    return a_link(
+        "http://www.freebsd.org/cgi/man.cgi?query=$man&sektion=$section",
+        "<code class=\"man\">$man($section)</code>");
+}
+
+sub git_command {
+    my ($subcommand) = @_;
+    return a_link(
+        "http://www.kernel.org/pub/software/scm/git/docs/git-$subcommand.html",
+        "<code class=\"man\">git $subcommand</code>");
 }
 
 sub inline_markup {
@@ -323,6 +332,9 @@ sub inline_markup {
 
         s/([]a-zA-Z0-9])'([a-zA-Z0-9])/$1&rsquo;$2/g;  # ' acting as an apostrophe
     }
+
+    # Git command shorthand. Creates a link to the online manpage.
+    s#\bgit-(\w+)#hide(git_command($1))#ge;
 
     # Making a "code in a repo somewhere" abstraction so I don't have to keep
     # editing pages when I move my code. There are two forms for Git:

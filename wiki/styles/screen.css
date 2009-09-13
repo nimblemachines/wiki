@@ -202,6 +202,13 @@ code.man {
   font-style: italic;
 }
 
+/* git commands */
+code.git {
+  font-family: monospace;
+  font-weight: bold;
+  margin: 0 0.2em;
+}
+
 /* Forth markup!! (Sorry, Michael!) */
 code.forth, div.voiceforth, div.voiceforth pre {
   font-family: monospace;
