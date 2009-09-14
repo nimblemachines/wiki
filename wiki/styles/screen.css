@@ -43,16 +43,21 @@ div#header hr {
   border-width: 2px 0 0 0;
 }
 
-div#header a.edit, div#header a.sticky {
+/* All three of these buttons live in the left margin */
+div#header a.edit, div#header a.sticky, div#header a.home {
   margin: 0 0 0 -56px;
   float: left;
 }
 
-/* additional bits for stickypage link */
+/* stickypage link is _below_ edit */
 div#header a.sticky {
   margin-top: 40px;
 }
 
+/* homepage link is _below_ sticky */
+div#header a.home {
+  margin-top: 80px;
+}
 pre {
   clear: right;  /* so it can't run into icon */
 }

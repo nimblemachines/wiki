@@ -277,18 +277,21 @@ sub generate_xhtml {
     $heading = hyper("$title", script_href("search?text=$page"))
         unless $heading;
 
-    # Only add Edit and StickyNotes links if $editable, but *not* editing;
+    # Add Edit, StickyNotes, and "home" links if $editable, but *not* editing;
     # handle like icon link below.
     if ($editable && ($script !~ m/edit|save/)) {
         # add an edit link so I don't have to scroll to the bottom of the page
-        $heading_edit_link = hyper(colour_swatch("#ff9900", "Edit"),
+        $heading_edit_link = hyper(colour_swatch("#cc3333", "Edit"),
             script_href("edit", $page), "edit");
 
-        # likewise - leave icon pointing to homepage, and put a stickynotes
-        # link into the header, below the edit link
+        # put a stickynotes link into the header, below the edit link
         my $stickynotespage = "StickyNotes" unless $stickynotespage;
-        $stickynotes_link = hyper(colour_swatch("#cccc33", "$stickynotespage"),
+        $stickynotes_link = hyper(colour_swatch("#ff9900", "$stickynotespage"),
             script_href("show", $stickynotespage), "sticky");
+
+        # and add a link to home ($defaultpage)
+        $homepage_link = hyper(colour_swatch("#cccc33", "$defaultpage"),
+            script_href("show", $defaultpage), "home");
     }
 
     # push default style onto front of @styles
@@ -343,6 +346,7 @@ $stylesheets
 $icon_link
 $heading_edit_link
 $stickynotes_link
+$homepage_link
 <h1>$heading</h1>
 <hr />
 </div>
