@@ -28,16 +28,29 @@ div#header h1 {
   margin: 0 0 0 0;
   padding: 0;
   color: #008;
+  color: #336699;
 }
 
 div#header h1 a {
   color: #008;
+  color: #336699;
 }
 
 div#header hr {
   margin: 0;
   border: solid #008;
-  border-width: 1px 0 0 0;
+  border: solid #336699;
+  border-width: 2px 0 0 0;
+}
+
+div#header a.edit, div#header a.sticky {
+  margin: 0 0 0 -56px;
+  float: left;
+}
+
+/* additional bits for stickypage link */
+div#header a.sticky {
+  margin-top: 40px;
 }
 
 pre {
@@ -227,3 +240,29 @@ div#content li {
 p.comment {
   display: none;
 }
+
+/*
+ * Colour palettes! 
+ *
+ * NOTE: the <span> elements have to float left, otherwise they have zero width
+ * and are not rendered. If you put a border on them you will see this.
+ *
+ * In order to return to "normal" after displaying a palette, therefore, we add
+ * a div.palette-break, which, being clear:both, will return us to normal block
+ * rendering.
+ */
+
+div.palette-break {
+  display: block;
+  clear: both;
+}
+
+span.colour-swatch {
+  background: url(/_image/swatch_32.png) no-repeat;
+  /*border: solid black 1px ;*/
+  float: left;
+  width: 32px;
+  height: 32px;
+  margin: 0 6px 6px 0;
+}
+

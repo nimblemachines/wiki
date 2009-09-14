@@ -243,6 +243,13 @@ sub clean {
     return substr($str, 0, -1);
 }
 
+sub colour_swatch {
+    my ($rgb, $title) = @_;     # rgb is hex string with included prefix '#'
+    return clean(<<SWATCH) if $rgb;
+<span class="colour-swatch" style="background-color:$rgb;" title="$title"></span>
+SWATCH
+}
+
 # Actually print them out, followed by a blank line.
 sub generate_http_headers {
     foreach my $hdr (keys %http_response_headers) {
@@ -269,6 +276,20 @@ sub generate_xhtml {
 
     $heading = hyper("$title", script_href("search?text=$page"))
         unless $heading;
+
+    # Only add Edit and StickyNotes links if $editable, but *not* editing;
+    # handle like icon link below.
+    if ($editable && ($script !~ m/edit|save/)) {
+        # add an edit link so I don't have to scroll to the bottom of the page
+        $heading_edit_link = hyper(colour_swatch("#ff9900", "Edit"),
+            script_href("edit", $page), "edit");
+
+        # likewise - leave icon pointing to homepage, and put a stickynotes
+        # link into the header, below the edit link
+        my $stickynotespage = "StickyNotes" unless $stickynotespage;
+        $stickynotes_link = hyper(colour_swatch("#cccc33", "$stickynotespage"),
+            script_href("show", $stickynotespage), "sticky");
+    }
 
     # push default style onto front of @styles
     unshift @styles, "_style/screen";
@@ -320,6 +341,8 @@ $stylesheets
 
 <div id="header">
 $icon_link
+$heading_edit_link
+$stickynotes_link
 <h1>$heading</h1>
 <hr />
 </div>

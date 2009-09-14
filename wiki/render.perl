@@ -229,6 +229,10 @@ sub block_markup {
         # generate a flickr badge, with user or public content
         s/^\[flickr(.*)\]/flickr_badge($1)/e ||
 
+        # Make color palettes! Inspired by colorschemer.com - in fact, the
+        # initial palettes are downloaded from colorschemer.com/schemes/
+        s#^palette\(\((.+?)\)\)#generate_colour_palette($1)#e ||
+
         # nothing else matches, make it a p
         s#^(.*)#<p$class>$1</p>#s;
         $_ = listend() . $_;
@@ -275,6 +279,20 @@ sub git_command {
     return a_link(
         "http://www.kernel.org/pub/software/scm/git/docs/git-$subcommand.html",
         "<code class=\"man\">git $subcommand</code>");
+}
+
+sub generate_colour_palette {
+    my ($palette) = @_;
+    # palette is either a filename or a series of #RRGGBB colours
+    my $pf = "../palettes/$palette.palette";
+    if (-f $pf) {
+        $palette = read_file($pf);
+    }
+    my $swatches = "";
+    foreach my $rgb (split /\s/, $palette) {
+        $swatches .= colour_swatch($rgb, $rgb) . "\n";
+    }
+    return "$swatches<div class=\"palette-break\" />";
 }
 
 sub inline_markup {
