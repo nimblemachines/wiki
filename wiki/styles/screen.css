@@ -221,10 +221,9 @@ code.man {
 }
 
 /* git commands */
-code.git {
-  font-family: monospace;
-  font-weight: bold;
-  margin: 0 0.2em;
+code.git-command {
+  font-family: serif;
+  font-weight: normal;
 }
 
 /* Forth markup!! (Sorry, Michael!) */

@@ -278,7 +278,7 @@ sub git_command {
     my ($subcommand) = @_;
     return a_link(
         "http://www.kernel.org/pub/software/scm/git/docs/git-$subcommand.html",
-        "<code class=\"man\">git $subcommand</code>");
+        "<code class=\"git-command\">git $subcommand</code>");
 }
 
 sub generate_colour_palette {
@@ -307,6 +307,10 @@ sub inline_markup {
 
     # forth word
     s#fw\(\(\s*(.+?)\s*\)\)#<code class="forth">$1</code>#gs;
+
+    # Git command shorthand. Creates a link to the online manpage.
+    # Requires two hyphens so we don't do it unless we _mean_ to.
+    s#\bgit--(\w+)#hide(git_command($1))#ge;
 
     # Quote character entities so that the browser doesn't "helpfully"
     # convert them. Use !!name!! or ??name??.
@@ -350,9 +354,6 @@ sub inline_markup {
 
         s/([]a-zA-Z0-9])'([a-zA-Z0-9])/$1&rsquo;$2/g;  # ' acting as an apostrophe
     }
-
-    # Git command shorthand. Creates a link to the online manpage.
-    s#\bgit-(\w+)#hide(git_command($1))#ge;
 
     # Making a "code in a repo somewhere" abstraction so I don't have to keep
     # editing pages when I move my code. There are two forms for Git:
