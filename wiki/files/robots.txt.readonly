@@ -1,4 +1,5 @@
 User-agent: *
+Disallow: /out/
 Disallow: /edit/
 Disallow: /save/
 Disallow: /diff/
