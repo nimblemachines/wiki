@@ -25,7 +25,7 @@ $docroot = $ENV{'DOCUMENT_ROOT'};
 # GIT_WORK_TREE (which is our $docroot). So we need two ways to get to the
 # pages: absolute (for normal file operations) and relative (for Git). So
 # we define relative and absolute paths to pages:
-$relpages = "newpages";
+$relpages = "pages";
 $abspages = "$docroot/$relpages";
 
 # In the bulk of the code below, I try to be careful about distinguishing
