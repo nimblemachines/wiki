@@ -5,20 +5,21 @@
 ### When moved to a new machine, $www_root is the only setting that should
 ### need to change, assuming that everything hangs off this root.
 
-# apache vhost domains root
-www_root=$WEBHOME
+# Apache vhost domains root
+# Change this if necessary!
+www_root=$(pwd)/www
 
 # main server config to make this all work
 conf=${www_root}/wiki.conf
 
-# apache vhosts directory
+# Apache vhosts directory
 vhosts=${www_root}/vhosts
 
 # common wiki code
 wiki=$(pwd)/wiki
 
 # name of pages/ directory?
-pages=${www_root}/data/\*/newpages
+pages=${www_root}/data/\*/pages
 
 gen_server_config () {
     cat <<EOT > ${conf}
@@ -160,13 +161,13 @@ populate_docroot () {
     # Initialise a Git repo for docroot
     [ ! -d ${docroot}/.git ] && GIT_DIR=${docroot}/.git GIT_WORK_TREE=${docroot} git init
 
-    pagesdir="newpages"
+    pagesdir="pages"
     for d in files images styles $pagesdir ; do
         mkdir -p ${docroot}/$d
     done
     # copy "seed" pages over, expanding shell vars in markup
     if [ -d ${wiki}/pages ]; then
-    echo "Copying seed pages from ${wiki}."
+        echo "Copying seed pages to ${docroot}"
         now=$(date +%s)
         for page in ${wiki}/pages/*; do
             name=$(basename $page)
