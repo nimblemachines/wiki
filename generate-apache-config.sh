@@ -223,15 +223,19 @@ subdomain () {
     gen_domain_vhost
 }
 
+gen_domain () {
+    docroot=${www_root}/data/$dom
+    populate_docroot
+    cd $dom
+    for sub in *; do
+        [ -d $sub ] && (cd .. && subdomain $dom/$sub)
+    done
+    cd ..
+}
+
 gen_domains () {
     for dom in *; do
-        docroot=${www_root}/data/$dom
-        populate_docroot
-        cd $dom
-        for sub in *; do
-            [ -d $sub ] && (cd .. && subdomain $dom/$sub)
-        done
-        cd ..
+        if [ ! -f $dom/disabled ]; then gen_domain; fi
     done
 }
 
