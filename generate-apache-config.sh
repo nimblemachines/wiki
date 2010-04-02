@@ -174,7 +174,9 @@ populate_docroot () {
             newpage=${docroot}/$pagesdir/$name
             mkdir -p $newpage
             if [ ! -f $newpage/markup ]; then
-                sed -e "s#\${docroot}#$docroot#g" < $page/markup > $newpage/markup
+                sed -e "s#\${docroot_full}#$docroot#g" \
+                    -e "s#\${docroot}#$dom#g" \
+                    < $page/markup > $newpage/markup
                 echo "$now" > $newpage/modtime
             fi
         done
