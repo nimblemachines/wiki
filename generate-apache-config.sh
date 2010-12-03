@@ -29,7 +29,7 @@ gen_server_config () {
 <Directory ${www_root}>
     Options FollowSymLinks
     AllowOverride None
-    Order deny,allow
+    Order Allow,Deny
     Deny from all
 </Directory>
 
@@ -38,7 +38,7 @@ gen_server_config () {
 
 <DirectoryMatch ^${wiki}/(actions|files|images|styles)>
     Options MultiViews
-    Order allow,deny
+    Order Allow,Deny
     Allow from all
 </DirectoryMatch>
 
