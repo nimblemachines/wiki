@@ -42,11 +42,11 @@ sub commentfooter {
 }
 
 sub make_interwiki_link {
-    my ($prefix, $query) = @_;
+    my ($prefix, $query, $link_text) = @_;
     my $interlink = $intermap{$prefix};
 
     # the human-readable version of query
-    (my $link_text = $query) =~ tr/_+/  /;
+    ($link_text = $query) =~ tr/_+/  / unless $link_text;
 
     defined $interlink
         ? "<a href=\"$pathprefix/out/$interlink$query\">$link_text</a>"
@@ -63,10 +63,6 @@ sub hide {
 
 sub convert_wiki_links {
     s/\b($wikilink)\b/make_wiki_link($1)/geo;
-}
-
-sub convert_interwiki_links {
-    s/($interprefix):($interquery)/hide(make_interwiki_link($1, $2))/geo;
 }
 
 sub wrap {
@@ -387,6 +383,19 @@ sub inline_markup {
     # inline img link: [[uri.ext alt text]] where ext is img type
     s#\[\[img (\S+\.(?:jpg|jpeg|gif|png))\s+(.+?)\]\]#hide(img_link($1,$2))#ge;
 
+    # convert interwiki links __before__ regular bracketed links, since we
+    # now allow interwiki links to be (optionall) enclosed in [[ ]].
+
+    # bracketed interwiki link: [[prefix:text_without_spaces]]
+    s/\[\[($interprefix):($interquery)\]\]/hide(make_interwiki_link($1, $2))/geo;
+
+    # bracketed interwiki link with custom text:
+    #   [[prefix:text_without_spaces link text with spaces]]
+    s/\[\[($interprefix):($interquery)\s+(.+?)\]\]/hide(make_interwiki_link($1, $2, $3))/geo;
+
+    # bare interwiki link: prefix:text_without_spaces
+    s/($interprefix):($interquery)/hide(make_interwiki_link($1, $2))/geo;
+
     # unnamed href link: [[uri]]
     s#\[\[(\S+?)\]\]#hide(a_link($1,$1))#ge;
 
@@ -396,7 +405,6 @@ sub inline_markup {
     # ISBN ...
     # RFC ...
 
-    convert_interwiki_links();
     convert_wiki_links();
     show_uris();
 }
