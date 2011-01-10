@@ -96,6 +96,16 @@ creates an interwiki link: Wiki:PairProgramming.
 
 is another interwiki link: Wikipedia:How_to_edit_a_page.
 
+ [[Wiki:PairProgramming pair programming]]
+
+creates an interwiki link with "custom" link text: [[Wiki:PairProgramming pair programming]]
+
+It's also possible to leave the "custom" field blank, thus:
+
+ [[Wiki:PairProgramming]]
+
+This renders like the version without brackets: [[Wiki:PairProgramming]]
+
 ----
 
 = Preformatted (verbatim) text
